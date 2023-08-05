@@ -1,20 +1,53 @@
 * {
-    -highlight: #2A3942;
-    -crust: #2F3B43;
-    -mantle: #202C33;
-    -base: #111B21;
-    -core: #0B141A;
-    -message: #005C4B;
-    -message-sent: #00435c;
-    -font-base: #E9EDEF;
-    -font-muted: #A6ABAD;
-    -accent1: #53A6FD;
-    -danger: #c97200;
+    -highlight: #0D293E;
+    -crust: #515151;
+    -base: #3C3F41;
+    -mantle: #323232;
+    -core: #2B2B2B;
+    -icon: #AFB1B3;
+    -font-bright: #FFFFFF;
+    -font-base: #BBBBBB;
+    -font-muted: #6f6f6f;
 }
 
 .auxiliary-pane-header {
-    -fx-background-color: -mantle;
-    -fx-padding: 5;
-    -fx-spacing: 5;
-    -fx-alignment: center;
+    -fx-background-color: -base;
+    -fx-alignment: center-left;
+}
+
+.auxiliary-pane-title {
+    -fx-text-fill: -font-base;
+    -fx-font-size: 14;
+}
+
+.icon-button {
+    -fx-background-color: red;
+    -fx-fill: -icon;
+}
+
+.icon {
+    -fx-fill: -icon;
+}
+
+.menu-bar {
+    -fx-background-color: -base;
+    -fx-border-color: -crust;
+    -fx-border-width: 0 0 1 0;
+    -fx-pref-height: 25 px;
+    -fx-min-height: 25 px;
+}
+
+.window-menu {
+    -fx-background-color: -base;
+    -fx-pref-width: 25 px;
+    -fx-min-width: 25 px;
+}
+
+.status-bar {
+    -fx-background-color: -base;
+    -fx-text-fill: -font-base;
+}
+
+.root-split-pane {
+    -fx-background-color: -base;
 }

@@ -1,5 +1,6 @@
 package com.hagenberg.jarvis.views;
 
+import com.hagenberg.jarvis.views.components.AuxiliaryPane;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.SplitPane;
@@ -27,20 +28,29 @@ public class MainView {
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/jarvis.css")).toExternalForm());
 
         MenuBar menuBar = new MenuBar();
+        menuBar.getStyleClass().add("menu-bar");
         rootPane.setTop(menuBar);
 
         VBox leftWindowMenu = new VBox();
+        leftWindowMenu.getStyleClass().add("window-menu");
         rootPane.setLeft(leftWindowMenu);
 
         VBox rightWindowMenu = new VBox();
+        rightWindowMenu.getStyleClass().add("window-menu");
         rootPane.setRight(rightWindowMenu);
 
         HBox bottomStatusMenu = new HBox();
+        bottomStatusMenu.getStyleClass().add("status-bar");
         rootPane.setBottom(bottomStatusMenu);
 
         SplitPane rootSplitPane = new SplitPane();
-        rootPane.setCenter(rootSplitPane);
+        rootSplitPane.getStyleClass().add("root-split-pane");
         rootSplitPane.setOrientation(javafx.geometry.Orientation.VERTICAL);
+        rootPane.setCenter(rootSplitPane);
+
+        AuxiliaryPane classes = new AuxiliaryPane("Classes");
+        SplitPane leftAuxiliaryContainer = new SplitPane(classes);
+        rootSplitPane.getItems().add(leftAuxiliaryContainer);
     }
 
     public void show(Stage stage) {
