@@ -1,0 +1,20 @@
+* {
+    -highlight: #2A3942;
+    -crust: #2F3B43;
+    -mantle: #202C33;
+    -base: #111B21;
+    -core: #0B141A;
+    -message: #005C4B;
+    -message-sent: #00435c;
+    -font-base: #E9EDEF;
+    -font-muted: #A6ABAD;
+    -accent1: #53A6FD;
+    -danger: #c97200;
+}
+
+.auxiliary-pane-header {
+    -fx-background-color: -mantle;
+    -fx-padding: 5;
+    -fx-spacing: 5;
+    -fx-alignment: center;
+}
