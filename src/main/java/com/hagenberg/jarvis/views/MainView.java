@@ -1,8 +1,11 @@
 package com.hagenberg.jarvis.views;
 
 import com.hagenberg.jarvis.views.components.AuxiliaryPane;
+import javafx.geometry.Orientation;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -17,7 +20,6 @@ public class MainView {
     public MainView() {
         buildScene();
     }
-
 
     /**
      * Builds the scene graph top-down
@@ -45,12 +47,34 @@ public class MainView {
 
         SplitPane rootSplitPane = new SplitPane();
         rootSplitPane.getStyleClass().add("root-split-pane");
-        rootSplitPane.setOrientation(javafx.geometry.Orientation.VERTICAL);
+        rootSplitPane.setOrientation(Orientation.VERTICAL);
         rootPane.setCenter(rootSplitPane);
 
+        SplitPane mainSplitPane = new SplitPane();
+        mainSplitPane.getStyleClass().add("main-split-pane");
+        mainSplitPane.setOrientation(Orientation.HORIZONTAL);
+        rootSplitPane.getItems().add(mainSplitPane);
+
+        SplitPane supportSplitPane = new SplitPane();
+        supportSplitPane.getStyleClass().add("support-split-pane");
+        supportSplitPane.setOrientation(Orientation.HORIZONTAL);
+        rootSplitPane.getItems().add(supportSplitPane);
+
         AuxiliaryPane classes = new AuxiliaryPane("Classes");
-        SplitPane leftAuxiliaryContainer = new SplitPane(classes);
-        rootSplitPane.getItems().add(leftAuxiliaryContainer);
+        AuxiliaryPane stuff = new AuxiliaryPane("Stuff");
+        SplitPane leftAuxiliaryContainer = new SplitPane(classes, stuff);
+        leftAuxiliaryContainer.setOrientation(Orientation.VERTICAL);
+        mainSplitPane.getItems().add(leftAuxiliaryContainer);
+
+        ScrollPane objectGraph = new ScrollPane();
+        objectGraph.getStyleClass().add("object-graph");
+        mainSplitPane.getItems().add(objectGraph);
+
+        AuxiliaryPane visControl = new AuxiliaryPane("Visualization Controls");
+        AuxiliaryPane vis = new AuxiliaryPane("Visualization");
+        SplitPane rightAuxiliaryContainer = new SplitPane(visControl, vis);
+        rightAuxiliaryContainer.setOrientation(Orientation.VERTICAL);
+        mainSplitPane.getItems().add(rightAuxiliaryContainer);
     }
 
     public void show(Stage stage) {

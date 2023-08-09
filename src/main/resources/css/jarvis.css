@@ -1,3 +1,6 @@
+/* ---------- Jarvis CSS ---------- */
+
+/* ---------- Colors ---------- */
 * {
     -highlight: #0D293E;
     -crust: #515151;
@@ -5,49 +8,107 @@
     -mantle: #323232;
     -core: #2B2B2B;
     -icon: #AFB1B3;
+    -icon-hovered-background: #4C5052;
+    -icon-pressed-background: #5C6164;
     -font-bright: #FFFFFF;
     -font-base: #BBBBBB;
     -font-muted: #6f6f6f;
 }
 
-.auxiliary-pane-header {
-    -fx-background-color: -base;
-    -fx-alignment: center-left;
+/* ---------- Global Presets ---------- */
+* {
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 12;
 }
 
-.auxiliary-pane-title {
-    -fx-text-fill: -font-base;
-    -fx-font-size: 14;
+/* ---------- Split Pane Dividers ---------- */
+
+.split-pane-divider {
+    -fx-background-color: -crust;
 }
+
+/* ---------- Controls ---------- */
 
 .icon-button {
-    -fx-background-color: red;
-    -fx-fill: -icon;
+    -fx-background-color: transparent;
+    -fx-padding: 5;
+    -fx-background-radius: 5;
 }
 
 .icon {
+    -fx-stroke: -icon;
     -fx-fill: -icon;
 }
+
+.button:hover {
+    -fx-background-color: -icon-hovered-background;
+}
+
+.button:pressed {
+    -fx-background-color: -icon-pressed-background;
+}
+
+/* ---------- Root Horizontal Split Pane ---------- */
+
+.root-split-pane {
+    -fx-padding: 0;
+}
+
+/* ---------- Object Graph (CENTER) ---------- */
+
+.object-graph {
+    -fx-background-color: -core;
+    -fx-border-color: -mantle;
+    -fx-border-width: 1;
+    -fx-hbar-policy: as-needed;
+    -fx-vbar-policy: as-needed;
+}
+
+/* ---------- Menu Bar (TOP) ---------- */
 
 .menu-bar {
     -fx-background-color: -base;
     -fx-border-color: -crust;
     -fx-border-width: 0 0 1 0;
-    -fx-pref-height: 25 px;
-    -fx-min-height: 25 px;
+    -fx-pref-height: 25px;
+    -fx-min-height: 25px;
 }
+
+/* ---------- Window Menus (SIDES) ---------- */
 
 .window-menu {
     -fx-background-color: -base;
-    -fx-pref-width: 25 px;
-    -fx-min-width: 25 px;
+    -fx-pref-width: 25px;
+    -f: 25px;
 }
+
+/* ---------- Auxiliary Pane ---------- */
+
+.auxiliary-pane {
+    -fx-background-color: -base;
+    -fx-border-color: -mantle;
+    -fx-border-width: 1;
+}
+
+.auxiliary-pane-header {
+    -fx-background-color: -base;
+    -fx-alignment: center-left;
+    -fx-border-color: -mantle;
+    -fx-border-width: 0 0 1 0;
+}
+
+.auxiliary-pane-title {
+    -fx-text-fill: -font-base;
+    -fx-font-weight: bold;
+    -fx-label-padding: 0 0 0 10;
+}
+
+/* ---------- Status Bar (BOTTOM) ---------- */
 
 .status-bar {
     -fx-background-color: -base;
     -fx-text-fill: -font-base;
-}
-
-.root-split-pane {
-    -fx-background-color: -base;
+    -fx-border-color: -mantle;
+    -fx-border-width: 1 0 0 0;
+    -fx-pref-height: 25;
 }

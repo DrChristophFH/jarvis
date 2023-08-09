@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 public class SVGManager {
     private static SVGManager instance;
-    private final Map<String, SVGPath> cache = new HashMap<>();
+    private final Map<String, String> cache = new HashMap<>();
 
     private SVGManager() {
     }
@@ -23,20 +23,19 @@ public class SVGManager {
     }
 
     public SVGPath getSVG(String resourceName) {
-        return cache.computeIfAbsent(resourceName, this::loadSVG);
+        SVGPath svgPath = new SVGPath();
+        svgPath.setContent(
+                cache.computeIfAbsent(resourceName, this::getPathFromResource)
+        );
+        return svgPath;
     }
 
-    private SVGPath loadSVG(String resourceName) {
+    private String getPathFromResource(String resourceName) {
         InputStream inputStream = getClass().getResourceAsStream(resourceName);
+        assert inputStream != null;
         Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
         Pattern pattern = Pattern.compile("(?<=<path d=\")[\\s\\S]+(?=\"/>)");
 
-        String content = scanner.findWithinHorizon(pattern, 0);
-        System.out.println(content);
-
-        SVGPath svgPath = new SVGPath();
-        svgPath.setContent(content);
-
-        return svgPath;
+        return scanner.findWithinHorizon(pattern, 0);
     }
 }
