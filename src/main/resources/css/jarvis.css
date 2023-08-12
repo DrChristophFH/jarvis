@@ -99,6 +99,10 @@
 
 /* ---------- Auxiliary Pane ---------- */
 
+.auxiliary-container {
+    -fx-padding: 0;
+}
+
 .auxiliary-pane {
     -fx-background-color: -base;
     -fx-border-color: -mantle;

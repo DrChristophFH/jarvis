@@ -1,6 +1,7 @@
 package com.hagenberg.jarvis.views.components;
 
-import com.hagenberg.jarvis.views.interfaces.ContainerActions;
+import com.hagenberg.jarvis.models.WindowVisibilityModel;
+import com.hagenberg.jarvis.util.ServiceProvider;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
@@ -12,8 +13,9 @@ import java.util.List;
 /**
  * Split pane container with easy show and hide functionality
  */
-public class AuxiliaryContainer extends Region implements ContainerActions {
+public class AuxiliaryContainer extends Region {
 
+    private final WindowVisibilityModel visibilityModel = ServiceProvider.getInstance().getDependency(WindowVisibilityModel.class);
     private final SplitPane splitPane;
     private final List<Node> panes = new ArrayList<>();
 
@@ -22,6 +24,7 @@ public class AuxiliaryContainer extends Region implements ContainerActions {
      */
     public AuxiliaryContainer() {
         this.splitPane = new SplitPane();
+        this.splitPane.getStyleClass().add("auxiliary-container");
         getChildren().add(splitPane);
     }
 
@@ -43,6 +46,13 @@ public class AuxiliaryContainer extends Region implements ContainerActions {
             if (!panes.contains(pane)) {
                 panes.add(pane);
                 splitPane.getItems().add(pane);
+                visibilityModel.getVisibilityState(pane).addListener((observable, oldValue, show) -> {
+                    if (show) {
+                        show(pane);
+                    } else {
+                        hide(pane);
+                    }
+                });
             }
         }
     }
@@ -64,7 +74,7 @@ public class AuxiliaryContainer extends Region implements ContainerActions {
         if (!splitPane.getItems().contains(pane)) {
             int originalIndex = panes.indexOf(pane);
             if (originalIndex != -1) {
-                splitPane.getItems().add(originalIndex, pane);
+                splitPane.getItems().add(mapIndex(originalIndex), pane);
             } else {
                 // If the pane was never added to the container, add it to the end
                 addPanes(pane);
@@ -73,10 +83,23 @@ public class AuxiliaryContainer extends Region implements ContainerActions {
     }
 
     /**
+     * @param originalIndex the index of the pane in the original list
+     * @return the index in the split pane to insert the pane at
+     */
+    private int mapIndex(int originalIndex) {
+        for (int i = 0; i < splitPane.getItems().size(); i++) {
+            Node pane = splitPane.getItems().get(i);
+            if (panes.indexOf(pane) > originalIndex) {
+                return i;
+            }
+        }
+        return splitPane.getItems().size();
+    }
+
+    /**
      * Toggles the pane by hiding it if it is visible and showing it if it is hidden
      * @param child the pane to toggle
      */
-    @Override
     public void toggle(Node child) {
         if (isPaneHidden(child)) {
             show(child);

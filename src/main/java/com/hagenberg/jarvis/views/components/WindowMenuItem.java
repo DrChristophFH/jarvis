@@ -1,6 +1,7 @@
 package com.hagenberg.jarvis.views.components;
 
-import com.hagenberg.jarvis.views.interfaces.ContainerActions;
+import com.hagenberg.jarvis.models.WindowVisibilityModel;
+import com.hagenberg.jarvis.util.ServiceProvider;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.Group;
@@ -8,12 +9,15 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.SVGPath;
 
+import java.awt.*;
+
 public class WindowMenuItem extends VBox {
+
+    private final WindowVisibilityModel visibilityModel = ServiceProvider.getInstance().getDependency(WindowVisibilityModel.class);
 
     public WindowMenuItem(AuxiliaryPane pane, SVGPath icon, boolean bottomUp) {
         super();
         StringProperty title = pane.getTitle();
-        ContainerActions containerActions = pane.getContainerActions();
         this.getStyleClass().add("window-menu-item");
 
         Label titleLabel = new Label();
@@ -27,7 +31,8 @@ public class WindowMenuItem extends VBox {
 
         icon.getStyleClass().add("icon");
         this.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_CLICKED, event -> {
-            containerActions.toggle(pane);
+            BooleanProperty visibilityState = visibilityModel.getVisibilityState(pane);
+            visibilityState.setValue(!visibilityState.getValue()); // toggle visibility
         });
 
         if (bottomUp) {

@@ -59,8 +59,8 @@ public class MainView {
         rootSplitPane.getItems().add(supportSplitPane);
 
         AuxiliaryContainer leftAuxiliaryContainer = new AuxiliaryContainer();
-        AuxiliaryPane classes = new AuxiliaryPane("Classes", leftAuxiliaryContainer);
-        AuxiliaryPane classInfo = new AuxiliaryPane("Class Info", leftAuxiliaryContainer);
+        AuxiliaryPane classes = new AuxiliaryPane("Classes");
+        AuxiliaryPane classInfo = new AuxiliaryPane("Class Info");
         leftAuxiliaryContainer.addPanes(classes, classInfo);
         leftAuxiliaryContainer.setOrientation(Orientation.VERTICAL);
         mainSplitPane.getItems().add(leftAuxiliaryContainer);
@@ -72,8 +72,8 @@ public class MainView {
         mainSplitPane.getItems().add(objectGraph);
 
         AuxiliaryContainer rightAuxiliaryContainer = new AuxiliaryContainer();
-        AuxiliaryPane visControl = new AuxiliaryPane("Visualization Controls", rightAuxiliaryContainer);
-        AuxiliaryPane callStack = new AuxiliaryPane("Call Stack", rightAuxiliaryContainer);
+        AuxiliaryPane visControl = new AuxiliaryPane("Visualization Controls");
+        AuxiliaryPane callStack = new AuxiliaryPane("Call Stack");
         rightAuxiliaryContainer.addPanes(visControl, callStack);
         rightAuxiliaryContainer.setOrientation(Orientation.VERTICAL);
         mainSplitPane.getItems().add(rightAuxiliaryContainer);

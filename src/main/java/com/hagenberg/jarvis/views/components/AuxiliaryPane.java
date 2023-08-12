@@ -1,9 +1,8 @@
 package com.hagenberg.jarvis.views.components;
 
-import com.hagenberg.jarvis.models.WindowStateModel;
+import com.hagenberg.jarvis.models.WindowVisibilityModel;
 import com.hagenberg.jarvis.util.SVGManager;
 import com.hagenberg.jarvis.util.ServiceProvider;
-import com.hagenberg.jarvis.views.interfaces.ContainerActions;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
@@ -15,26 +14,21 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.SVGPath;
 
 public class AuxiliaryPane extends VBox {
-    private final WindowStateModel windowStateModel;
+
+    private final WindowVisibilityModel visibilityModel = ServiceProvider.getInstance().getDependency(WindowVisibilityModel.class);
     private final StringProperty title = new SimpleStringProperty();
     private final HBox header = new HBox();
     private final Button minimizeButton = new Button();
-    private final ContainerActions containerActions;
+
     private Node content = new Pane();
     private Node headerRegion = new Pane();
 
-    public AuxiliaryPane(String title, ContainerActions containerActions) {
+    public AuxiliaryPane(String title) {
         super();
-        this.windowStateModel = ServiceProvider.getInstance().getDependency(WindowStateModel.class);
         this.title.setValue(title);
-        this.containerActions = containerActions;
-        setupModel();
+        this.visibilityModel.addVisibilityState(this);
         buildHeader();
         this.getChildren().addAll(header, content);
-    }
-
-    private void setupModel() {
-        windowStateModel.addVisibilityState(title.getValue(), this.managedProperty());
     }
 
     private void buildHeader() {
@@ -54,9 +48,7 @@ public class AuxiliaryPane extends VBox {
         minimizeIcon.getStyleClass().add("icon");
         minimizeButton.setGraphic(minimizeIcon);
         HBox.setMargin(minimizeButton, new javafx.geometry.Insets(2));
-        minimizeButton.setOnAction(event -> {
-            containerActions.hide(this);
-        });
+        minimizeButton.setOnAction(event -> visibilityModel.getVisibilityState(this).setValue(false));
         header.getChildren().add(minimizeButton);
     }
 
@@ -74,9 +66,5 @@ public class AuxiliaryPane extends VBox {
 
     public StringProperty getTitle() {
         return title;
-    }
-
-    public ContainerActions getContainerActions() {
-        return containerActions;
     }
 }
