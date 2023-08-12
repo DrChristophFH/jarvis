@@ -1,6 +1,6 @@
 package com.hagenberg.jarvis.views;
 
-import com.hagenberg.jarvis.views.components.AuxiliaryContainer;
+import com.hagenberg.jarvis.views.components.HideableSplitPane;
 import com.hagenberg.jarvis.views.components.AuxiliaryPane;
 import com.hagenberg.jarvis.views.components.WindowMenu;
 import javafx.geometry.Orientation;
@@ -48,7 +48,7 @@ public class MainView {
         rootSplitPane.setOrientation(Orientation.VERTICAL);
         rootPane.setCenter(rootSplitPane);
 
-        SplitPane mainSplitPane = new SplitPane();
+        HideableSplitPane mainSplitPane = new HideableSplitPane();
         mainSplitPane.getStyleClass().add("main-split-pane");
         mainSplitPane.setOrientation(Orientation.HORIZONTAL);
         rootSplitPane.getItems().add(mainSplitPane);
@@ -58,25 +58,25 @@ public class MainView {
         supportSplitPane.setOrientation(Orientation.HORIZONTAL);
         rootSplitPane.getItems().add(supportSplitPane);
 
-        AuxiliaryContainer leftAuxiliaryContainer = new AuxiliaryContainer();
+        HideableSplitPane leftAuxiliaryContainer = new HideableSplitPane();
         AuxiliaryPane classes = new AuxiliaryPane("Classes");
         AuxiliaryPane classInfo = new AuxiliaryPane("Class Info");
         leftAuxiliaryContainer.addPanes(classes, classInfo);
         leftAuxiliaryContainer.setOrientation(Orientation.VERTICAL);
-        mainSplitPane.getItems().add(leftAuxiliaryContainer);
+        mainSplitPane.addPane(leftAuxiliaryContainer);
         leftWindowMenu.addWindow(classes, "/icons/classes.svg");
         leftWindowMenu.addWindow(classInfo, "/icons/class-info.svg");
 
         ScrollPane objectGraph = new ScrollPane();
         objectGraph.getStyleClass().add("object-graph");
-        mainSplitPane.getItems().add(objectGraph);
+        mainSplitPane.addPane(objectGraph);
 
-        AuxiliaryContainer rightAuxiliaryContainer = new AuxiliaryContainer();
+        HideableSplitPane rightAuxiliaryContainer = new HideableSplitPane();
         AuxiliaryPane visControl = new AuxiliaryPane("Visualization Controls");
         AuxiliaryPane callStack = new AuxiliaryPane("Call Stack");
         rightAuxiliaryContainer.addPanes(visControl, callStack);
         rightAuxiliaryContainer.setOrientation(Orientation.VERTICAL);
-        mainSplitPane.getItems().add(rightAuxiliaryContainer);
+        mainSplitPane.addPane(rightAuxiliaryContainer);
         rightWindowMenu.addWindow(visControl, "/icons/visualization-controls.svg");
         rightWindowMenu.addWindow(callStack, "/icons/call-stack.svg");
     }

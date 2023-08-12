@@ -2,6 +2,7 @@ package com.hagenberg.jarvis.views.components;
 
 import com.hagenberg.jarvis.models.WindowVisibilityModel;
 import com.hagenberg.jarvis.util.ServiceProvider;
+import javafx.beans.property.BooleanProperty;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
@@ -13,7 +14,7 @@ import java.util.List;
 /**
  * Split pane container with easy show and hide functionality
  */
-public class AuxiliaryContainer extends Region {
+public class HideableSplitPane extends Region {
 
     private final WindowVisibilityModel visibilityModel = ServiceProvider.getInstance().getDependency(WindowVisibilityModel.class);
     private final SplitPane splitPane;
@@ -22,9 +23,10 @@ public class AuxiliaryContainer extends Region {
     /**
      * Creates a new auxiliary container
      */
-    public AuxiliaryContainer() {
+    public HideableSplitPane() {
         this.splitPane = new SplitPane();
         this.splitPane.getStyleClass().add("auxiliary-container");
+        this.visibilityModel.addVisibilityState(this);
         getChildren().add(splitPane);
     }
 
@@ -32,9 +34,39 @@ public class AuxiliaryContainer extends Region {
      * Creates a new auxiliary container with the given panes
      * @param panes the panes to add to the container
      */
-    public AuxiliaryContainer(Node... panes) {
+    public HideableSplitPane(Node... panes) {
         this();
         addPanes(panes);
+    }
+
+    /**
+     * Adds the given pane to the container
+     * @param pane the pane to add to the container
+     */
+    public void addPane(Node pane) {
+        if (!panes.contains(pane)) {
+            panes.add(pane);
+            splitPane.getItems().add(pane);
+            configureModel(pane);
+        }
+    }
+
+    private void configureModel(Node pane) {
+        BooleanProperty visibility = visibilityModel.getVisibilityState(pane);
+
+        if (visibility != null) {
+            visibility.addListener((observable, oldValue, show) -> {
+                if (show) {
+                    show(pane);
+                    visibilityModel.getVisibilityState(this).setValue(true);
+                } else {
+                    hide(pane);
+                    if (splitPane.getItems().isEmpty()) {
+                        visibilityModel.getVisibilityState(this).setValue(false);
+                    }
+                }
+            });
+        }
     }
 
     /**
@@ -43,17 +75,7 @@ public class AuxiliaryContainer extends Region {
      */
     public void addPanes(Node... panesToAdd) {
         for (Node pane : panesToAdd) {
-            if (!panes.contains(pane)) {
-                panes.add(pane);
-                splitPane.getItems().add(pane);
-                visibilityModel.getVisibilityState(pane).addListener((observable, oldValue, show) -> {
-                    if (show) {
-                        show(pane);
-                    } else {
-                        hide(pane);
-                    }
-                });
-            }
+            addPane(pane);
         }
     }
 
