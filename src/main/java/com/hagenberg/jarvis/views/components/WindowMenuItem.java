@@ -13,10 +13,14 @@ import java.awt.*;
 
 public class WindowMenuItem extends VBox {
 
-    private final WindowVisibilityModel visibilityModel = ServiceProvider.getInstance().getDependency(WindowVisibilityModel.class);
+    private final BooleanProperty paneVisibility;
 
     public WindowMenuItem(AuxiliaryPane pane, SVGPath icon, boolean bottomUp) {
         super();
+
+        paneVisibility = ServiceProvider.getInstance().getDependency(WindowVisibilityModel.class).getVisibilityState(pane);
+        paneVisibility.addListener((observable, oldValue, newValue) -> updateStyling());
+
         StringProperty title = pane.getTitle();
         this.getStyleClass().add("window-menu-item");
 
@@ -31,8 +35,7 @@ public class WindowMenuItem extends VBox {
 
         icon.getStyleClass().add("icon");
         this.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_CLICKED, event -> {
-            BooleanProperty visibilityState = visibilityModel.getVisibilityState(pane);
-            visibilityState.setValue(!visibilityState.getValue()); // toggle visibility
+            paneVisibility.setValue(!paneVisibility.getValue()); // toggle visibility
         });
 
         if (bottomUp) {
@@ -41,6 +44,16 @@ public class WindowMenuItem extends VBox {
         } else {
             titleLabel.setRotate(-90);
             this.getChildren().addAll(labelContainer, icon);
+        }
+
+        updateStyling();
+    }
+
+    private void updateStyling() {
+        if (paneVisibility.get()) {
+            getStyleClass().add("active");
+        } else {
+            getStyleClass().remove("active");
         }
     }
 }

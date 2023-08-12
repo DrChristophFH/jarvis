@@ -80,7 +80,6 @@
 .window-menu {
     -fx-background-color: -base;
     -fx-pref-width: 25px;
-    -fx-spacing: 5;
 }
 
 .window-menu-item {
@@ -90,6 +89,10 @@
 
 .window-menu-item:hover {
     -fx-background-color: -mantle;
+}
+
+.window-menu-item.active {
+    -fx-background-color: -core;
 }
 
 .window-menu-item-title {
