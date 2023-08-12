@@ -1,15 +1,15 @@
 package com.hagenberg.jarvis.views;
 
+import com.hagenberg.jarvis.views.components.AuxiliaryContainer;
 import com.hagenberg.jarvis.views.components.AuxiliaryPane;
+import com.hagenberg.jarvis.views.components.WindowMenu;
 import javafx.geometry.Orientation;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.util.Objects;
@@ -33,12 +33,10 @@ public class MainView {
         menuBar.getStyleClass().add("menu-bar");
         rootPane.setTop(menuBar);
 
-        VBox leftWindowMenu = new VBox();
-        leftWindowMenu.getStyleClass().add("window-menu");
+        WindowMenu leftWindowMenu = new WindowMenu();
         rootPane.setLeft(leftWindowMenu);
 
-        VBox rightWindowMenu = new VBox();
-        rightWindowMenu.getStyleClass().add("window-menu");
+        WindowMenu rightWindowMenu = new WindowMenu(true);
         rootPane.setRight(rightWindowMenu);
 
         HBox bottomStatusMenu = new HBox();
@@ -60,21 +58,27 @@ public class MainView {
         supportSplitPane.setOrientation(Orientation.HORIZONTAL);
         rootSplitPane.getItems().add(supportSplitPane);
 
-        AuxiliaryPane classes = new AuxiliaryPane("Classes");
-        AuxiliaryPane stuff = new AuxiliaryPane("Stuff");
-        SplitPane leftAuxiliaryContainer = new SplitPane(classes, stuff);
+        AuxiliaryContainer leftAuxiliaryContainer = new AuxiliaryContainer();
+        AuxiliaryPane classes = new AuxiliaryPane("Classes", leftAuxiliaryContainer);
+        AuxiliaryPane classInfo = new AuxiliaryPane("Class Info", leftAuxiliaryContainer);
+        leftAuxiliaryContainer.addPanes(classes, classInfo);
         leftAuxiliaryContainer.setOrientation(Orientation.VERTICAL);
         mainSplitPane.getItems().add(leftAuxiliaryContainer);
+        leftWindowMenu.addWindow(classes, "/icons/classes.svg");
+        leftWindowMenu.addWindow(classInfo, "/icons/class-info.svg");
 
         ScrollPane objectGraph = new ScrollPane();
         objectGraph.getStyleClass().add("object-graph");
         mainSplitPane.getItems().add(objectGraph);
 
-        AuxiliaryPane visControl = new AuxiliaryPane("Visualization Controls");
-        AuxiliaryPane vis = new AuxiliaryPane("Visualization");
-        SplitPane rightAuxiliaryContainer = new SplitPane(visControl, vis);
+        AuxiliaryContainer rightAuxiliaryContainer = new AuxiliaryContainer();
+        AuxiliaryPane visControl = new AuxiliaryPane("Visualization Controls", rightAuxiliaryContainer);
+        AuxiliaryPane callStack = new AuxiliaryPane("Call Stack", rightAuxiliaryContainer);
+        rightAuxiliaryContainer.addPanes(visControl, callStack);
         rightAuxiliaryContainer.setOrientation(Orientation.VERTICAL);
         mainSplitPane.getItems().add(rightAuxiliaryContainer);
+        rightWindowMenu.addWindow(visControl, "/icons/visualization-controls.svg");
+        rightWindowMenu.addWindow(callStack, "/icons/call-stack.svg");
     }
 
     public void show(Stage stage) {

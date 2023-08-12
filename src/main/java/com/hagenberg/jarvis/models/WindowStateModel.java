@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class WindowStateModel {
 
-    Map<String, BooleanProperty> visibilities = new HashMap<>();
+    private final Map<String, BooleanProperty> visibilities = new HashMap<>();
 
     public void addVisibilityState(String windowName, BooleanProperty visibility) {
         visibilities.put(windowName, visibility);

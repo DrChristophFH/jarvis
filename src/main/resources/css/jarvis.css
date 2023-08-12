@@ -37,7 +37,8 @@
 
 .icon {
     -fx-stroke: -icon;
-    -fx-fill: -icon;
+    -fx-fill: transparent;
+    -fx-stroke-width: 2;
 }
 
 .button:hover {
@@ -79,7 +80,21 @@
 .window-menu {
     -fx-background-color: -base;
     -fx-pref-width: 25px;
-    -f: 25px;
+    -fx-spacing: 5;
+}
+
+.window-menu-item {
+    -fx-alignment: top-center;
+    -fx-padding: 5 0 5 0;
+}
+
+.window-menu-item:hover {
+    -fx-background-color: -mantle;
+}
+
+.window-menu-item-title {
+    -fx-text-fill: -font-base;
+    -fx-label-padding: 0 0 0 5;
 }
 
 /* ---------- Auxiliary Pane ---------- */
