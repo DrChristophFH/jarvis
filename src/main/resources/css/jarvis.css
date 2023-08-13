@@ -29,8 +29,12 @@
 
 /* ---------- Controls ---------- */
 
-.icon-button {
+.button {
     -fx-background-color: transparent;
+    -fx-text-fill: -font-base;
+}
+
+.icon-button {
     -fx-padding: 5;
     -fx-background-radius: 5;
 }
@@ -63,6 +67,17 @@
     -fx-border-width: 1;
     -fx-hbar-policy: as-needed;
     -fx-vbar-policy: as-needed;
+}
+
+/* ---------- Debug Menu (CENTER BOTTOM) ---------- */
+
+.debug-menu {
+    -fx-background-color: -base;
+    -fx-border-color: -mantle;
+    -fx-pref-height: 25;
+    -fx-border-width: 1;
+    -fx-padding: 1;
+    -fx-alignment: center;
 }
 
 /* ---------- Menu Bar (TOP) ---------- */
