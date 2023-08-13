@@ -10,16 +10,17 @@ import javafx.stage.Stage;
 public class Jarvis extends Application {
     @Override
     public void start(Stage primaryStage) {
+        JarvisDebuggerService debugger = new JarvisDebuggerService(JDIExampleDebuggee.class);
+        int[] breakPoints = {8};
+        debugger.setBreakPointLines(breakPoints);
+        debugger.launch();
+        ServiceProvider.getInstance().registerDependency(JarvisDebuggerService.class, debugger);
+
         MainView mainView = new MainView();
         mainView.show(primaryStage);
     }
 
     public static void main(String[] args) {
         Application.launch();
-        JarvisDebuggerService debugger = new JarvisDebuggerService(JDIExampleDebuggee.class);
-        int[] breakPoints = {8};
-        debugger.setBreakPointLines(breakPoints);
-        debugger.launch();
-        ServiceProvider.getInstance().registerDependency(JarvisDebuggerService.class, debugger);
     }
 }

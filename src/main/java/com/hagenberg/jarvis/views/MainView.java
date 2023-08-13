@@ -1,15 +1,16 @@
 package com.hagenberg.jarvis.views;
 
+import com.hagenberg.jarvis.models.CallStackModel;
+import com.hagenberg.jarvis.models.entities.CallStackFrame;
 import com.hagenberg.jarvis.util.SVGManager;
+import com.hagenberg.jarvis.util.ServiceProvider;
+import com.hagenberg.jarvis.views.components.CallStackCell;
 import com.hagenberg.jarvis.views.components.HideableSplitPane;
 import com.hagenberg.jarvis.views.components.AuxiliaryPane;
 import com.hagenberg.jarvis.views.components.WindowMenu;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.SplitPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -18,6 +19,7 @@ import javafx.stage.Stage;
 import java.util.Objects;
 
 public class MainView {
+    private final CallStackModel callStackModel = ServiceProvider.getInstance().getDependency(CallStackModel.class);
     private Scene scene;
 
     public MainView() {
@@ -84,6 +86,7 @@ public class MainView {
         HideableSplitPane rightAuxiliaryContainer = new HideableSplitPane();
         AuxiliaryPane visControl = new AuxiliaryPane("Visualization Controls");
         AuxiliaryPane callStack = new AuxiliaryPane("Call Stack");
+        callStack.setContent(buildCallStack());
         rightAuxiliaryContainer.addPanes(visControl, callStack);
         rightAuxiliaryContainer.setOrientation(Orientation.VERTICAL);
         mainSplitPane.addPane(rightAuxiliaryContainer);
@@ -120,5 +123,13 @@ public class MainView {
         button.setText(text);
         button.setGraphic(SVGManager.getInstance().getSVG(resourceName));
         return button;
+    }
+
+    private ListView<CallStackFrame> buildCallStack() {
+        ListView<CallStackFrame> callStackListView = new ListView<>();
+        callStackListView.getStyleClass().add("call-stack");
+        callStackListView.setCellFactory(frameListView -> new CallStackCell());
+        callStackListView.setItems(callStackModel.getCallStack());
+        return callStackListView;
     }
 }

@@ -1,6 +1,9 @@
 package com.hagenberg.jarvis.debugger;
 
+import com.hagenberg.jarvis.models.CallStackModel;
+import com.hagenberg.jarvis.models.entities.CallStackFrame;
 import com.hagenberg.jarvis.util.OutputHelper;
+import com.hagenberg.jarvis.util.ServiceProvider;
 import com.sun.jdi.*;
 import com.sun.jdi.connect.Connector;
 import com.sun.jdi.connect.LaunchingConnector;
@@ -11,7 +14,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -23,6 +25,8 @@ public class JarvisDebuggerService {
     private int[] breakPointLines;
 
     private CompletableFuture<StepCommand> stepCommand;
+
+    private final CallStackModel callStackModel = ServiceProvider.getInstance().getDependency(CallStackModel.class);
 
     private final OutputHelper out = new OutputHelper();
 
@@ -113,11 +117,6 @@ public class JarvisDebuggerService {
         }
     }
 
-    private void enableExceptionRequest() {
-        ExceptionRequest exceptionRequest = vm.eventRequestManager().createExceptionRequest(null, true, true);
-        exceptionRequest.enable();
-    }
-
     private void startStreamThread() {
         new Thread(() -> {
             try {
@@ -167,62 +166,33 @@ public class JarvisDebuggerService {
     }
 
     private void displayVariables(ThreadReference thread) throws IncompatibleThreadStateException, AbsentInformationException {
-        StackFrame stackFrame = thread.frame(0);
-        Map<LocalVariable, Value> visibleVariables = stackFrame.getValues(stackFrame.visibleVariables());
-        for (Map.Entry<LocalVariable, Value> entry : visibleVariables.entrySet()) {
-            Stack<ObjectReference > visitedObjects = new Stack<>();
-            printObject(entry.getKey().name(), entry.getValue(), 1, visitedObjects);
-        }
+
     }
 
-    private void printObject(String name, Value value, int i, Stack<ObjectReference> visitedObjects) {
-        if (i > 25) {
-//            this.out.printInfo("(max depth reached)");
-            return;
-        }
-        String padding = "    ".repeat(i);
-        if (value == null) {
-//            this.out.printDebug(padding + name + " = null");
-            return;
-        }
-//        this.out.printDebug(padding + this.out.colourString(value.type().name(), OutputHelper.ANSI_BLUE) + " " + name + " = " + value);
-        if (value instanceof ObjectReference) {
-            if (visitedObjects.contains((ObjectReference) value)) {
-//                this.out.printDebug(padding + "    (already visited)");
-                return;
-            }
-            ReferenceType type = ((ObjectReference) value).referenceType();
-            visitedObjects.push((ObjectReference) value);
-            for (Field field : type.fields()) {
-                if (Modifier.isStatic(field.modifiers())) {
-                    continue;
-                }
-                printObject(Modifier.toString(field.modifiers()) + "(" + field.modifiers() + ") " + field.name(), ((ObjectReference) value).getValue(field), i + 1, visitedObjects);
-            }
-            if (type instanceof ArrayType) {
-                int index = 0;
-                for (Value arrayElement : ((ArrayReference) value).getValues()) {
-                    printObject(name+"["+index+"]", arrayElement, i + 1, visitedObjects);
-                    index++;
-                }
-            }
-            visitedObjects.pop();
-        }
-    }
+    private void displayCallStack(ThreadReference thread) throws IncompatibleThreadStateException, AbsentInformationException, ClassNotLoadedException {
+        List<StackFrame> frames = thread.frames();
 
-    private void displayCallStack(ThreadReference thread) throws IncompatibleThreadStateException {
-        List<StackFrame> stackFrames = thread.frames();
-//        this.out.printCallStack(" ==== Call Stack ==== ");
-        for (int i = stackFrames.size() - 1; i >= 0; i--) {
-            StackFrame frame = stackFrames.get(i);
-            String padding = i < stackFrames.size() - 1 ? "  ".repeat(stackFrames.size() - i - 1) + "└ " : "";
-//            this.out.printCallStack(padding + this.out.colourString(frame.location().method().name() + "()", OutputHelper.ANSI_PURPLE) + " at " + frame.location().toString());
+        callStackModel.clear();
+
+        for (StackFrame frame : frames) {
+            Location location = frame.location();
+            String className = location.declaringType().name();
+            String methodName = location.method().name();
+            List<String> parameters = new ArrayList<>();
+
+            // Fetching parameters. For simplicity, just getting the types. You can further enhance this.
+            for (LocalVariable variable : frame.visibleVariables()) {
+                if (variable.isArgument()) {
+                    parameters.add(variable.type().name() + " " + variable.name() + " = " + frame.getValue(variable));
+                }
+            }
+
+            callStackModel.add(new CallStackFrame(className, methodName, parameters));
         }
     }
 
     private void setBreakPoints(ClassPrepareEvent event) throws AbsentInformationException {
         ClassType classType = (ClassType) event.referenceType();
-//        this.out.printInfo("Setting breakpoints in " + classType.name());
         for (int lineNumber : breakPointLines) {
             Location location = classType.locationsOfLine(lineNumber).get(0);
             BreakpointRequest bpReq = vm.eventRequestManager().createBreakpointRequest(location);
@@ -236,9 +206,14 @@ public class JarvisDebuggerService {
         classPrepareRequest.enable();
     }
 
+    private void enableExceptionRequest() {
+        ExceptionRequest exceptionRequest = vm.eventRequestManager().createExceptionRequest(null, true, true);
+        exceptionRequest.enable();
+    }
+
     private void connectAndLaunchVM() throws Exception {
         String projectDir = System.getProperty("user.dir");
-        String classPath = projectDir + "/out/production/JDI-Test";
+        String classPath = projectDir + "/target/classes";
         LaunchingConnector launchingConnector = Bootstrap.virtualMachineManager().defaultConnector();
         Map<String, Connector.Argument> arguments = launchingConnector.defaultArguments();
         arguments.get("main").setValue(debugClass.getName());
