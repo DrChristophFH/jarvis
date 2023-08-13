@@ -51,6 +51,13 @@ public class HideableSplitPane extends Region {
         }
     }
 
+    /**
+     * @param positions the positions to set the dividers to
+     */
+    public void setDividerPositions(double... positions) {
+        splitPane.setDividerPositions(positions);
+    }
+
     private void configureModel(Node pane) {
         BooleanProperty visibility = visibilityModel.getVisibilityState(pane);
 
