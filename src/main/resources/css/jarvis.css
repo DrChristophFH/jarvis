@@ -2,7 +2,9 @@
 
 /* ---------- Colors ---------- */
 * {
+    -methods: #fd9842;
     -highlight: #0D293E;
+    -accent: #30c7f5;
     -crust: #515151;
     -base: #3C3F41;
     -mantle: #323232;
@@ -51,6 +53,30 @@
 
 .button:pressed {
     -fx-background-color: -icon-pressed-background;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: -crust;
+    -fx-opacity: 0.5;
+}
+
+.scroll-bar:hover .thumb {
+    -fx-opacity: 1;
+}
+
+/* Hiding increment and decrement buttons */
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-pref-width: 0;
+    -fx-pref-height: 0;
+}
+
+.scroll-bar,
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button,
+.scroll-bar .track,
+.scroll-bar .track-background{
+    -fx-background-color: transparent;
 }
 
 /* ---------- Root Horizontal Split Pane ---------- */
@@ -138,6 +164,50 @@
     -fx-text-fill: -font-base;
     -fx-font-weight: bold;
     -fx-label-padding: 0 0 0 10;
+}
+
+/* ---------- Call Stack ---------- */
+
+.call-stack {
+    -fx-padding: 0;
+    -fx-background-color: -base;
+}
+
+.call-stack:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.list-cell:filled:selected:focused, .list-cell:filled:selected {
+    -fx-background-color: -highlight;
+}
+
+.list-cell:even, .list-cell:odd {
+    -fx-background-color: -base;
+}
+
+.list-cell:filled:hover {
+    -fx-background-color: -mantle;
+}
+
+.call-stack-cell-container {
+    -fx-alignment: center-left;
+    -fx-spacing: 5;
+}
+
+.method-name {
+    -fx-text-fill: -methods;
+    -fx-font-weight: bold;
+}
+
+.class-name {
+    -fx-text-fill: -font-muted;
+    -fx-font-size: 10;
+}
+
+.line-number {
+    -fx-text-fill: -accent;
+    -fx-font-size: 10;
 }
 
 /* ---------- Status Bar (BOTTOM) ---------- */
