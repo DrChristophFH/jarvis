@@ -5,35 +5,29 @@ import java.util.List;
 public class CallStackFrame {
     private String className;
     private String methodName;
-    private List<String> parameters;
+    private List<MethodParameter> parameters;
+    private int lineNumber;
 
-    public CallStackFrame(String className, String methodName, List<String> parameters) {
+    public CallStackFrame(String className, String methodName, List<MethodParameter> parameters, int lineNumber) {
         this.className = className;
         this.methodName = methodName;
         this.parameters = parameters;
+        this.lineNumber = lineNumber;
     }
 
     public String getClassName() {
         return className;
     }
 
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
     public String getMethodName() {
         return methodName;
     }
 
-    public void setMethodName(String methodName) {
-        this.methodName = methodName;
-    }
-
-    public List<String> getParameters() {
+    public List<MethodParameter> getParameters() {
         return parameters;
     }
 
-    public void setParameters(List<String> parameters) {
-        this.parameters = parameters;
+    public int getLineNumber() {
+        return lineNumber;
     }
 }

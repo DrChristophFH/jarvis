@@ -2,6 +2,7 @@ package com.hagenberg.jarvis.debugger;
 
 import com.hagenberg.jarvis.models.CallStackModel;
 import com.hagenberg.jarvis.models.entities.CallStackFrame;
+import com.hagenberg.jarvis.models.entities.MethodParameter;
 import com.hagenberg.jarvis.util.OutputHelper;
 import com.hagenberg.jarvis.util.ServiceProvider;
 import com.sun.jdi.*;
@@ -178,16 +179,16 @@ public class JarvisDebuggerService {
             Location location = frame.location();
             String className = location.declaringType().name();
             String methodName = location.method().name();
-            List<String> parameters = new ArrayList<>();
+            List<MethodParameter> parameters = new ArrayList<>();
 
             // Fetching parameters. For simplicity, just getting the types. You can further enhance this.
             for (LocalVariable variable : frame.visibleVariables()) {
                 if (variable.isArgument()) {
-                    parameters.add(variable.type().name() + " " + variable.name() + " = " + frame.getValue(variable));
+                    parameters.add(new MethodParameter(variable.typeName(), variable.name(), frame.getValue(variable).toString()));
                 }
             }
 
-            callStackModel.add(new CallStackFrame(className, methodName, parameters));
+            callStackModel.add(new CallStackFrame(className, methodName, parameters, location.lineNumber()));
         }
     }
 
