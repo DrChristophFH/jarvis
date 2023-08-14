@@ -5,13 +5,19 @@
     -methods: #fd9842;
     -highlight: #0D293E;
     -accent: #30c7f5;
+
     -crust: #515151;
     -base: #3C3F41;
     -mantle: #323232;
     -core: #2B2B2B;
+
+    -scrollbar-thumb: #595B5D;
+    -scrollbar-thumb-hovered: #6F7173;
+
     -icon: #AFB1B3;
     -icon-hovered-background: #4C5052;
     -icon-pressed-background: #5C6164;
+
     -font-bright: #FFFFFF;
     -font-base: #BBBBBB;
     -font-muted: #6f6f6f;
@@ -56,19 +62,11 @@
 }
 
 .scroll-bar .thumb {
-    -fx-background-color: -crust;
-    -fx-opacity: 0.5;
+    -fx-background-color: -scrollbar-thumb;
 }
 
 .scroll-bar:hover .thumb {
-    -fx-opacity: 1;
-}
-
-/* Hiding increment and decrement buttons */
-.scroll-bar .increment-button,
-.scroll-bar .decrement-button {
-    -fx-pref-width: 0;
-    -fx-pref-height: 0;
+    -fx-background-color: -scrollbar-thumb-hovered;
 }
 
 .scroll-bar,
@@ -79,29 +77,52 @@
     -fx-background-color: transparent;
 }
 
-/* ---------- Root Horizontal Split Pane ---------- */
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    visibility: hidden;
+}
+
+/* ---------- Primary Layout Split Panes ---------- */
 
 .root-split-pane {
     -fx-padding: 0;
 }
 
-/* ---------- Object Graph (CENTER) ---------- */
-
-.object-graph {
-    -fx-background-color: -core;
+.main-split-pane {
+    -fx-background-color: -base;
     -fx-border-color: -mantle;
     -fx-border-width: 1;
+}
+
+.support-split-pane {
+    -fx-background-color: -base;
+    -fx-border-color: -mantle;
+    -fx-border-width: 1;
+}
+
+/* ---------- Object Graph (CENTER) ---------- */
+
+.object-graph-container {
+    -fx-padding: 0;
+    -fx-border-color: -mantle;
+    -fx-border-width: 1;
+}
+
+.object-graph {
+    -fx-padding: 0;
     -fx-hbar-policy: as-needed;
     -fx-vbar-policy: as-needed;
+}
+
+.object-graph > .viewport {
+    -fx-background-color: -core;
 }
 
 /* ---------- Debug Menu (CENTER BOTTOM) ---------- */
 
 .debug-menu {
     -fx-background-color: -base;
-    -fx-border-color: -mantle;
     -fx-pref-height: 25;
-    -fx-border-width: 1;
     -fx-padding: 1;
     -fx-alignment: center;
 }
@@ -170,7 +191,7 @@
 
 .call-stack {
     -fx-padding: 0;
-    -fx-background-color: -base;
+    -fx-background-color: transparent;
 }
 
 .call-stack:focused {
