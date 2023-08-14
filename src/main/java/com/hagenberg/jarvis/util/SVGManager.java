@@ -39,7 +39,7 @@ public class SVGManager {
         }
 
         Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
-        Pattern pattern = Pattern.compile("(?<=<path d=\")[\\s\\S]+(?=\"/>)");
+        Pattern pattern = Pattern.compile("(?<=<path d=\")[\\s\\S]+(?=[ \n]*\"[ \n]*/>)");
 
         return scanner.findWithinHorizon(pattern, 0);
     }
