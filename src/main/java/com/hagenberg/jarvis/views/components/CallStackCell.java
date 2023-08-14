@@ -2,20 +2,13 @@ package com.hagenberg.jarvis.views.components;
 
 import com.hagenberg.jarvis.models.entities.CallStackFrame;
 import com.hagenberg.jarvis.models.entities.MethodParameter;
-import com.hagenberg.jarvis.util.SVGManager;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
+import javafx.scene.Node;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
-import java.util.List;
 
 public class CallStackCell extends ListCell<CallStackFrame> {
-    private final Button expandButton = new Button();
-    {
-        expandButton.getStyleClass().add("icon-button");
-        expandButton.setGraphic(SVGManager.getInstance().getSVG("/icons/method-inspect.svg"));
-    }
     private final Label methodName = new Label();
     {
         methodName.getStyleClass().add("method-name");
@@ -28,10 +21,10 @@ public class CallStackCell extends ListCell<CallStackFrame> {
     {
         className.getStyleClass().add("class-name");
     }
-    private final HBox container = new HBox();
+    private final CustomizableTitledPane container = new CustomizableTitledPane();
     {
         container.getStyleClass().add("call-stack-cell-container");
-        container.getChildren().addAll(expandButton, methodName, lineNumber, className);
+        container.header().getChildren().addAll(methodName, lineNumber, className);
     }
 
     /**
@@ -50,8 +43,8 @@ public class CallStackCell extends ListCell<CallStackFrame> {
         } else {
             methodName.setText(buildMethodSignature(frame));
             className.setText(frame.getClassName());
-            expandButton.setOnAction(e -> showParameters(frame.getParameters()));
             lineNumber.setText(": " + frame.getLineNumber());
+            container.setContent(buildPropertiesPane(frame));
             setGraphic(container);
         }
     }
@@ -69,7 +62,27 @@ public class CallStackCell extends ListCell<CallStackFrame> {
         return sb.toString();
     }
 
-    private void showParameters(List<MethodParameter> parameters) {
+    private Node buildPropertiesPane(CallStackFrame frame) {
+        VBox propertiesList = new VBox();
+        propertiesList.getStyleClass().add("properties-list");
 
+        for (MethodParameter parameter : frame.getParameters()) {
+            HBox property = new HBox();
+            property.getStyleClass().add("property-cell");
+
+            Label simpleType = new Label(parameter.getSimpleType());
+            simpleType.getStyleClass().add("simple-type");
+
+            Label name = new Label(parameter.getName());
+            name.getStyleClass().add("var-name");
+
+            Label value = new Label(parameter.getValue());
+            value.getStyleClass().add("value");
+
+            property.getChildren().addAll(simpleType, name, new Label(": "), value);
+            propertiesList.getChildren().add(property);
+        }
+
+        return propertiesList;
     }
 }
