@@ -10,6 +10,7 @@ import com.sun.jdi.connect.Connector;
 import com.sun.jdi.connect.LaunchingConnector;
 import com.sun.jdi.event.*;
 import com.sun.jdi.request.*;
+import javafx.application.Platform;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -93,7 +94,7 @@ public class JarvisDebuggerService {
         }
         if (event instanceof BreakpointEvent || event instanceof StepEvent) {
             ThreadReference currentThread = ((LocatableEvent) event).thread();
-            this.displayCallStack(currentThread);
+            this.updateCallStackModel(currentThread);
             this.displayVariables(currentThread);
             processUserCommand(currentThread, this.waitForUserCommand());
         }
@@ -170,10 +171,10 @@ public class JarvisDebuggerService {
 
     }
 
-    private void displayCallStack(ThreadReference thread) throws IncompatibleThreadStateException, AbsentInformationException, ClassNotLoadedException {
+    private void updateCallStackModel(ThreadReference thread) throws IncompatibleThreadStateException, AbsentInformationException, ClassNotLoadedException {
         List<StackFrame> frames = thread.frames();
 
-        callStackModel.clear();
+        Platform.runLater(callStackModel::clear);
 
         for (StackFrame frame : frames) {
             Location location = frame.location();
@@ -188,7 +189,7 @@ public class JarvisDebuggerService {
                 }
             }
 
-            callStackModel.add(new CallStackFrame(className, methodName, parameters, location.lineNumber()));
+            Platform.runLater(() -> callStackModel.add(new CallStackFrame(className, methodName, parameters, location.lineNumber())));
         }
     }
 
