@@ -14,7 +14,7 @@ public class CallStackCell extends ListCell<CallStackFrame> {
     private final Button expandButton = new Button();
     {
         expandButton.getStyleClass().add("icon-button");
-        expandButton.setGraphic(SVGManager.getInstance().getSVG("/icons/expand"));
+        expandButton.setGraphic(SVGManager.getInstance().getSVG("/icons/method-inspect.svg"));
     }
     private final Label methodName = new Label();
     {
