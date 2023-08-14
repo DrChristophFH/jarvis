@@ -1,5 +1,6 @@
 package com.hagenberg.jarvis.views;
 
+import com.hagenberg.jarvis.controllers.DebuggerController;
 import com.hagenberg.jarvis.models.CallStackModel;
 import com.hagenberg.jarvis.models.entities.CallStackFrame;
 import com.hagenberg.jarvis.util.SVGManager;
@@ -20,6 +21,8 @@ import java.util.Objects;
 
 public class MainView {
     private final CallStackModel callStackModel = ServiceProvider.getInstance().getDependency(CallStackModel.class);
+    private final DebuggerController debuggerController = ServiceProvider.getInstance().getDependency(DebuggerController.class);
+
     private Scene scene;
 
     public MainView() {
@@ -111,6 +114,11 @@ public class MainView {
         Button stepOut = buildIconButton("Step Out", "/icons/step-out.svg");
         Button stepOver = buildIconButton("Step Over", "/icons/step-over.svg");
         Button resume = buildIconButton("Resume", "/icons/resume.svg");
+
+        stepInto.setOnAction(event -> debuggerController.onStepIntoButtonClicked());
+        stepOut.setOnAction(event -> debuggerController.onStepOutButtonClicked());
+        stepOver.setOnAction(event -> debuggerController.onStepOverButtonClicked());
+        resume.setOnAction(event -> debuggerController.onResumeButtonClicked());
 
         debugMenu.getChildren().addAll(stepInto, stepOut, stepOver, resume);
 

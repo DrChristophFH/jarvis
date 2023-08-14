@@ -2,7 +2,6 @@ package com.hagenberg.jarvis.controllers;
 
 import com.hagenberg.jarvis.debugger.JarvisDebuggerService;
 import com.hagenberg.jarvis.debugger.StepCommand;
-import com.hagenberg.jarvis.util.ServiceProvider;
 
 public class DebuggerController {
 
@@ -18,5 +17,13 @@ public class DebuggerController {
 
     public void onStepOverButtonClicked() {
         debuggerService.executeCommand(StepCommand.STEP_OVER);
+    }
+
+    public void onStepOutButtonClicked() {
+        debuggerService.executeCommand(StepCommand.STEP_OUT);
+    }
+
+    public void onResumeButtonClicked() {
+        debuggerService.executeCommand(StepCommand.RESUME);
     }
 }
