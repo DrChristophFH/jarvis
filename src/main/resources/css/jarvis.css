@@ -74,6 +74,21 @@
     -fx-background-color: -mantle;
 }
 
+/* ---------- TreeView ---------- */
+
+.tree-cell:filled:selected:focused, .tree-cell:filled:selected {
+    -fx-background-color: -highlight;
+}
+
+.tree-cell {
+    -fx-background-color: -base;
+    -fx-padding: 0;
+}
+
+.tree-cell:filled:hover {
+    -fx-background-color: -mantle;
+}
+
 /* ---------- Controls ---------- */
 
 .split-pane-divider {
@@ -126,6 +141,14 @@
     visibility: hidden;
 }
 
+/* ---------- Container Classes ---------- */
+
+.label-container {
+    -fx-alignment: center-left;
+    -fx-spacing: 5;
+}
+
+
 /* ---------- Primary Layout Split Panes ---------- */
 
 .root-split-pane {
@@ -164,6 +187,11 @@
 
 .scroll-pane > .viewport {
     -fx-background-color: -core;
+}
+
+.object-graph-tree {
+    -fx-background-color: -base;
+    -fx-max-height: -1;
 }
 
 /* ---------- Debug Menu (CENTER BOTTOM) ---------- */

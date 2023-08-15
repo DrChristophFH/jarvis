@@ -1,10 +1,13 @@
 package com.hagenberg.jarvis.debugger;
 
 import com.hagenberg.jarvis.models.CallStackModel;
+import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.models.entities.CallStackFrame;
+import com.hagenberg.jarvis.models.entities.GraphObject;
 import com.hagenberg.jarvis.models.entities.MethodParameter;
 import com.hagenberg.jarvis.util.OutputHelper;
 import com.hagenberg.jarvis.util.ServiceProvider;
+import com.hagenberg.jarvis.util.TypeFormatter;
 import com.sun.jdi.*;
 import com.sun.jdi.connect.Connector;
 import com.sun.jdi.connect.LaunchingConnector;
@@ -29,6 +32,7 @@ public class JarvisDebuggerService {
     private CompletableFuture<StepCommand> stepCommand;
 
     private final CallStackModel callStackModel = ServiceProvider.getInstance().getDependency(CallStackModel.class);
+    private final ObjectGraphModel objectGraphModel = ServiceProvider.getInstance().getDependency(ObjectGraphModel.class);
 
     private final OutputHelper out = new OutputHelper();
 
@@ -95,7 +99,7 @@ public class JarvisDebuggerService {
         if (event instanceof BreakpointEvent || event instanceof StepEvent) {
             ThreadReference currentThread = ((LocatableEvent) event).thread();
             this.updateCallStackModel(currentThread);
-            this.displayVariables(currentThread);
+            this.updateObjectGraphModel(currentThread);
             processUserCommand(currentThread, this.waitForUserCommand());
         }
         if (event instanceof ExceptionEvent exceptionEvent) {
@@ -169,8 +173,43 @@ public class JarvisDebuggerService {
         }
     }
 
-    private void displayVariables(ThreadReference thread) throws IncompatibleThreadStateException, AbsentInformationException {
+    private void updateObjectGraphModel(ThreadReference thread) throws IncompatibleThreadStateException, AbsentInformationException, ClassNotLoadedException {
+        // clear root objects
+        Platform.runLater(() -> objectGraphModel.getRootObjects().clear());
 
+        for (StackFrame frame : thread.frames()) {
+            for (LocalVariable variable : frame.visibleVariables()) {
+                Value value = frame.getValue(variable);
+                String name = variable.name();
+                Type type = variable.type();
+                String typeName = type.name();
+                GraphObject temp = buildGraphObject(name, type, typeName, value);
+                Platform.runLater(() -> objectGraphModel.addRootObject(temp));
+            }
+        }
+    }
+
+    private GraphObject buildGraphObject(String name, Type type, String typeName, Value value) {
+        GraphObject newObject = new GraphObject();
+        newObject.nameProperty().set(name);
+        newObject.typeProperty().set(TypeFormatter.getSimpleType(typeName));
+
+        if (value instanceof ObjectReference object) {
+            newObject.valueProperty().set("ObjectReference" + object.uniqueID());
+            // add all members of the object
+            for (Field member : object.referenceType().allFields()) {
+                if (member.isStatic()) continue; // skip static members
+                Value memberValue = object.getValue(member);
+                newObject.getMembers().add(buildGraphObject(member.name(), memberValue.type(), member.typeName(), memberValue));
+            }
+        } else {
+            if (value != null) {
+                newObject.valueProperty().set(value.toString());
+            } else {
+                newObject.valueProperty().set("null");
+            }
+        }
+        return newObject;
     }
 
     private void updateCallStackModel(ThreadReference thread) throws IncompatibleThreadStateException, AbsentInformationException, ClassNotLoadedException {

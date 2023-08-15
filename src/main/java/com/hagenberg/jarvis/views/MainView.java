@@ -2,7 +2,9 @@ package com.hagenberg.jarvis.views;
 
 import com.hagenberg.jarvis.controllers.DebuggerController;
 import com.hagenberg.jarvis.models.CallStackModel;
+import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.models.entities.CallStackFrame;
+import com.hagenberg.jarvis.models.entities.GraphObject;
 import com.hagenberg.jarvis.util.SVGManager;
 import com.hagenberg.jarvis.util.ServiceProvider;
 import com.hagenberg.jarvis.views.components.CallStackCell;
@@ -10,7 +12,10 @@ import com.hagenberg.jarvis.views.components.HideableSplitPane;
 import com.hagenberg.jarvis.views.components.AuxiliaryPane;
 import com.hagenberg.jarvis.views.components.WindowMenu;
 import com.hagenberg.jarvis.views.components.graph.*;
+import javafx.beans.InvalidationListener;
+import javafx.collections.ListChangeListener;
 import javafx.geometry.Orientation;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
@@ -73,6 +78,7 @@ public class MainView {
         HideableSplitPane leftAuxiliaryContainer = new HideableSplitPane();
         AuxiliaryPane classes = new AuxiliaryPane("Classes");
         AuxiliaryPane classInfo = new AuxiliaryPane("Class Info");
+        classes.setContent(buildTreeViewOfObjectGraph());
         leftAuxiliaryContainer.addPanes(classes, classInfo);
         leftAuxiliaryContainer.setOrientation(Orientation.VERTICAL);
         mainSplitPane.addPane(leftAuxiliaryContainer);
@@ -162,6 +168,70 @@ public class MainView {
         button.setText(text);
         button.setGraphic(SVGManager.getInstance().getSVG(resourceName));
         return button;
+    }
+
+    private Node buildTreeViewOfObjectGraph() {
+        ObjectGraphModel objectGraphModel = ServiceProvider.getInstance().getDependency(ObjectGraphModel.class);
+        TreeItem<GraphObject> root = new TreeItem<>();
+        TreeView<GraphObject> treeView = new TreeView<>(root);
+        treeView.setShowRoot(false);
+        treeView.getStyleClass().add("object-graph-tree");
+
+        // recursively build the tree from the object graph model
+        for (GraphObject rootObject : objectGraphModel.getRootObjects()) {
+            root.getChildren().add(buildTreeItem(rootObject));
+            System.out.println("Adding root object " + rootObject.getName());
+        }
+
+        // add change listener to object graph model to update the tree view
+        objectGraphModel.getRootObjects().addListener((InvalidationListener) Observable -> {
+            root.getChildren().clear();
+            System.out.println("Root objects changed");
+            for (GraphObject rootObject : objectGraphModel.getRootObjects()) {
+                System.out.println("Adding root object " + rootObject.getName());
+                root.getChildren().add(buildTreeItem(rootObject));
+            }
+        });
+
+        // set the cell factory to display the graph objects
+        treeView.setCellFactory(p -> new TreeCell<>() {
+            private final Label type = new Label();
+            private final Label name = new Label();
+            private final Label value = new Label();
+            private final HBox container = new HBox(type, name, value);
+
+            {
+                container.getStyleClass().add("label-container");
+                type.getStyleClass().add("type");
+                name.getStyleClass().add("var-name");
+                value.getStyleClass().add("value");
+            }
+
+            @Override
+            protected void updateItem(GraphObject item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (item == null || empty) {
+                    setGraphic(null);
+                } else {
+                    type.setText(item.getType());
+                    name.setText(item.getName());
+                    value.setText(item.getValue());
+                    setGraphic(container);
+                }
+            }
+        });
+
+        return treeView;
+    }
+
+    private TreeItem<GraphObject> buildTreeItem(GraphObject rootObject) {
+        TreeItem<GraphObject> treeItem = new TreeItem<>(rootObject);
+        treeItem.setExpanded(true);
+        for (GraphObject members : rootObject.getMembers()) {
+            treeItem.getChildren().add(buildTreeItem(members));
+        }
+        return treeItem;
     }
 
     private ListView<CallStackFrame> buildCallStack() {
