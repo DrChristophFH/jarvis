@@ -9,6 +9,7 @@ import com.hagenberg.jarvis.views.components.CallStackCell;
 import com.hagenberg.jarvis.views.components.HideableSplitPane;
 import com.hagenberg.jarvis.views.components.AuxiliaryPane;
 import com.hagenberg.jarvis.views.components.WindowMenu;
+import com.hagenberg.jarvis.views.components.graph.*;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -24,6 +25,7 @@ public class MainView {
     private final DebuggerController debuggerController = ServiceProvider.getInstance().getDependency(DebuggerController.class);
 
     private Scene scene;
+    private Graph graph = new Graph();
 
     public MainView() {
         buildScene();
@@ -79,11 +81,14 @@ public class MainView {
 
         VBox objectGraphContainer = new VBox();
         objectGraphContainer.getStyleClass().add("object-graph-container");
-        ScrollPane objectGraph = new ScrollPane();
-        objectGraph.getStyleClass().add("object-graph");
-        VBox.setVgrow(objectGraph, javafx.scene.layout.Priority.ALWAYS);
+        graph = new Graph();
+        addGraphComponents();
+
+        Layout layout = new RandomLayout(graph);
+        layout.execute();
+        VBox.setVgrow(graph.getScrollPane(), javafx.scene.layout.Priority.ALWAYS);
         HBox debugMenu = buildDebugMenu();
-        objectGraphContainer.getChildren().addAll(objectGraph, debugMenu);
+        objectGraphContainer.getChildren().addAll(graph.getScrollPane(), debugMenu);
         mainSplitPane.addPane(objectGraphContainer);
 
         HideableSplitPane rightAuxiliaryContainer = new HideableSplitPane();
@@ -104,6 +109,32 @@ public class MainView {
         stage.setMinHeight(400);
         stage.setResizable(true);
         stage.show();
+    }
+
+    private void addGraphComponents() {
+
+        Model model = graph.getModel();
+
+        graph.beginUpdate();
+
+        model.addCell("Cell A", CellType.RECTANGLE);
+        model.addCell("Cell B", CellType.RECTANGLE);
+        model.addCell("Cell C", CellType.RECTANGLE);
+        model.addCell("Cell D", CellType.TRIANGLE);
+        model.addCell("Cell E", CellType.TRIANGLE);
+        model.addCell("Cell F", CellType.RECTANGLE);
+        model.addCell("Cell G", CellType.RECTANGLE);
+
+        model.addEdge("Cell A", "Cell B");
+        model.addEdge("Cell A", "Cell C");
+        model.addEdge("Cell B", "Cell C");
+        model.addEdge("Cell C", "Cell D");
+        model.addEdge("Cell B", "Cell E");
+        model.addEdge("Cell D", "Cell F");
+        model.addEdge("Cell D", "Cell G");
+
+        graph.endUpdate();
+
     }
 
     private HBox buildDebugMenu() {

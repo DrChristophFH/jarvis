@@ -158,6 +158,10 @@
     -fx-background-color: -core;
 }
 
+.scroll-pane > .viewport {
+    -fx-background-color: -core;
+}
+
 /* ---------- Debug Menu (CENTER BOTTOM) ---------- */
 
 .debug-menu {
