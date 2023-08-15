@@ -106,6 +106,8 @@ public class JarvisDebuggerService {
 
             // Invoke the toString() method
             String exceptionAsString = exceptionObj.invokeMethod(exceptionEvent.thread(), toStringMethod, new ArrayList<>(), 0).toString();
+
+            this.out.printError(exceptionAsString);
         }
     }
 
