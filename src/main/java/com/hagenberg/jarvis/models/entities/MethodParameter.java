@@ -1,5 +1,7 @@
 package com.hagenberg.jarvis.models.entities;
 
+import com.hagenberg.jarvis.util.TypeFormatter;
+
 public class MethodParameter {
 private String type;
     private String name;
@@ -16,8 +18,7 @@ private String type;
     }
 
     public String getSimpleType() {
-        String[] parts = type.split("\\.");
-        return parts[parts.length - 1];
+        return TypeFormatter.getSimpleType(type);
     }
 
     public String getName() {
