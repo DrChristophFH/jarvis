@@ -40,6 +40,10 @@
     -fx-text-fill: -types;
 }
 
+.type {
+    -fx-text-fill: -types;
+}
+
 .var-name {
     -fx-text-fill: -var-name;
 }
