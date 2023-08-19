@@ -74,6 +74,16 @@
     -fx-background-color: -mantle;
 }
 
+.list-view:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.list-view {
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+}
+
 /* ---------- TreeView ---------- */
 
 .tree-cell:filled:selected:focused, .tree-cell:filled:selected {
@@ -87,6 +97,16 @@
 
 .tree-cell:filled:hover {
     -fx-background-color: -mantle;
+}
+
+.tree-view:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.tree-view {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
 }
 
 /* ---------- Controls ---------- */
@@ -281,16 +301,6 @@
 }
 
 /* ---------- Call Stack ---------- */
-
-.call-stack {
-    -fx-padding: 0;
-    -fx-background-color: transparent;
-}
-
-.call-stack:focused {
-    -fx-focus-color: transparent;
-    -fx-faint-focus-color: transparent;
-}
 
 .call-stack-cell-container .customizable-titled-pane-header {
     -fx-alignment: center-left;
