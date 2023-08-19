@@ -10,6 +10,16 @@ public class GraphObject {
     private final StringProperty type = new SimpleStringProperty();
     private final StringProperty value = new SimpleStringProperty();
 
+    public GraphObject() {
+        this("", "", "");
+    }
+
+    public GraphObject(String name, String type, String value) {
+        this.name.set(name);
+        this.type.set(type);
+        this.value.set(value);
+    }
+
     private final ObservableList<GraphObject> members = FXCollections.observableArrayList();
 
     public String getName() {
