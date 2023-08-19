@@ -162,6 +162,7 @@ public class MainView {
         TreeView<GraphObject> treeView = new TreeView<>(root);
         treeView.setShowRoot(false);
         treeView.getStyleClass().add("object-graph-tree");
+        VBox.setVgrow(treeView, javafx.scene.layout.Priority.ALWAYS);
 
         // recursively build the tree from the object graph model
         for (GraphObject rootObject : objectGraphModel.getRootObjects()) {
@@ -225,6 +226,7 @@ public class MainView {
         callStackListView.getStyleClass().add("call-stack");
         callStackListView.setCellFactory(frameListView -> new CallStackCell());
         callStackListView.setItems(callStackModel.getCallStack());
+        VBox.setVgrow(callStackListView, javafx.scene.layout.Priority.ALWAYS);
         return callStackListView;
     }
 }
