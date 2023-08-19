@@ -169,29 +169,27 @@
 
 /* ---------- Object Graph (CENTER) ---------- */
 
-.object-graph-container {
-    -fx-padding: 0;
+.graph-canvas {
+    -fx-background-color: -base;
     -fx-border-color: -mantle;
     -fx-border-width: 1;
 }
 
-.object-graph {
-    -fx-padding: 0;
-    -fx-hbar-policy: as-needed;
-    -fx-vbar-policy: as-needed;
+.graph-cell {
+    -fx-background-color: #D6FFFF;
+    -fx-border-color: #94DBDB;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
 }
 
-.object-graph > .viewport {
-    -fx-background-color: -core;
+.cell-members {
+    -fx-background-color: white;
+    -fx-border-radius: 10;
 }
 
-.scroll-pane > .viewport {
-    -fx-background-color: -core;
-}
-
-.object-graph-tree {
-    -fx-background-color: -base;
-    -fx-max-height: -1;
+.cell-member {
+    -fx-background-color: #66FFFF;
+    -fx-border-radius: 10;
 }
 
 /* ---------- Debug Menu (CENTER BOTTOM) ---------- */

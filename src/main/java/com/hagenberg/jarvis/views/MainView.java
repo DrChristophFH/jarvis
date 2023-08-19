@@ -13,11 +13,11 @@ import com.hagenberg.jarvis.views.components.AuxiliaryPane;
 import com.hagenberg.jarvis.views.components.WindowMenu;
 import com.hagenberg.jarvis.views.components.graph.*;
 import javafx.beans.InvalidationListener;
-import javafx.collections.ListChangeListener;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -30,7 +30,7 @@ public class MainView {
     private final DebuggerController debuggerController = ServiceProvider.getInstance().getDependency(DebuggerController.class);
 
     private Scene scene;
-    private Graph graph = new Graph();
+    private GraphPane graph = new GraphPane();
 
     public MainView() {
         buildScene();
@@ -87,14 +87,11 @@ public class MainView {
 
         VBox objectGraphContainer = new VBox();
         objectGraphContainer.getStyleClass().add("object-graph-container");
-        graph = new Graph();
+        graph = new GraphPane();
         addGraphComponents();
-
-        Layout layout = new RandomLayout(graph);
-        layout.execute();
-        VBox.setVgrow(graph.getScrollPane(), javafx.scene.layout.Priority.ALWAYS);
+        VBox.setVgrow(graph, javafx.scene.layout.Priority.ALWAYS);
         HBox debugMenu = buildDebugMenu();
-        objectGraphContainer.getChildren().addAll(graph.getScrollPane(), debugMenu);
+        objectGraphContainer.getChildren().addAll(graph, debugMenu);
         mainSplitPane.addPane(objectGraphContainer);
 
         HideableSplitPane rightAuxiliaryContainer = new HideableSplitPane();
@@ -111,6 +108,7 @@ public class MainView {
     public void show(Stage stage) {
         stage.setScene(scene);
         stage.setTitle("JARVIS");
+        stage.getIcons().add(new Image("/icons/logo.png"));
         stage.setMinWidth(600);
         stage.setMinHeight(400);
         stage.setResizable(true);
@@ -118,29 +116,13 @@ public class MainView {
     }
 
     private void addGraphComponents() {
+        SimpleGraphNode node1 = new SimpleGraphNode("A", 50, 50);
+        SimpleGraphNode node2 = new SimpleGraphNode("B", 200, 100);
+        SimpleGraphNode node3 = new SimpleGraphNode("C", 350, 50);
 
-        Model model = graph.getModel();
-
-        graph.beginUpdate();
-
-        model.addCell("Cell A", CellType.RECTANGLE);
-        model.addCell("Cell B", CellType.RECTANGLE);
-        model.addCell("Cell C", CellType.RECTANGLE);
-        model.addCell("Cell D", CellType.TRIANGLE);
-        model.addCell("Cell E", CellType.TRIANGLE);
-        model.addCell("Cell F", CellType.RECTANGLE);
-        model.addCell("Cell G", CellType.RECTANGLE);
-
-        model.addEdge("Cell A", "Cell B");
-        model.addEdge("Cell A", "Cell C");
-        model.addEdge("Cell B", "Cell C");
-        model.addEdge("Cell C", "Cell D");
-        model.addEdge("Cell B", "Cell E");
-        model.addEdge("Cell D", "Cell F");
-        model.addEdge("Cell D", "Cell G");
-
-        graph.endUpdate();
-
+        graph.addGraphNode(node1);
+        graph.addGraphNode(node2);
+        graph.addGraphNode(node3);
     }
 
     private HBox buildDebugMenu() {
