@@ -4,6 +4,7 @@ import com.hagenberg.jarvis.debuggee.JDIExampleDebuggee;
 import com.hagenberg.jarvis.debugger.JarvisDebuggerService;
 import com.hagenberg.jarvis.util.ServiceProvider;
 import com.hagenberg.jarvis.views.MainView;
+import com.tangorabox.componentinspector.fx.FXComponentInspectorHandler;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -18,6 +19,7 @@ public class Jarvis extends Application {
 
         MainView mainView = new MainView();
         mainView.show(primaryStage);
+        FXComponentInspectorHandler.handleAll();
     }
 
     public static void main(String[] args) {

@@ -28,7 +28,7 @@
 }
 
 /* ---------- Global Presets ---------- */
-* {
+.label {
     -fx-font-family: "Segoe UI";
     -fx-font-size: 12;
     -fx-text-fill: -font-base;
@@ -74,6 +74,16 @@
     -fx-background-color: -mantle;
 }
 
+.list-view:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.list-view {
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+}
+
 /* ---------- TreeView ---------- */
 
 .tree-cell:filled:selected:focused, .tree-cell:filled:selected {
@@ -87,6 +97,16 @@
 
 .tree-cell:filled:hover {
     -fx-background-color: -mantle;
+}
+
+.tree-view:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.tree-view {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
 }
 
 /* ---------- Controls ---------- */
@@ -132,7 +152,8 @@
 .scroll-bar .increment-button,
 .scroll-bar .decrement-button,
 .scroll-bar .track,
-.scroll-bar .track-background{
+.scroll-bar .track-background,
+.corner {
     -fx-background-color: transparent;
 }
 
@@ -169,29 +190,45 @@
 
 /* ---------- Object Graph (CENTER) ---------- */
 
-.object-graph-container {
-    -fx-padding: 0;
+.graph-canvas {
+    -fx-background-color: -base;
     -fx-border-color: -mantle;
     -fx-border-width: 1;
 }
 
-.object-graph {
-    -fx-padding: 0;
-    -fx-hbar-policy: as-needed;
-    -fx-vbar-policy: as-needed;
+.graph-node {
+    -fx-background-color: #D6FFFF;
+    -fx-border-color: #94DBDB;
+    -fx-alignment: center-left;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-spacing: 5;
+    -fx-padding: 5;
 }
 
-.object-graph > .viewport {
-    -fx-background-color: -core;
+.members-container {
+    -fx-background-color: white;
+    -fx-background-radius: 5;
+    -fx-padding: 5;
+    -fx-spacing: 5;
 }
 
-.scroll-pane > .viewport {
-    -fx-background-color: -core;
+.graph-node > .label,
+.members-container > .label {
+    -fx-font-family: "Lucida Console";
+    -fx-text-fill: black;
 }
 
-.object-graph-tree {
-    -fx-background-color: -base;
-    -fx-max-height: -1;
+.member-entry {
+    -fx-border-color: #66FFFF;
+    -fx-border-radius: 10;
+    -fx-padding: 5 10 5 10;
+}
+
+.cell-member {
+    -fx-background-color: #66FFFF;
+    -fx-border-radius: 10;
 }
 
 /* ---------- Debug Menu (CENTER BOTTOM) ---------- */
@@ -264,16 +301,6 @@
 }
 
 /* ---------- Call Stack ---------- */
-
-.call-stack {
-    -fx-padding: 0;
-    -fx-background-color: transparent;
-}
-
-.call-stack:focused {
-    -fx-focus-color: transparent;
-    -fx-faint-focus-color: transparent;
-}
 
 .call-stack-cell-container .customizable-titled-pane-header {
     -fx-alignment: center-left;
