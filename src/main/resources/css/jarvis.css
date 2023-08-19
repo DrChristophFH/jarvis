@@ -132,7 +132,8 @@
 .scroll-bar .increment-button,
 .scroll-bar .decrement-button,
 .scroll-bar .track,
-.scroll-bar .track-background{
+.scroll-bar .track-background,
+.corner {
     -fx-background-color: transparent;
 }
 
