@@ -1,25 +1,48 @@
 package com.hagenberg.jarvis.views.components.graph;
 
+import com.hagenberg.jarvis.models.entities.GraphObject;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.text.Text;
+import javafx.scene.layout.VBox;
 
 public class SimpleGraphNode implements GraphNode {
 
     private final Pane visual;
-    private final Circle circle;
-    private final Text label;
 
-    public SimpleGraphNode(String labelContent, double x, double y) {
-        circle = new Circle(30, Color.LIGHTBLUE); // 30 is the radius
-        label = new Text(labelContent);
+    public SimpleGraphNode(GraphObject object, double x, double y) {
+        Label name = new Label(object.getName());
 
-        // Center the label in the circle
-        label.setLayoutX(-label.getLayoutBounds().getWidth() / 2);
-        label.setLayoutY(label.getLayoutBounds().getHeight() / 4);
+        VBox publicMembersContainer = new VBox(5); // spacing between members
+        publicMembersContainer.getStyleClass().add("members-container");
+        publicMembersContainer.getChildren().add(new Label("Public"));
 
-        visual = new Pane(circle, label);
+        VBox privateMembersContainer = new VBox(5); // spacing between members
+        privateMembersContainer.getStyleClass().add("members-container");
+        privateMembersContainer.getChildren().add(new Label("Private"));
+
+        for (GraphObject member : object.getMembers()) {
+            // Add name and value labels for each member
+            HBox memberContainer = new HBox();
+            memberContainer.getStyleClass().add("member-entry");
+            Label memberName = new Label(member.getName());
+            memberName.getStyleClass().add("var-name");
+            Label memberType = new Label(" : " + member.getType());
+            memberType.getStyleClass().add("simple-type");
+            Label memberValue = new Label(" = " + member.getValue());
+            memberValue.getStyleClass().add("value");
+
+            memberContainer.getChildren().addAll(memberName, memberType, memberValue);
+
+            publicMembersContainer.getChildren().add(memberContainer);
+            privateMembersContainer.getChildren().add(memberContainer);
+        }
+
+        VBox rootContainer = new VBox(10, name, publicMembersContainer, privateMembersContainer); // spacing between main elements
+        rootContainer.getStyleClass().add("graph-node");
+
+        visual = new Pane(rootContainer);
         visual.relocate(x, y);
     }
 

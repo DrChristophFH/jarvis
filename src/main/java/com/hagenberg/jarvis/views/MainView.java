@@ -116,9 +116,13 @@ public class MainView {
     }
 
     private void addGraphComponents() {
-        SimpleGraphNode node1 = new SimpleGraphNode("A", 50, 50);
-        SimpleGraphNode node2 = new SimpleGraphNode("B", 200, 100);
-        SimpleGraphNode node3 = new SimpleGraphNode("C", 350, 50);
+        GraphObject test = new GraphObject("test", "String", "test");
+        test.getMembers().add(new GraphObject("test", "String", "test"));
+        test.getMembers().add(new GraphObject("Lel", "String", "test"));
+
+        SimpleGraphNode node1 = new SimpleGraphNode(test, 50, 50);
+        SimpleGraphNode node2 = new SimpleGraphNode(test, 100, 150);
+        SimpleGraphNode node3 = new SimpleGraphNode(test, 450, 250);
 
         graph.addGraphNode(node1);
         graph.addGraphNode(node2);
