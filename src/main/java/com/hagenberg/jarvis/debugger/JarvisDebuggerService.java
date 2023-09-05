@@ -189,7 +189,7 @@ public class JarvisDebuggerService {
         }
     }
 
-    private GraphObject buildGraphObject(String name, Type type, String typeName, Value value) {
+    private GraphObject buildGraphObject(String name, Type type, String typeName, Value value) throws ClassNotLoadedException {
         GraphObject newObject = new GraphObject();
         newObject.nameProperty().set(name);
         newObject.typeProperty().set(TypeFormatter.getSimpleType(typeName));
@@ -200,7 +200,10 @@ public class JarvisDebuggerService {
             for (Field member : object.referenceType().allFields()) {
                 if (member.isStatic()) continue; // skip static members
                 Value memberValue = object.getValue(member);
-                newObject.getMembers().add(buildGraphObject(member.name(), memberValue.type(), member.typeName(), memberValue));
+                GraphObject temp = buildGraphObject(member.name(), member.type(), member.typeName(), memberValue);
+                temp.setAccessModifierFromJVM(member.modifiers());
+                temp.isPrimitive(member.type() instanceof PrimitiveType);
+                newObject.getMembers().add(temp);
             }
         } else {
             if (value != null) {

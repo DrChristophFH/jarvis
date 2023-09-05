@@ -1,5 +1,6 @@
 package com.hagenberg.jarvis.views.components.graph;
 
+import com.hagenberg.jarvis.models.entities.AccessModifier;
 import com.hagenberg.jarvis.models.entities.GraphObject;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -12,38 +13,60 @@ public class SimpleGraphNode implements GraphNode {
     private final Pane visual;
 
     public SimpleGraphNode(GraphObject object, double x, double y) {
+        HBox header = new HBox();
         Label name = new Label(object.getName());
+        name.getStyleClass().add("graph-node-name");
+        Label type = new Label(object.getType());
+        type.getStyleClass().add("simple-type");
+        header.getStyleClass().add("graph-node-header");
+        header.getChildren().addAll(name, type);
 
-        VBox publicMembersContainer = new VBox(5); // spacing between members
-        publicMembersContainer.getStyleClass().add("members-container");
-        publicMembersContainer.getChildren().add(new Label("Public"));
-
-        VBox privateMembersContainer = new VBox(5); // spacing between members
-        privateMembersContainer.getStyleClass().add("members-container");
-        privateMembersContainer.getChildren().add(new Label("Private"));
+        VBox publicMembersContainer = buildMemberContainer("Public");
+        VBox privateMembersContainer = buildMemberContainer("Private");
 
         for (GraphObject member : object.getMembers()) {
-            // Add name and value labels for each member
             HBox memberContainer = new HBox();
-            memberContainer.getStyleClass().add("member-entry");
-            Label memberName = new Label(member.getName());
-            memberName.getStyleClass().add("var-name");
-            Label memberType = new Label(" : " + member.getType());
-            memberType.getStyleClass().add("simple-type");
-            Label memberValue = new Label(" = " + member.getValue());
-            memberValue.getStyleClass().add("value");
 
-            memberContainer.getChildren().addAll(memberName, memberType, memberValue);
+            if (member.isPrimitive()) {
+                // Add name and value labels for each member
+                memberContainer.getStyleClass().add("member-entry");
+                Label memberName = new Label(member.getName());
+                memberName.getStyleClass().add("var-name");
+                Label memberType = new Label(" : " + member.getType());
+                memberType.getStyleClass().add("simple-type");
+                Label memberValue = new Label(" = " + member.getValue());
+                memberValue.getStyleClass().add("value");
 
-            publicMembersContainer.getChildren().add(memberContainer);
-            privateMembersContainer.getChildren().add(memberContainer);
+                memberContainer.getChildren().addAll(memberName, memberType, memberValue);
+            } else {
+                memberContainer.getChildren().add(new SimpleGraphNode(member, 0, 0).getNodeVisual());
+            }
+
+            if (AccessModifier.ENUM.isPublic(member.getAccessModifier())) {
+                publicMembersContainer.getChildren().add(memberContainer);
+            } else {
+                privateMembersContainer.getChildren().add(memberContainer);
+            }
         }
 
-        VBox rootContainer = new VBox(10, name, publicMembersContainer, privateMembersContainer); // spacing between main elements
+        VBox rootContainer = new VBox(10, header);
+        if (publicMembersContainer.getChildren().size() > 1) {
+            rootContainer.getChildren().add(publicMembersContainer);
+        }
+        if (privateMembersContainer.getChildren().size() > 1) {
+            rootContainer.getChildren().add(privateMembersContainer);
+        }
         rootContainer.getStyleClass().add("graph-node");
 
         visual = new Pane(rootContainer);
         visual.relocate(x, y);
+    }
+
+    private static VBox buildMemberContainer(String Public) {
+        VBox publicMembersContainer = new VBox();
+        publicMembersContainer.getStyleClass().add("members-container");
+        publicMembersContainer.getChildren().add(new Label(Public));
+        return publicMembersContainer;
     }
 
     @Override

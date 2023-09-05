@@ -9,18 +9,20 @@ public class GraphObject {
     private final StringProperty name = new SimpleStringProperty();
     private final StringProperty type = new SimpleStringProperty();
     private final StringProperty value = new SimpleStringProperty();
+    private boolean isPrimitive;
+    private int accessModifier;
+    private final ObservableList<GraphObject> members = FXCollections.observableArrayList();
 
     public GraphObject() {
-        this("", "", "");
+        this("", "", "", false);
     }
 
-    public GraphObject(String name, String type, String value) {
+    public GraphObject(String name, String type, String value, boolean isPrimitive) {
         this.name.set(name);
         this.type.set(type);
         this.value.set(value);
+        this.isPrimitive = isPrimitive;
     }
-
-    private final ObservableList<GraphObject> members = FXCollections.observableArrayList();
 
     public String getName() {
         return name.get();
@@ -48,5 +50,21 @@ public class GraphObject {
 
     public ObservableList<GraphObject> getMembers() {
         return members;
+    }
+
+    public void setAccessModifierFromJVM(int accessModifier) {
+        this.accessModifier = accessModifier;
+    }
+
+    public int getAccessModifier() {
+        return accessModifier;
+    }
+
+    public void isPrimitive(boolean isPrimitive) {
+        this.isPrimitive = isPrimitive;
+    }
+
+    public boolean isPrimitive() {
+        return isPrimitive;
     }
 }
