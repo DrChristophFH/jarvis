@@ -88,7 +88,7 @@ public class MainView {
         VBox objectGraphContainer = new VBox();
         objectGraphContainer.getStyleClass().add("object-graph-container");
         graph = new GraphPane();
-        addGraphComponents();
+        bindModelToGraph();
         VBox.setVgrow(graph, javafx.scene.layout.Priority.ALWAYS);
         HBox debugMenu = buildDebugMenu();
         objectGraphContainer.getChildren().addAll(graph, debugMenu);
@@ -115,18 +115,18 @@ public class MainView {
         stage.show();
     }
 
-    private void addGraphComponents() {
-        GraphObject test = new GraphObject("test", "String", "test");
-        test.getMembers().add(new GraphObject("test", "String", "test"));
-        test.getMembers().add(new GraphObject("Lel", "String", "test"));
+    private void bindModelToGraph() {
+        ObjectGraphModel objectGraphModel = ServiceProvider.getInstance().getDependency(ObjectGraphModel.class);
 
-        SimpleGraphNode node1 = new SimpleGraphNode(test, 50, 50);
-        SimpleGraphNode node2 = new SimpleGraphNode(test, 100, 150);
-        SimpleGraphNode node3 = new SimpleGraphNode(test, 450, 250);
-
-        graph.addGraphNode(node1);
-        graph.addGraphNode(node2);
-        graph.addGraphNode(node3);
+        // add change listener to object graph model to update the graph
+        objectGraphModel.getRootObjects().addListener((InvalidationListener) Observable -> {
+            graph.clear();
+            int i = 0;
+            for (GraphObject rootObject : objectGraphModel.getRootObjects()) {
+                i = i + 200;
+                graph.addGraphNode(new SimpleGraphNode(rootObject, 20, 20 + i));
+            }
+        });
     }
 
     private HBox buildDebugMenu() {
