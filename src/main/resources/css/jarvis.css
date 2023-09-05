@@ -214,10 +214,15 @@
     -fx-spacing: 5;
 }
 
-.graph-node > .label,
+.graph-node-name,
 .members-container > .label {
     -fx-font-family: "Lucida Console";
     -fx-text-fill: black;
+}
+
+.graph-node-header {
+    -fx-padding: 5;
+    -fx-spacing: 5;
 }
 
 .member-entry {
