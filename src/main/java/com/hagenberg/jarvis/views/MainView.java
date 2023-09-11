@@ -4,7 +4,6 @@ import com.hagenberg.jarvis.controllers.DebuggerController;
 import com.hagenberg.jarvis.models.CallStackModel;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.models.entities.CallStackFrame;
-import com.hagenberg.jarvis.models.entities.GraphObject;
 import com.hagenberg.jarvis.util.SVGManager;
 import com.hagenberg.jarvis.util.ServiceProvider;
 import com.hagenberg.jarvis.views.components.CallStackCell;
