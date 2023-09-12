@@ -1,11 +1,11 @@
 package com.hagenberg.jarvis.views.components.graph;
 
-import com.hagenberg.jarvis.models.entities.graph.Node;
+import com.hagenberg.jarvis.models.entities.graph.GNode;
 
 public abstract class NodeVisualization {
-    protected Node node;
+    protected GNode node;
 
-    public NodeVisualization(Node node) {
+    public NodeVisualization(GNode node) {
         this.node = node;
     }
 

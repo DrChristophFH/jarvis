@@ -1,9 +1,10 @@
 package com.hagenberg.jarvis.models.entities.graph;
 
-public class ReferenceNode extends Node {
-    private ObjectNode object;
+public class ReferenceGNode extends GNode {
+    private ObjectGNode object;
 
-    public ReferenceNode(ObjectNode object) {
+    public ReferenceGNode(ObjectGNode object) {
+        super(object.getType());
         this.object = object;
     }
 
