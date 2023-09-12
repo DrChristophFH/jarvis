@@ -175,12 +175,11 @@ public class JarvisDebuggerService {
 
     private void updateObjectGraphModel(ThreadReference thread) throws IncompatibleThreadStateException, AbsentInformationException, ClassNotLoadedException {
         // clear root objects
-        Platform.runLater(() -> objectGraphModel.getNodes().clear());
+        objectGraphModel.getNodes().clear();
 
         for (StackFrame frame : thread.frames()) {
             for (LocalVariable variable : frame.visibleVariables()) {
                 String varName = variable.name();
-                String varTypeName = variable.type().toString();
                 Value varValue = frame.getValue(variable);
 
                 GNode varNode = objectGraphModel.getNodeFromValue(varValue);
