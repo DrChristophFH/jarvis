@@ -3,6 +3,7 @@ package com.hagenberg.jarvis.views;
 import com.hagenberg.jarvis.controllers.DebuggerController;
 import com.hagenberg.jarvis.models.CallStackModel;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
+import com.hagenberg.jarvis.models.entities.AccessModifier;
 import com.hagenberg.jarvis.models.entities.CallStackFrame;
 import com.hagenberg.jarvis.models.entities.graph.*;
 import com.hagenberg.jarvis.util.SVGManager;
@@ -12,11 +13,14 @@ import com.hagenberg.jarvis.views.components.HideableSplitPane;
 import com.hagenberg.jarvis.views.components.AuxiliaryPane;
 import com.hagenberg.jarvis.views.components.WindowMenu;
 import com.hagenberg.jarvis.views.components.graph.*;
+import javafx.collections.ListChangeListener;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -149,26 +153,54 @@ public class MainView {
     private Node buildTreeViewOfObjectGraph() {
         ObjectGraphModel objectGraphModel = ServiceProvider.getInstance().getDependency(ObjectGraphModel.class);
 
-        TreeItem<GVariable> rootItem = new TreeItem<>(null);
+        TreeItem<GVariable> rootItem = new TreeItem<>(new GVariable("Root Node", null));
         rootItem.setExpanded(true);
 
         for (LocalGVariable localVariable : objectGraphModel.getNodes()) {
             rootItem.getChildren().add(buildTreeForNode(localVariable));
         }
 
+        objectGraphModel.getNodes().addListener((ListChangeListener<LocalGVariable>) change -> {
+            while (change.next()) {
+                if (change.wasAdded()) {
+                    System.out.println("Added " + change.getAddedSubList().size() + " elements");
+                    for (LocalGVariable addedVar : change.getAddedSubList()) {
+                        rootItem.getChildren().add(buildTreeForNode(addedVar));
+                    }
+                }
+                if (change.wasRemoved()) {
+                    for (LocalGVariable removedVar : change.getRemoved()) {
+                        System.out.println("Removed " + removedVar.getName());
+                        rootItem.getChildren().removeIf(treeItem -> treeItem.getValue().equals(removedVar));
+                    }
+                }
+            }
+        });
+
         TreeView<GVariable> treeView = new TreeView<>(rootItem);
         treeView.getStyleClass().add("object-graph-tree");
         treeView.setShowRoot(false);
         VBox.setVgrow(treeView, javafx.scene.layout.Priority.ALWAYS);
 
-        treeView.setCellFactory(tv -> new TreeCell<GVariable>() {
+        treeView.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            if (event.getButton() == MouseButton.SECONDARY) {
+                TreeItem<GVariable> selectedItem = treeView.getSelectionModel().getSelectedItem();
+                if (selectedItem != null) {
+                    expandAllChildren(selectedItem);
+                }
+            }
+        });
+
+        treeView.setCellFactory(tv -> new TreeCell<>() {
+            private final Label accessModifier = new Label();
             private final Label type = new Label();
             private final Label name = new Label();
             private final Label value = new Label();
-            private final HBox container = new HBox(type, name, value);
+            private final HBox container = new HBox(accessModifier, type, name, value);
 
             {
                 container.getStyleClass().add("label-container");
+                accessModifier.getStyleClass().add("access-modifier");
                 type.getStyleClass().add("type");
                 name.getStyleClass().add("var-name");
                 value.getStyleClass().add("value");
@@ -180,15 +212,19 @@ public class MainView {
                 if (item == null || empty) {
                     setGraphic(null);
                 } else {
-                    GNode associatedNode = item.getNode(); // Assuming a method to get associated GNode
+                    GNode associatedNode = item.getNode();
                     type.setText(associatedNode.getType());
-
                     name.setText(item.getName());
+                    if (item instanceof MemberGVariable memberGVariable) {
+                        accessModifier.setText(memberGVariable.getAccessModifier().toString());
+                    } else {
+                        accessModifier.setText("");
+                    }
 
                     if (associatedNode instanceof PrimitiveGNode primitiveGNode) {
                         value.setText(String.valueOf(primitiveGNode.getPrimitiveValue()));
                     } else if (associatedNode instanceof ReferenceGNode referenceGNode) {
-                        value.setText("Reference to Object "+ referenceGNode.getObject().getId());
+                        value.setText("Reference to Object " + referenceGNode.getObject().getId());
                     } else if (associatedNode instanceof ArrayGNode arrayGNode) {
                         value.setText(arrayGNode.getContents().size() + " elements");
                     } else if (associatedNode instanceof ObjectGNode objectGNode) {
@@ -201,6 +237,15 @@ public class MainView {
         });
 
         return treeView;
+    }
+
+    private void expandAllChildren(TreeItem<GVariable> treeItem) {
+        if (treeItem != null && !treeItem.isLeaf()) {
+            treeItem.setExpanded(true);
+            for (TreeItem<GVariable> child : treeItem.getChildren()) {
+                expandAllChildren(child);
+            }
+        }
     }
 
     private TreeItem<GVariable> buildTreeForNode(GVariable variable) {
