@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ObjectGNode extends GNode {
-    private long id; // ID from JDI
-    private final List<MemberGVariable> member = new ArrayList<>();
+    private final long id; // ID from JDI
+    private final List<MemberGVariable> members = new ArrayList<>();
 
     public ObjectGNode(long id, String type) {
         super(type);
@@ -13,7 +13,15 @@ public class ObjectGNode extends GNode {
     }
 
     public void addMember(MemberGVariable memberVariable) {
-        member.add(memberVariable);
+        members.add(memberVariable);
+    }
+
+    public List<MemberGVariable> getMembers() {
+        return members;
+    }
+
+    public long getId() {
+        return id;
     }
 
     @Override

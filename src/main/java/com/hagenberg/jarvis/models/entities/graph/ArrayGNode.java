@@ -1,9 +1,10 @@
 package com.hagenberg.jarvis.models.entities.graph;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ArrayGNode extends ObjectGNode {
-    private List<GNode> contents; // This can hold a list of PrimitiveNode, ArrayNode or ReferenceNode objects
+    private final List<GNode> contents = new ArrayList<>();
 
     public ArrayGNode(long id, String type) {
         super(id, type);
@@ -11,6 +12,10 @@ public class ArrayGNode extends ObjectGNode {
 
     public void addContent(GNode node) {
         contents.add(node);
+    }
+
+    public List<GNode> getContents() {
+        return contents;
     }
 
     @Override

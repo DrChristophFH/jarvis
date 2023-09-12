@@ -7,4 +7,8 @@ public class LocalGVariable extends GVariable {
         super(name, node);
         this.stackFrameInformation = stackFrameInformation;
     }
+
+    public StackFrameInformation getStackFrameInformation() {
+        return stackFrameInformation;
+    }
 }

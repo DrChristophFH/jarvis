@@ -7,4 +7,8 @@ public class MemberGVariable extends GVariable {
         super(name, node);
         this.accessModifier = accessModifier;
     }
+
+    public int getAccessModifier() {
+        return accessModifier;
+    }
 }

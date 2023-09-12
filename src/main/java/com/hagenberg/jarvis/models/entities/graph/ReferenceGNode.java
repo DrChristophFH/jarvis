@@ -1,11 +1,15 @@
 package com.hagenberg.jarvis.models.entities.graph;
 
 public class ReferenceGNode extends GNode {
-    private ObjectGNode object;
+    private final ObjectGNode object;
 
     public ReferenceGNode(ObjectGNode object) {
         super(object.getType());
         this.object = object;
+    }
+
+    public ObjectGNode getObject() {
+        return object;
     }
 
     @Override

@@ -39,16 +39,6 @@ public class GraphPane extends Region {
         setUpEventHandlers();
     }
 
-    public void addGraphNode(GraphNode node) {
-        Node visual = node.getNodeVisual();
-        contentGroup.getChildren().add(visual);
-    }
-
-    public void removeGraphNode(GraphNode node) {
-        Node visual = node.getNodeVisual();
-        contentGroup.getChildren().remove(visual);
-    }
-
     public void clear() {
         contentGroup.getChildren().clear();
     }
