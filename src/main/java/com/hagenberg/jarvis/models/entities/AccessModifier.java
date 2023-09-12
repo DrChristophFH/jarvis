@@ -15,50 +15,82 @@ package com.hagenberg.jarvis.models.entities;
  * </p>
  * @see <a href="https://docs.oracle.com/javase/specs/jvms/se17/html/jvms-4.html#jvms-4.5-200-A.1">JVM Spec</a>
  */
-public enum AccessModifier {
-    PUBLIC,
-    PRIVATE,
-    PROTECTED,
-    STATIC,
-    FINAL,
-    VOLATILE,
-    TRANSIENT,
-    SYNTHETIC,
-    ENUM;
+public class AccessModifier {
+    private final int accessModifier;
 
-    public boolean isPublic(int accessModifier) {
+    public AccessModifier(int accessModifier) {
+        this.accessModifier = accessModifier;
+    }
+
+    public int getNumber() {
+        return accessModifier;
+    }
+
+    public boolean isPublic() {
         return (accessModifier & 0x0001) != 0;
     }
 
-    public boolean isPrivate(int accessModifier) {
+    public boolean isPrivate() {
         return (accessModifier & 0x0002) != 0;
     }
 
-    public boolean isProtected(int accessModifier) {
+    public boolean isProtected() {
         return (accessModifier & 0x0004) != 0;
     }
 
-    public boolean isStatic(int accessModifier) {
+    public boolean isStatic() {
         return (accessModifier & 0x0008) != 0;
     }
 
-    public boolean isFinal(int accessModifier) {
+    public boolean isFinal() {
         return (accessModifier & 0x0010) != 0;
     }
 
-    public boolean isVolatile(int accessModifier) {
+    public boolean isVolatile() {
         return (accessModifier & 0x0040) != 0;
     }
 
-    public boolean isTransient(int accessModifier) {
+    public boolean isTransient() {
         return (accessModifier & 0x0080) != 0;
     }
 
-    public boolean isSynthetic(int accessModifier) {
+    public boolean isSynthetic() {
         return (accessModifier & 0x1000) != 0;
     }
 
-    public boolean isEnum(int accessModifier) {
+    public boolean isEnum() {
         return (accessModifier & 0x4000) != 0;
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        if (isPublic()) {
+            sb.append("public ");
+        }
+        if (isPrivate()) {
+            sb.append("private ");
+        }
+        if (isProtected()) {
+            sb.append("protected ");
+        }
+        if (isStatic()) {
+            sb.append("static ");
+        }
+        if (isFinal()) {
+            sb.append("final ");
+        }
+        if (isVolatile()) {
+            sb.append("volatile ");
+        }
+        if (isTransient()) {
+            sb.append("transient ");
+        }
+        if (isSynthetic()) {
+            sb.append("synthetic ");
+        }
+        if (isEnum()) {
+            sb.append("enum ");
+        }
+        return sb.toString();
     }
 }
