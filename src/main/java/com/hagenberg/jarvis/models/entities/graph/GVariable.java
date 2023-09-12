@@ -1,5 +1,7 @@
 package com.hagenberg.jarvis.models.entities.graph;
 
+import java.util.Objects;
+
 public class GVariable {
     protected String name;
     protected GNode node; // This can be an instance of PrimitiveNode, ArrayNode, or ReferenceNode
@@ -19,5 +21,18 @@ public class GVariable {
 
     public static GVariable fromNode(GNode node, String name) {
         return new GVariable(name, node);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GVariable gVariable = (GVariable) o;
+        return Objects.equals(name, gVariable.name) && Objects.equals(node, gVariable.node);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, node);
     }
 }
