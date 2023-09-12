@@ -25,26 +25,28 @@ public class ObjectGraphModel {
     public GNode getNodeFromValue(Value value) {
         if (value instanceof ObjectReference objRef) {
             Long id = objRef.uniqueID();
+            ObjectGNode existingNode = objectMap.get(id);
 
-            return new ReferenceGNode(objectMap.computeIfAbsent(id, key -> {
+            if (existingNode == null) {
                 if (objRef instanceof ArrayReference arrayRef) {
-                    // Create a new ArrayNode, query JDI for its elements, and add to map
-                    return createArrayNode(arrayRef);
+                    existingNode = createArrayNode(arrayRef);
                 } else {
-                    // Create a new ObjectNode, query JDI for its members, and add to map
-                    return createObjectNode(objRef);
+                    existingNode = createObjectNode(objRef);
                 }
-            }));
+                objectMap.put(id, existingNode);
+            }
+
+            return new ReferenceGNode(existingNode);
         } else if (value instanceof PrimitiveValue primValue) {
-            // create and return a PrimitiveNode from the value
             return createPrimitiveNode(primValue);
         }
-        return null; // or some other kind of handling for unsupported types
+        return null;
     }
 
     private ObjectGNode createObjectNode(ObjectReference objRef) {
         ObjectGNode newNode = new ObjectGNode(objRef.uniqueID(), objRef.referenceType().name());
         for (Field field : objRef.referenceType().fields()) {
+            if (field.isStatic()) continue; // skip static fields
             Value fieldValue = objRef.getValue(field);
             newNode.addMember(new MemberGVariable(field.name(), getNodeFromValue(fieldValue), field.modifiers()));
         }
