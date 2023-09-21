@@ -2,10 +2,11 @@
 
 /* ---------- Colors ---------- */
 * {
-    -methods: #fd9842;
-    -types: #528541;
-    -var-name: #9775a9;
-    -value: #BBBBBB;
+    -methods: #fdc46c;
+    -access-modifier: #ca7732;
+    -types: #e051b7;
+    -value: #9386cc;
+    -var-name: #BBBBBB;
 
     -highlight: #0D293E;
     -accent: #30c7f5;
@@ -50,6 +51,10 @@
 
 .value {
     -fx-text-fill: -value;
+}
+
+.access-modifier {
+    -fx-text-fill: -access-modifier;
 }
 
 /* ---------- CustomizableTitledPane ---------- */
@@ -107,6 +112,10 @@
 .tree-view {
     -fx-background-color: transparent;
     -fx-padding: 0;
+}
+
+.tree-view .arrow {
+    -fx-background-color: -icon;
 }
 
 /* ---------- Controls ---------- */

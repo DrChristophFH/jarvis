@@ -1,42 +1,68 @@
 package com.hagenberg.jarvis.models;
 
-import com.hagenberg.jarvis.models.entities.GraphObject;
+import com.hagenberg.jarvis.models.entities.graph.*;
+import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
 import com.sun.jdi.*;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ObjectGraphModel {
-    // Settings for the object graph
-    private final IntegerProperty discoveryDepth = new SimpleIntegerProperty(4);
-    private final ObservableList<String> fullyDiscoveryClasses = FXCollections.observableArrayList();
-    private final ObservableList<String> stopDiscoveryClasses = FXCollections.observableArrayList();
+    // The roots are the local variables visible
+    private final ObservableList<LocalGVariable> nodes = FXCollections.observableArrayList();
+    private final Map<Long, ObjectGNode> objectMap = new HashMap<>(); // maps object ids to graph objects
 
-    // The root objects of the object graph
-    private final ObservableList<GraphObject> rootObjects = FXCollections.observableArrayList();
-
-    public int getDiscoveryDepth() {
-        return discoveryDepth.get();
+    public void addLocalVariable(LocalGVariable localVariable) {
+        nodes.add(localVariable);
     }
 
-    public IntegerProperty discoveryDepthProperty() {
-        return discoveryDepth;
+    public ObservableList<LocalGVariable> getNodes() {
+        return nodes;
     }
 
-    public ObservableList<String> getFullyDiscoveryClasses() {
-        return fullyDiscoveryClasses;
+    public GNode getNodeFromValue(Value value) {
+        if (value instanceof ObjectReference objRef) {
+            Long id = objRef.uniqueID();
+            ObjectGNode existingNode = objectMap.get(id);
+
+            if (existingNode == null) {
+                if (objRef instanceof ArrayReference arrayRef) {
+                    existingNode = createArrayNode(arrayRef);
+                } else {
+                    existingNode = createObjectNode(objRef);
+                }
+                objectMap.put(id, existingNode);
+            }
+
+            return new ReferenceGNode(existingNode);
+        } else if (value instanceof PrimitiveValue primValue) {
+            return createPrimitiveNode(primValue);
+        }
+        return null;
     }
 
-    public ObservableList<String> getStopDiscoveryClasses() {
-        return stopDiscoveryClasses;
+    private ObjectGNode createObjectNode(ObjectReference objRef) {
+        ObjectGNode newNode = new ObjectGNode(objRef.uniqueID(), objRef.referenceType().name());
+        for (Field field : objRef.referenceType().fields()) {
+            if (field.isStatic()) continue; // skip static fields
+            Value fieldValue = objRef.getValue(field);
+            newNode.addMember(new MemberGVariable(field.name(), getNodeFromValue(fieldValue), field.modifiers()));
+        }
+        return newNode;
     }
 
-    public ObservableList<GraphObject> getRootObjects() {
-        return rootObjects;
+    private ObjectGNode createArrayNode(ArrayReference arrayRef) {
+        ArrayGNode newNode = new ArrayGNode(arrayRef.uniqueID(), arrayRef.referenceType().name());
+        for (Value value : arrayRef.getValues()) {
+            newNode.addContent(getNodeFromValue(value));
+        }
+        return newNode;
     }
 
-    public void addRootObject(GraphObject rootObject) {
-        rootObjects.add(rootObject);
+    private GNode createPrimitiveNode(PrimitiveValue primValue) {
+        // create and return a new PrimitiveNode from the primValue
+        return new PrimitiveGNode(primValue.type().toString(), primValue.toString());
     }
 }

@@ -2,12 +2,12 @@ package com.hagenberg.jarvis.debugger;
 
 import com.hagenberg.jarvis.models.CallStackModel;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
-import com.hagenberg.jarvis.models.entities.CallStackFrame;
-import com.hagenberg.jarvis.models.entities.GraphObject;
-import com.hagenberg.jarvis.models.entities.MethodParameter;
+import com.hagenberg.jarvis.models.entities.*;
+import com.hagenberg.jarvis.models.entities.graph.GNode;
+import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
+import com.hagenberg.jarvis.models.entities.graph.StackFrameInformation;
 import com.hagenberg.jarvis.util.OutputHelper;
 import com.hagenberg.jarvis.util.ServiceProvider;
-import com.hagenberg.jarvis.util.TypeFormatter;
 import com.sun.jdi.*;
 import com.sun.jdi.connect.Connector;
 import com.sun.jdi.connect.LaunchingConnector;
@@ -175,44 +175,19 @@ public class JarvisDebuggerService {
 
     private void updateObjectGraphModel(ThreadReference thread) throws IncompatibleThreadStateException, AbsentInformationException, ClassNotLoadedException {
         // clear root objects
-        Platform.runLater(() -> objectGraphModel.getRootObjects().clear());
+        objectGraphModel.getNodes().clear();
 
         for (StackFrame frame : thread.frames()) {
             for (LocalVariable variable : frame.visibleVariables()) {
-                Value value = frame.getValue(variable);
-                String name = variable.name();
-                Type type = variable.type();
-                String typeName = type.name();
-                GraphObject temp = buildGraphObject(name, type, typeName, value);
-                Platform.runLater(() -> objectGraphModel.addRootObject(temp));
+                String varName = variable.name();
+                Value varValue = frame.getValue(variable);
+
+                GNode varNode = objectGraphModel.getNodeFromValue(varValue);
+                StackFrameInformation sfInfo = new StackFrameInformation();
+                LocalGVariable localVariable = new LocalGVariable(varName, varNode, sfInfo);
+                objectGraphModel.addLocalVariable(localVariable);
             }
         }
-    }
-
-    private GraphObject buildGraphObject(String name, Type type, String typeName, Value value) throws ClassNotLoadedException {
-        GraphObject newObject = new GraphObject();
-        newObject.nameProperty().set(name);
-        newObject.typeProperty().set(TypeFormatter.getSimpleType(typeName));
-
-        if (value instanceof ObjectReference object) {
-            newObject.valueProperty().set("ObjectReference" + object.uniqueID());
-            // add all members of the object
-            for (Field member : object.referenceType().allFields()) {
-                if (member.isStatic()) continue; // skip static members
-                Value memberValue = object.getValue(member);
-                GraphObject temp = buildGraphObject(member.name(), member.type(), member.typeName(), memberValue);
-                temp.setAccessModifierFromJVM(member.modifiers());
-                temp.isPrimitive(member.type() instanceof PrimitiveType);
-                newObject.getMembers().add(temp);
-            }
-        } else {
-            if (value != null) {
-                newObject.valueProperty().set(value.toString());
-            } else {
-                newObject.valueProperty().set("null");
-            }
-        }
-        return newObject;
     }
 
     private void updateCallStackModel(ThreadReference thread) throws IncompatibleThreadStateException, AbsentInformationException, ClassNotLoadedException {
