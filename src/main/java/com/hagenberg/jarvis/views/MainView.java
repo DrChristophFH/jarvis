@@ -14,6 +14,7 @@ import com.hagenberg.jarvis.views.components.AuxiliaryPane;
 import com.hagenberg.jarvis.views.components.WindowMenu;
 import com.hagenberg.jarvis.views.components.graph.*;
 import javafx.collections.ListChangeListener;
+import javafx.concurrent.Worker;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -24,7 +25,10 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import javafx.stage.Stage;
+import netscape.javascript.JSObject;
 
 import java.util.List;
 import java.util.Objects;
@@ -93,9 +97,23 @@ public class MainView {
         objectGraphContainer.getStyleClass().add("object-graph-container");
         graph = new GraphPane();
         bindModelToGraph();
-        VBox.setVgrow(graph, javafx.scene.layout.Priority.ALWAYS);
+
+        WebView webView = new WebView();
+        WebEngine webEngine = webView.getEngine();
+        webEngine.load(getClass().getResource("/html/rete-editor.html").toExternalForm());
+
+        // Wait for the page to load
+        webEngine.getLoadWorker().stateProperty().addListener((observable, oldState, newState) -> {
+            if(newState == Worker.State.SUCCEEDED) {
+                ObjectGraphModel objectGraphModel = ServiceProvider.getInstance().getDependency(ObjectGraphModel.class);
+                System.out.println(objectGraphModel.toJSON());
+                //webEngine.executeScript("populateNodes(" + objectGraphModel.toJSON() + ")");
+            }
+        });
+
+        VBox.setVgrow(webView, javafx.scene.layout.Priority.ALWAYS);
         HBox debugMenu = buildDebugMenu();
-        objectGraphContainer.getChildren().addAll(graph, debugMenu);
+        objectGraphContainer.getChildren().addAll(webView, debugMenu);
         mainSplitPane.addPane(objectGraphContainer);
 
         HideableSplitPane rightAuxiliaryContainer = new HideableSplitPane();

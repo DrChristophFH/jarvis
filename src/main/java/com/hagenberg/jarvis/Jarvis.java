@@ -12,7 +12,7 @@ public class Jarvis extends Application {
     @Override
     public void start(Stage primaryStage) {
         JarvisDebuggerService debugger = new JarvisDebuggerService(JDIExampleDebuggee.class);
-        int[] breakPoints = {27};
+        int[] breakPoints = {29};
         debugger.setBreakPointLines(breakPoints);
         debugger.launch();
         ServiceProvider.getInstance().registerDependency(JarvisDebuggerService.class, debugger);
