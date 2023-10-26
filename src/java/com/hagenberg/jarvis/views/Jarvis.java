@@ -13,15 +13,12 @@ public class Jarvis {
   private ImString mainClass = new ImString();
 
   Log eventLog = new Log("Event Log");
+  Console console = new Console();
   ObjectGraph objectGraph = new ObjectGraph();
   DebugStepControl debugStepControl = new DebugStepControl();
   BreakPointControl breakPointControl = new BreakPointControl();
 
-  JarvisDebugger jarvisDebugger = new JarvisDebugger(eventLog, breakPointControl);
-  
-  public Jarvis() {
-
-  }
+  JarvisDebugger jarvisDebugger = new JarvisDebugger(eventLog, breakPointControl, console);
 
   public void render() {
     ImGui.setNextWindowSize(0, 0, ImGuiCond.FirstUseEver);
@@ -34,6 +31,8 @@ public class Jarvis {
     if (objectGraph.getShowWindow()) objectGraph.render();
     if (debugStepControl.getShowWindow()) debugStepControl.render();
     if (breakPointControl.getShowWindow()) breakPointControl.render();
+    if (eventLog.getShowWindow()) eventLog.render();
+    if (console.getShowWindow()) console.render();
   }
 
   private void JarvisConfig() {
@@ -44,7 +43,6 @@ public class Jarvis {
     if (ImGui.button("Launch")) {
       jarvisDebugger.setClassPath(classPath.get());
       jarvisDebugger.setMainClass(mainClass.get());
-      jarvisDebugger.setBreakPointLines(new int[] { 12, 13 }); // TODO
       jarvisDebugger.launch();
       debugStepControl.setCommandExecutor(jarvisDebugger::executeCommand);
     }

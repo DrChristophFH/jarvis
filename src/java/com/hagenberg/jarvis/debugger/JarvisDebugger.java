@@ -14,9 +14,12 @@ import com.sun.jdi.event.*;
 import com.sun.jdi.request.*;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -32,16 +35,18 @@ public class JarvisDebugger {
   private ObjectGraphModel objectGraphModel = new ObjectGraphModel();
 
   private final Log eventLog;
-  private final Console debuggeeConsole;
+  private final DebugeeConsole debuggeeConsole;
   private final BreakPointProvider breakPointProvider;
 
   // ------------------------------------------
   // ------------- Public Methods -------------
   // ------------------------------------------
 
-  public JarvisDebugger(Log eventLog, BreakPointProvider breakPointProvider) {
+  public JarvisDebugger(Log eventLog, BreakPointProvider breakPointProvider, DebugeeConsole debuggeeConsole) {
     this.eventLog = eventLog;
     this.breakPointProvider = breakPointProvider;
+    this.debuggeeConsole = debuggeeConsole;
+    debuggeeConsole.registerInputHandler(this::handleInput);
   }
 
   public void launch() {
@@ -130,6 +135,18 @@ public class JarvisDebugger {
     }
   }
 
+  private void handleInput(String input) {
+    try (OutputStream os = vm.process().getOutputStream();
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os))) {
+
+      writer.write(input);
+      writer.newLine();
+      writer.flush();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
   private void startStreamThread() {
     new Thread(() -> {
       try {
@@ -137,7 +154,7 @@ public class JarvisDebugger {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
         String text;
         while ((text = reader.readLine()) != null) {
-          debuggeeConsole.log(text);
+          debuggeeConsole.println(text);
         }
       } catch (IOException e) {
         e.printStackTrace();
@@ -226,9 +243,13 @@ public class JarvisDebugger {
 
   private void setBreakPoints(ClassPrepareEvent event) throws AbsentInformationException {
     String className = event.referenceType().name();
-    ClassType classType = (ClassType) event.referenceType();
-    for (int lineNumber : breakPointProvider.getBreakPoints(className)) {
-      Location location = classType.locationsOfLine(lineNumber).get(0);
+    ReferenceType refType = event.referenceType();
+    List<Integer> lines = breakPointProvider.getBreakPoints(className);
+    if (lines == null) {
+      return;
+    }
+    for (int lineNumber : lines) {
+      Location location = refType.locationsOfLine(lineNumber).get(0);
       BreakpointRequest bpReq = vm.eventRequestManager().createBreakpointRequest(location);
       bpReq.enable();
     }
@@ -236,7 +257,6 @@ public class JarvisDebugger {
 
   private void enableClassPrepareRequest() {
     ClassPrepareRequest classPrepareRequest = vm.eventRequestManager().createClassPrepareRequest();
-    //classPrepareRequest.addClassFilter(debugClass.getName());
     classPrepareRequest.enable();
   }
 
@@ -248,7 +268,7 @@ public class JarvisDebugger {
   private void connectAndLaunchVM() throws Exception {
     LaunchingConnector launchingConnector = Bootstrap.virtualMachineManager().defaultConnector();
     Map<String, Connector.Argument> arguments = launchingConnector.defaultArguments();
-    //arguments.get("main").setValue(debugClass.getName());
+    arguments.get("main").setValue(mainClass);
     arguments.get("options").setValue("-cp " + classPath);
     vm = launchingConnector.launch(arguments);
   }
