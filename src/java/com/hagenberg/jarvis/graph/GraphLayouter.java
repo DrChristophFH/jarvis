@@ -1,33 +1,25 @@
 package com.hagenberg.jarvis.graph;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.hagenberg.imgui.Vec2;
+import com.hagenberg.jarvis.util.Observer;
 
-public class GraphLayouter {
+public class GraphLayouter implements Observer {
   private double springForce = 0.05;
   private double repulsionForce = 500;
   private double dampingFactor = 0.95;
-
-  private Map<Integer, Node> nodes = new HashMap<>();
-  private List<Edge> edges = new ArrayList<>();
   private double threshold = 0.1;
+
   private boolean isLayoutStable = false;
 
-  public void addNode(int x, int y, int id) {
-    Node node = new Node(x, y, id);
-    nodes.put(node.id, node);
+  private LayoutGraph graph;
+
+  public void setGraph(LayoutGraph graph) {
+    this.graph = graph;
+    this.graph.addObserver(this);
+    isLayoutStable = false;
   }
 
-  public void addEdge(int source, int target) {
-    Node sourceNode = nodes.get(source);
-    Node targetNode = nodes.get(target);
-    edges.add(new Edge(sourceNode, targetNode));
-    sourceNode.neighbors.add(targetNode);
-    targetNode.neighbors.add(sourceNode);
+  public void update() {
     isLayoutStable = false;
   }
 
@@ -36,11 +28,11 @@ public class GraphLayouter {
 
     isLayoutStable = true;
 
-    for (Node node : nodes.values()) {
+    for (LayoutNode node : graph.getNodes()) {
       if (node.frozen) continue;
 
       Vec2 netForce = new Vec2(0, 0);
-      for (Node other : nodes.values()) {
+      for (LayoutNode other : graph.getNodes()) {
         if (node == other) continue;
 
         double dx = other.position.x - node.position.x;
@@ -53,7 +45,7 @@ public class GraphLayouter {
         netForce.y -= rf * dy / distance;
       }
 
-      for (Node neighbor : node.neighbors) {
+      for (LayoutNode neighbor : node.neighbors) {
         double dx = neighbor.position.x - node.position.x;
         double dy = neighbor.position.y - node.position.y;
         double distance = Math.sqrt(dx * dx + dy * dy);
@@ -81,14 +73,6 @@ public class GraphLayouter {
 
   public boolean isLayoutStable() {
     return isLayoutStable;
-  }
-
-  public Iterable<Node> getNodes() {
-    return nodes.values();
-  }
-
-  public Iterable<Edge> getEdges() {
-    return edges;
   }
 
   public double getSpringForce() {

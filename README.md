@@ -19,3 +19,9 @@ Secondary Objective:
 Domain-Specific Visualization Capabilities: While developing and designing JARVIS the area of domain-specific visualization will be explored and evaluated. Optimally incorporating a flexible architecture open to custom visualizations of objects regarding their actual domain (for example depicting a car object as a car, and it's members like wheels etc also as such). Although full implementation might exceed the scope of this bachelor thesis, the practicality, usefulness, and other related aspects of this feature will be evaluated.
 
 This thesis aims to push the boundaries of current program runtime visualization by developing a system that addresses the limitations of existing tools and introduces a more sophisticated, user-friendly, modern and efficient way to visualize larger, more complex programs. It promises to contribute significantly to the field, offering an effective tool for both educators, students and developers.
+
+
+## TODO
+
+- [ ] get rid of ReferenceNodes
+- [ ] 
