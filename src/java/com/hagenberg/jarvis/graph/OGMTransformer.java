@@ -10,24 +10,28 @@ import com.hagenberg.jarvis.models.ObjectGraphModel;
  * graph model that is used for layouting and rendering.
  */
 public class OGMTransformer {
-  private ObjectGraphModel ogm;
-  private LayoutGraph layoutGraph = new LayoutGraph();
+  private Set<LayoutableNode> nodesToLayout = new HashSet<>();
 
-  // Constructor, takes in OGM
-  public OGMTransformer(ObjectGraphModel ogm) {
-    this.ogm = ogm;
-  }
-
-  public LayoutGraph getLayoutGraph() {
-    return layoutGraph;
-  }
-
-  /**
+  /** 
    * Transforms the set OGM to a simple graph model that is used for layouting.
    * This is done incrementally, i.e. only the nodes that have changed since the
    * last transformation are updated.
    */
-  public void transform() {
+  public void transform(ObjectGraphModel ogm) {
+    for (LayoutableNode layoutableNode : ogm.getObjects()) {
+      if (layoutableNode.isLayouted()) {
+        nodesToLayout.add(layoutableNode);
+      }
+    }
 
+    for (LayoutableNode layoutableNode : ogm.getLocalVars()) {
+      if (layoutableNode.isLayouted()) {
+        nodesToLayout.add(layoutableNode);
+      }
+    }
+  }
+
+  public Iterable<LayoutableNode> getNodes() {
+    return nodesToLayout;
   }
 }

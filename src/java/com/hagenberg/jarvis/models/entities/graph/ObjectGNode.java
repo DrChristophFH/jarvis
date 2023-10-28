@@ -3,29 +3,97 @@ package com.hagenberg.jarvis.models.entities.graph;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ObjectGNode extends GNode {
-    private final long id; // ID from JDI
-    private final List<MemberGVariable> members = new ArrayList<>();
+import com.hagenberg.imgui.Vec2;
+import com.hagenberg.jarvis.graph.LayoutableNode;
 
-    public ObjectGNode(long id, String type) {
-        super(type);
-        this.id = id;
+public class ObjectGNode extends GNode implements LayoutableNode {
+  private final long id; // ID from JDI
+  private final List<MemberGVariable> members = new ArrayList<>();
+  private final List<GVariable> referenceHolders = new ArrayList<>();
+  private Vec2 position;
+  private Vec2 velocity;
+  private boolean frozen;
+  private boolean layouted;
+
+  public ObjectGNode(long id, String type) {
+    super(type);
+    this.id = id;
+  }
+
+  public void addMember(MemberGVariable memberVariable) {
+    members.add(memberVariable);
+  }
+
+  public void addReferenceHolder(GVariable referenceHolder) {
+    referenceHolders.add(referenceHolder);
+  }
+
+  public List<MemberGVariable> getMembers() {
+    return members;
+  }
+
+  public long getId() {
+    return id;
+  }
+
+  @Override
+  public void loadContents() {
+
+  }
+
+  @Override
+  public Vec2 getPosition() {
+    return position;
+  }
+
+  @Override
+  public void setPosition(Vec2 position) {
+    this.position = position;
+  }
+
+  @Override
+  public Vec2 getVelocity() {
+    return velocity;
+  }
+
+  @Override
+  public void setVelocity(Vec2 velocity) {
+    this.velocity = velocity;
+  }
+
+  @Override
+  public boolean isFrozen() {
+    return frozen;
+  }
+
+  @Override
+  public void setFrozen(boolean frozen) {
+    this.frozen = frozen;
+  }
+
+  @Override
+  public boolean isLayouted() {
+    return layouted;
+  }
+
+  @Override
+  public Iterable<LayoutableNode> getNeighbors() {
+    List<LayoutableNode> neighbors = new ArrayList<>();
+
+    for (MemberGVariable member : members) {
+      if (member.getNode() instanceof ObjectGNode obj) {
+        neighbors.add(obj);
+      }
     }
 
-    public void addMember(MemberGVariable memberVariable) {
-        members.add(memberVariable);
+    for (GVariable referenceHolder : referenceHolders) {
+      if (referenceHolder instanceof LocalGVariable lgv) {
+        neighbors.add(lgv);
+      } else if (referenceHolder instanceof MemberGVariable mgv) {
+        neighbors.add(mgv.getContainingObject());
+      }
     }
 
-    public List<MemberGVariable> getMembers() {
-        return members;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    @Override
-    public void loadContents() {
-
-    }
+    return neighbors;
+  }
 }

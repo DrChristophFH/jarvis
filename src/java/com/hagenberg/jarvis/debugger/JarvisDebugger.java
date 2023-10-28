@@ -3,8 +3,6 @@ package com.hagenberg.jarvis.debugger;
 import com.hagenberg.jarvis.models.CallStackModel;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.models.entities.*;
-import com.hagenberg.jarvis.models.entities.graph.GNode;
-import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
 import com.hagenberg.jarvis.models.entities.graph.StackFrameInformation;
 import com.hagenberg.jarvis.views.Log;
 import com.sun.jdi.*;
@@ -205,17 +203,14 @@ public class JarvisDebugger {
   private void updateObjectGraphModel(ThreadReference thread)
       throws IncompatibleThreadStateException, AbsentInformationException, ClassNotLoadedException {
     // clear root objects
-    objectGraphModel.getNodes().clear();
+    objectGraphModel.getLocalVars().clear();
 
     for (StackFrame frame : thread.frames()) {
       for (LocalVariable variable : frame.visibleVariables()) {
         String varName = variable.name();
         Value varValue = frame.getValue(variable);
-
-        GNode varNode = objectGraphModel.getNodeFromValue(varValue);
         StackFrameInformation sfInfo = new StackFrameInformation();
-        LocalGVariable localVariable = new LocalGVariable(varName, varNode, sfInfo);
-        objectGraphModel.addLocalVariable(localVariable);
+        objectGraphModel.addLocalVariable(varName, varValue, sfInfo);
       }
     }
   }
@@ -230,8 +225,6 @@ public class JarvisDebugger {
       String methodName = location.method().name();
       List<MethodParameter> parameters = new ArrayList<>();
 
-      // Fetching parameters. For simplicity, just getting the types. You can further
-      // enhance this.
       for (LocalVariable variable : frame.visibleVariables()) {
         if (variable.isArgument()) {
           parameters

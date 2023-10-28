@@ -11,32 +11,24 @@ public class GraphLayouter implements Observer {
 
   private boolean isLayoutStable = false;
 
-  private LayoutGraph graph;
-
-  public void setGraph(LayoutGraph graph) {
-    this.graph = graph;
-    this.graph.addObserver(this);
-    isLayoutStable = false;
-  }
-
   public void update() {
     isLayoutStable = false;
   }
 
-  public void layoutRunner() {
+  public void layoutRunner(Iterable<LayoutableNode> nodes) {
     if (isLayoutStable()) return;
 
     isLayoutStable = true;
 
-    for (LayoutNode node : graph.getNodes()) {
-      if (node.frozen) continue;
+    for (LayoutableNode node : nodes) {
+      if (node.isFrozen()) continue;
 
       Vec2 netForce = new Vec2(0, 0);
-      for (LayoutNode other : graph.getNodes()) {
+      for (LayoutableNode other : nodes) {
         if (node == other) continue;
 
-        double dx = other.position.x - node.position.x;
-        double dy = other.position.y - node.position.y;
+        double dx = other.getPosition().x - node.getPosition().x;
+        double dy = other.getPosition().y - node.getPosition().y;
         double distance = Math.sqrt(dx * dx + dy * dy);
 
         // Repulsion force
@@ -45,9 +37,9 @@ public class GraphLayouter implements Observer {
         netForce.y -= rf * dy / distance;
       }
 
-      for (LayoutNode neighbor : node.neighbors) {
-        double dx = neighbor.position.x - node.position.x;
-        double dy = neighbor.position.y - node.position.y;
+      for (LayoutableNode neighbor : node.getNeighbors()) {
+        double dx = neighbor.getPosition().x - node.getPosition().x;
+        double dy = neighbor.getPosition().y - node.getPosition().y;
         double distance = Math.sqrt(dx * dx + dy * dy);
 
         // Spring force
@@ -56,18 +48,18 @@ public class GraphLayouter implements Observer {
         netForce.y += sf * dy / distance;
       }
 
-      System.out.println((dampingFactor * (node.velocity.x + netForce.x)));
-      System.out.println((dampingFactor * (node.velocity.y + netForce.y)));
+      System.out.println((dampingFactor * (node.getVelocity().x + netForce.x)));
+      System.out.println((dampingFactor * (node.getVelocity().y + netForce.y)));
 
-      node.velocity.x = (int) (dampingFactor * (node.velocity.x + netForce.x));
-      node.velocity.y = (int) (dampingFactor * (node.velocity.y + netForce.y));
+      node.getVelocity().x = (int) (dampingFactor * (node.getVelocity().x + netForce.x));
+      node.getVelocity().y = (int) (dampingFactor * (node.getVelocity().y + netForce.y));
 
-      if (isLayoutStable && (Math.abs(node.velocity.x) > threshold || Math.abs(node.velocity.y) > threshold)) {
+      if (isLayoutStable && (Math.abs(node.getVelocity().x) > threshold || Math.abs(node.getVelocity().y) > threshold)) {
         isLayoutStable = false;
       }
 
-      node.position.x += node.velocity.x;
-      node.position.y += node.velocity.y;
+      node.getPosition().x += node.getVelocity().x;
+      node.getPosition().y += node.getVelocity().y;
     }
   }
 

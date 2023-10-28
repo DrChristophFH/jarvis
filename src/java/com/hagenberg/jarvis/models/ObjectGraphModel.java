@@ -1,7 +1,6 @@
 package com.hagenberg.jarvis.models;
 
 import com.hagenberg.jarvis.models.entities.graph.*;
-import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
 import com.sun.jdi.*;
 
 import java.util.ArrayList;
@@ -18,51 +17,78 @@ public class ObjectGraphModel {
     nodes.add(localVariable);
   }
 
-  public List<LocalGVariable> getNodes() {
+  public List<LocalGVariable> getLocalVars() {
     return nodes;
   }
 
-  public GNode getNodeFromValue(Value value) {
-    if (value instanceof ObjectReference objRef) {
-      Long id = objRef.uniqueID();
-      ObjectGNode existingNode = objectMap.get(id);
+  public List<ObjectGNode> getObjects() {
+    return new ArrayList<>(objectMap.values());
+  }
 
-      if (existingNode == null) {
-        if (objRef instanceof ArrayReference arrayRef) {
-          existingNode = createArrayNode(arrayRef);
-        } else {
-          existingNode = createObjectNode(objRef);
-        }
-        objectMap.put(id, existingNode);
-      }
+  public void addLocalVariable(String varName, Value varValue, StackFrameInformation sfInfo) {
+    LocalGVariable newVar = new LocalGVariable(varName, sfInfo);
 
-      return new ReferenceGNode(existingNode);
-    } else if (value instanceof PrimitiveValue primValue) {
-      return createPrimitiveNode(primValue);
+    if (varValue instanceof ObjectReference objRef) {
+      newVar.setNode(lookUpObjectNode(objRef, newVar));
+    } else if (varValue instanceof PrimitiveValue primValue) {
+      newVar.setNode(createPrimitiveNode(primValue));
     }
-    return null;
+  }
+
+  private ObjectGNode lookUpObjectNode(ObjectReference objRef, GVariable referenceHolder) {
+    Long id = objRef.uniqueID();
+    ObjectGNode existingNode = objectMap.get(id);
+
+    if (existingNode == null) {
+      if (objRef instanceof ArrayReference arrayRef) {
+        existingNode = createArrayNode(arrayRef);
+      } else {
+        existingNode = createObjectNode(objRef);
+      }
+    }
+
+    objectMap.put(id, existingNode);
+    existingNode.addReferenceHolder(referenceHolder);
+    return existingNode;
   }
 
   private ObjectGNode createObjectNode(ObjectReference objRef) {
     ObjectGNode newNode = new ObjectGNode(objRef.uniqueID(), objRef.referenceType().name());
     for (Field field : objRef.referenceType().fields()) {
       if (field.isStatic()) continue; // skip static fields
+
       Value fieldValue = objRef.getValue(field);
-      newNode.addMember(new MemberGVariable(field.name(), getNodeFromValue(fieldValue), field.modifiers()));
+      MemberGVariable member = createMemberGVariable(newNode, field.name(), fieldValue, field.modifiers());
+      newNode.addMember(member);
     }
     return newNode;
   }
 
   private ObjectGNode createArrayNode(ArrayReference arrayRef) {
     ArrayGNode newNode = new ArrayGNode(arrayRef.uniqueID(), arrayRef.referenceType().name());
-    for (Value value : arrayRef.getValues()) {
-      newNode.addContent(getNodeFromValue(value));
+    List<Value> values = arrayRef.getValues();
+    for (int i = 0; i < values.size(); i++) {
+      Value value = values.get(i);
+      MemberGVariable arrayMember = createMemberGVariable(newNode, "[" + i + "]", value, 0);
+      newNode.addContent(arrayMember);
     }
     return newNode;
   }
-
+  
   private GNode createPrimitiveNode(PrimitiveValue primValue) {
-    // create and return a new PrimitiveNode from the primValue
     return new PrimitiveGNode(primValue.type().toString(), primValue.toString());
+  }
+
+
+  private MemberGVariable createMemberGVariable(ObjectGNode parent, String name, Value value, int accessModifier) {
+    MemberGVariable member = new MemberGVariable(name, parent, accessModifier);
+    
+    if (value instanceof ObjectReference objRef) {
+      member.setNode(lookUpObjectNode(objRef, member));
+    } else if (value instanceof PrimitiveValue primValue) {
+      member.setNode(createPrimitiveNode(primValue));
+    }
+    
+    return member;
   }
 }

@@ -4,24 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ArrayGNode extends ObjectGNode {
-    private final List<GNode> contents = new ArrayList<>();
+  private final List<MemberGVariable> contents = new ArrayList<>();
 
-    public ArrayGNode(long id, String type) {
-        super(id, type);
-    }
+  public ArrayGNode(long id, String type) {
+    super(id, type);
+  }
 
-    public void addContent(GNode node) {
-        contents.add(node);
-    }
+  @Override
+  public void loadContents() {
+    // Implementation for loading array contents
+  }
 
-    public List<GNode> getContents() {
-        return contents;
-    }
+  public void addContent(MemberGVariable arrayMember) {
+    contents.add(arrayMember);
+  }
 
-    @Override
-    public void loadContents() {
-        // Implementation for loading array contents
-    }
-
-    // Getters, Setters, and other methods
+  public List<MemberGVariable> getContents() {
+    return contents;
+  }
 }

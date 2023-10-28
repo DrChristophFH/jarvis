@@ -1,14 +1,70 @@
 package com.hagenberg.jarvis.models.entities.graph;
 
-public class LocalGVariable extends GVariable {
-    private final StackFrameInformation stackFrameInformation; // A class to store stack frame information
+import java.util.ArrayList;
+import java.util.List;
 
-    public LocalGVariable(String name, GNode node, StackFrameInformation stackFrameInformation) {
-        super(name, node);
-        this.stackFrameInformation = stackFrameInformation;
+import com.hagenberg.imgui.Vec2;
+import com.hagenberg.jarvis.graph.LayoutableNode;
+
+public class LocalGVariable extends GVariable implements LayoutableNode {
+  private final StackFrameInformation stackFrameInformation; // A class to store stack frame information
+  private Vec2 position;
+  private Vec2 velocity;
+  private boolean frozen;
+  private boolean layouted;
+
+  public LocalGVariable(String name, StackFrameInformation stackFrameInformation) {
+    super(name);
+    this.stackFrameInformation = stackFrameInformation;
+  }
+
+  public StackFrameInformation getStackFrameInformation() {
+    return stackFrameInformation;
+  }
+
+   @Override
+  public Vec2 getPosition() {
+    return position;
+  }
+
+  @Override
+  public void setPosition(Vec2 position) {
+    this.position = position;
+  }
+
+  @Override
+  public Vec2 getVelocity() {
+    return velocity;
+  }
+
+  @Override
+  public void setVelocity(Vec2 velocity) {
+    this.velocity = velocity;
+  }
+
+  @Override
+  public boolean isFrozen() {
+    return frozen;
+  }
+
+  @Override
+  public void setFrozen(boolean frozen) {
+    this.frozen = frozen;
+  }
+
+  @Override
+  public boolean isLayouted() {
+    return layouted;
+  }
+
+  @Override
+  public Iterable<LayoutableNode> getNeighbors() {
+    List<LayoutableNode> neighbors = new ArrayList<>();
+
+    if (getNode() instanceof ObjectGNode objectGNode) {
+      neighbors.add(objectGNode);
     }
 
-    public StackFrameInformation getStackFrameInformation() {
-        return stackFrameInformation;
-    }
+    return neighbors;
+  }
 }
