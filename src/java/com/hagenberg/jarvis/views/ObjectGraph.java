@@ -14,6 +14,7 @@ import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.graph.GraphLayouter;
 import com.hagenberg.jarvis.graph.LayoutableNode;
 import com.hagenberg.jarvis.graph.OGMTransformer;
+import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
 
 public class ObjectGraph extends View {
@@ -88,10 +89,8 @@ public class ObjectGraph extends View {
   private void drawGraph() {
     Draw offsetDraw = new Draw(ImGui.getWindowDrawList(), new Vec2(origin));
 
-    // TODO: proper rendering logic based on whole OGM
-
     for (LayoutableNode node : transformer.getNodes()) {
-      offsetDraw.addCircleFilled(node.getPosition(), 10, ImColor.rgb(255, 255, 255), 8);
+      RendererRegistry.getInstance().getRenderer(node).render(offsetDraw, node);
     }
 
     // for (LayoutableEdge edge : transformer.getEdges()) {
