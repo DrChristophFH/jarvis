@@ -23,5 +23,8 @@ This thesis aims to push the boundaries of current program runtime visualization
 
 ## TODO
 
-- [ ] get rid of ReferenceNodes
-- [ ] 
+- [ ] add shutdown button
+- [ ] add directory selector
+- [ ] fuzzy search known classes
+- [ ] better breakpoint selection and adding with line display
+- [ ] fix concurrent modification exception shit with layout

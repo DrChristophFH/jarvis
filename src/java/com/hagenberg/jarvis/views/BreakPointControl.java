@@ -24,7 +24,7 @@ public class BreakPointControl extends View implements BreakPointProvider {
   private ImInt line = new ImInt();
 
   public BreakPointControl() {
-
+    classNames.put("com.hagenberg.debuggee.JDIExampleDebuggee", List.of(28, 29, 30));
   }
 
   public List<Integer> getBreakPoints(String className) {

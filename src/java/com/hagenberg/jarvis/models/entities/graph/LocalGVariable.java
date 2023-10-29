@@ -8,10 +8,10 @@ import com.hagenberg.jarvis.graph.LayoutableNode;
 
 public class LocalGVariable extends GVariable implements LayoutableNode {
   private final StackFrameInformation stackFrameInformation; // A class to store stack frame information
-  private Vec2 position;
-  private Vec2 velocity;
-  private boolean frozen;
-  private boolean layouted;
+  private Vec2 position = new Vec2(0, 0);
+  private Vec2 velocity = new Vec2(0, 0);
+  private boolean frozen = false;
+  private boolean layouted = true;
 
   public LocalGVariable(String name, StackFrameInformation stackFrameInformation) {
     super(name);

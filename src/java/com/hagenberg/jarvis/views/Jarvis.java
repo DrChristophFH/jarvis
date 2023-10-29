@@ -1,6 +1,7 @@
 package com.hagenberg.jarvis.views;
 
 import com.hagenberg.jarvis.debugger.JarvisDebugger;
+import com.hagenberg.jarvis.models.InteractionState;
 
 import imgui.ImGui;
 import imgui.flag.ImGuiCond;
@@ -12,11 +13,15 @@ public class Jarvis {
   private ImString classPath = new ImString();
   private ImString mainClass = new ImString();
 
+  InteractionState interactionState = new InteractionState();
+
   Log eventLog = new Log("Event Log");
   Console console = new Console();
   ObjectGraph objectGraph = new ObjectGraph();
   DebugStepControl debugStepControl = new DebugStepControl();
   BreakPointControl breakPointControl = new BreakPointControl();
+  LocalVarList localVarList = new LocalVarList(interactionState);
+  ObjectList objectList = new ObjectList(interactionState);
 
   JarvisDebugger jarvisDebugger = new JarvisDebugger(eventLog, breakPointControl, console);
 
@@ -31,6 +36,8 @@ public class Jarvis {
     if (objectGraph.getShowWindow()) objectGraph.render();
     if (debugStepControl.getShowWindow()) debugStepControl.render();
     if (breakPointControl.getShowWindow()) breakPointControl.render();
+    if (objectList.getShowWindow()) objectList.render();
+    if (localVarList.getShowWindow()) localVarList.render();
     if (eventLog.getShowWindow()) eventLog.render();
     if (console.getShowWindow()) console.render();
   }
@@ -41,8 +48,13 @@ public class Jarvis {
     }
     ImGui.inputText("Main Class", mainClass);
     if (ImGui.button("Launch")) {
-      jarvisDebugger.setClassPath(classPath.get());
-      jarvisDebugger.setMainClass(mainClass.get());
+      // jarvisDebugger.setClassPath(classPath.get());
+      // jarvisDebugger.setMainClass(mainClass.get());
+      jarvisDebugger.setClassPath("target/classes/");
+      jarvisDebugger.setMainClass("com.hagenberg.debuggee.JDIExampleDebuggee");
+      jarvisDebugger.setObjectGraphModel(objectGraph.getObjectGraphModel());
+      objectList.setObjectGraphModel(objectGraph.getObjectGraphModel());
+      localVarList.setObjectGraphModel(objectGraph.getObjectGraphModel());
       jarvisDebugger.launch();
       debugStepControl.setCommandExecutor(jarvisDebugger::executeCommand);
     }

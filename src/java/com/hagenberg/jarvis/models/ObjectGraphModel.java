@@ -1,6 +1,8 @@
 package com.hagenberg.jarvis.models;
 
 import com.hagenberg.jarvis.models.entities.graph.*;
+import com.hagenberg.jarvis.util.Observable;
+import com.hagenberg.jarvis.util.Observer;
 import com.sun.jdi.*;
 
 import java.util.ArrayList;
@@ -8,17 +10,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 
-public class ObjectGraphModel {
-  // The roots are the local variables visible
-  private final List<LocalGVariable> nodes = new ArrayList<>();
+public class ObjectGraphModel implements Observable {
+
+  private final List<Observer> observers = new ArrayList<>();
+
+  private final List<LocalGVariable> localVars = new ArrayList<>(); // The roots are the local variables visible
   private final Map<Long, ObjectGNode> objectMap = new HashMap<>(); // maps object ids to graph objects
 
   public void addLocalVariable(LocalGVariable localVariable) {
-    nodes.add(localVariable);
+    localVars.add(localVariable);
   }
 
   public List<LocalGVariable> getLocalVars() {
-    return nodes;
+    return localVars;
   }
 
   public List<ObjectGNode> getObjects() {
@@ -33,6 +37,40 @@ public class ObjectGraphModel {
     } else if (varValue instanceof PrimitiveValue primValue) {
       newVar.setNode(createPrimitiveNode(primValue));
     }
+
+    localVars.add(newVar);
+    notifyObservers();
+  }
+
+  @Override
+  public void addObserver(Observer observer) {
+    observers.add(observer);
+  }
+
+  @Override
+  public void removeObserver(Observer observer) {
+    observers.remove(observer);
+  }
+
+  @Override
+  public void notifyObservers() {
+    // for (LocalGVariable node : localVars) {
+    //   System.out.println(node.getName() + " " + node.getNode());
+    // }
+
+    // for (ObjectGNode node : objectMap.values()) {
+    //   System.out.println(node.getType() + " " + node.getId() + " " + node.getPosition());
+    // }
+
+    for (Observer observer : observers) {
+      observer.update();
+    }
+  }
+  
+  public void clear() {
+    localVars.clear();
+    objectMap.clear();
+    notifyObservers();
   }
 
   private ObjectGNode lookUpObjectNode(ObjectReference objRef, GVariable referenceHolder) {
@@ -74,21 +112,20 @@ public class ObjectGraphModel {
     }
     return newNode;
   }
-  
+
   private GNode createPrimitiveNode(PrimitiveValue primValue) {
     return new PrimitiveGNode(primValue.type().toString(), primValue.toString());
   }
 
-
   private MemberGVariable createMemberGVariable(ObjectGNode parent, String name, Value value, int accessModifier) {
     MemberGVariable member = new MemberGVariable(name, parent, accessModifier);
-    
+
     if (value instanceof ObjectReference objRef) {
       member.setNode(lookUpObjectNode(objRef, member));
     } else if (value instanceof PrimitiveValue primValue) {
       member.setNode(createPrimitiveNode(primValue));
     }
-    
+
     return member;
   }
 }

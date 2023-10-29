@@ -29,8 +29,8 @@ public class JarvisDebugger {
 
   private CompletableFuture<StepCommand> stepCommand;
 
-  private CallStackModel callStackModel = new CallStackModel();
-  private ObjectGraphModel objectGraphModel = new ObjectGraphModel();
+  // private CallStackModel callStackModel = new CallStackModel();
+  private ObjectGraphModel objectGraphModel;
 
   private final Log eventLog;
   private final DebugeeConsole debuggeeConsole;
@@ -73,6 +73,10 @@ public class JarvisDebugger {
     this.mainClass = mainClass;
   }
 
+  public void setObjectGraphModel(ObjectGraphModel objectGraphModel) {
+    this.objectGraphModel = objectGraphModel;
+  }
+
   // -------------------------------------------
   // ------------- Private Methods -------------
   // -------------------------------------------
@@ -84,6 +88,7 @@ public class JarvisDebugger {
       this.enableClassPrepareRequest();
       this.enableExceptionRequest();
       this.startStreamThread();
+      objectGraphModel.clear();
       this.debug();
     } catch (VMDisconnectedException e) {
       eventLog.log("VM disconnected");
@@ -103,7 +108,7 @@ public class JarvisDebugger {
         }
         if (event instanceof BreakpointEvent || event instanceof StepEvent) {
           ThreadReference currentThread = ((LocatableEvent) event).thread();
-          this.updateCallStackModel(currentThread);
+          // this.updateCallStackModel(currentThread);
           this.updateObjectGraphModel(currentThread);
           processUserCommand(currentThread, this.waitForUserCommand());
         }
@@ -210,29 +215,30 @@ public class JarvisDebugger {
         String varName = variable.name();
         Value varValue = frame.getValue(variable);
         StackFrameInformation sfInfo = new StackFrameInformation();
+        System.out.println("Variable: " + varName + " = " + varValue);
         objectGraphModel.addLocalVariable(varName, varValue, sfInfo);
       }
     }
   }
 
-  private void updateCallStackModel(ThreadReference thread)
-      throws IncompatibleThreadStateException, AbsentInformationException, ClassNotLoadedException {
-    List<StackFrame> frames = thread.frames();
+  // private void updateCallStackModel(ThreadReference thread)
+  //     throws IncompatibleThreadStateException, AbsentInformationException, ClassNotLoadedException {
+  //   List<StackFrame> frames = thread.frames();
 
-    for (StackFrame frame : frames) {
-      Location location = frame.location();
-      String className = location.declaringType().name();
-      String methodName = location.method().name();
-      List<MethodParameter> parameters = new ArrayList<>();
+  //   for (StackFrame frame : frames) {
+  //     Location location = frame.location();
+  //     String className = location.declaringType().name();
+  //     String methodName = location.method().name();
+  //     List<MethodParameter> parameters = new ArrayList<>();
 
-      for (LocalVariable variable : frame.visibleVariables()) {
-        if (variable.isArgument()) {
-          parameters
-              .add(new MethodParameter(variable.typeName(), variable.name(), frame.getValue(variable).toString()));
-        }
-      }
-    }
-  }
+  //     for (LocalVariable variable : frame.visibleVariables()) {
+  //       if (variable.isArgument()) {
+  //         parameters
+  //             .add(new MethodParameter(variable.typeName(), variable.name(), frame.getValue(variable).toString()));
+  //       }
+  //     }
+  //   }
+  // }
 
   private void setBreakPoints(ClassPrepareEvent event) throws AbsentInformationException {
     String className = event.referenceType().name();

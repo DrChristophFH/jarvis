@@ -4,20 +4,31 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.hagenberg.jarvis.models.ObjectGraphModel;
+import com.hagenberg.jarvis.util.Observer;
 
-/**
- * This class manages the transformation of the object graph model to a simple
- * graph model that is used for layouting and rendering.
- */
-public class OGMTransformer {
+public class OGMTransformer implements Observer {
   private Set<LayoutableNode> nodesToLayout = new HashSet<>();
+  private ObjectGraphModel ogm;
 
-  /** 
-   * Transforms the set OGM to a simple graph model that is used for layouting.
-   * This is done incrementally, i.e. only the nodes that have changed since the
-   * last transformation are updated.
+  public OGMTransformer(ObjectGraphModel ogm) {
+    this.ogm = ogm;
+    ogm.addObserver(this);
+  }
+
+  @Override
+  public void update() {
+    transform();
+  }
+
+  /**
+   * Transforms the given ObjectGraphModel by adding all layouted nodes from the
+   * objects and local variables to the nodesToLayout list.
+   *
+   * @param ogm the ObjectGraphModel to transform
    */
-  public void transform(ObjectGraphModel ogm) {
+  public void transform() {
+    nodesToLayout.clear();
+
     for (LayoutableNode layoutableNode : ogm.getObjects()) {
       if (layoutableNode.isLayouted()) {
         nodesToLayout.add(layoutableNode);

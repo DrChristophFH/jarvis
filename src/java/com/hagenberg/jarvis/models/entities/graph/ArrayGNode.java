@@ -19,7 +19,8 @@ public class ArrayGNode extends ObjectGNode {
     contents.add(arrayMember);
   }
 
-  public List<MemberGVariable> getContents() {
+  @Override
+  public List<MemberGVariable> getMembers() {
     return contents;
   }
 }

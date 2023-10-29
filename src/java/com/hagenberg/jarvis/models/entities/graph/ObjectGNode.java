@@ -10,10 +10,10 @@ public class ObjectGNode extends GNode implements LayoutableNode {
   private final long id; // ID from JDI
   private final List<MemberGVariable> members = new ArrayList<>();
   private final List<GVariable> referenceHolders = new ArrayList<>();
-  private Vec2 position;
-  private Vec2 velocity;
-  private boolean frozen;
-  private boolean layouted;
+  private Vec2 position = new Vec2(0, 0);
+  private Vec2 velocity = new Vec2(0, 0);
+  private boolean frozen = false;
+  private boolean layouted = true;
 
   public ObjectGNode(long id, String type) {
     super(type);

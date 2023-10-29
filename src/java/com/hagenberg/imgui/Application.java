@@ -47,7 +47,6 @@ public class Application {
       IntBuffer comp = stack.mallocInt(1);
 
       // Load image using STB
-      System.out.println(new File("resources\\icon.png").getAbsolutePath());
       CharSequence path = new File("resources\\icon.png").getAbsolutePath();
       ByteBuffer image = STBImage.stbi_load(path, w, h, comp, 4);
       if (image == null) {

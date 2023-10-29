@@ -28,7 +28,7 @@ public class Log extends View {
   public void log(String text, Object... args) {
     String formattedText = String.format(text, args);
     String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
-    buffer.add(time + formattedText);
+    buffer.add("[" + time + "] " + formattedText);
   }
 
   @Override

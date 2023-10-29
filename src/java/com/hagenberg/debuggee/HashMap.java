@@ -1,4 +1,4 @@
-package com.hagenberg.jarvis.debuggee;
+package com.hagenberg.debuggee;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;

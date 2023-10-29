@@ -11,19 +11,16 @@ import imgui.type.ImInt;
 import com.hagenberg.imgui.Draw;
 import com.hagenberg.imgui.Vec2;
 import com.hagenberg.imgui.View;
-import com.hagenberg.jarvis.graph.LayoutEdge;
-import com.hagenberg.jarvis.graph.LayoutGraph;
 import com.hagenberg.jarvis.graph.GraphLayouter;
-import com.hagenberg.jarvis.graph.LayoutNode;
+import com.hagenberg.jarvis.graph.LayoutableNode;
 import com.hagenberg.jarvis.graph.OGMTransformer;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
 
 public class ObjectGraph extends View {
 
   private GraphLayouter layouter = new GraphLayouter();
-  private ObjectGraphModel model;
+  private ObjectGraphModel model = new ObjectGraphModel();
   private OGMTransformer transformer = new OGMTransformer(model);
-  private LayoutGraph graph = transformer.getLayoutGraph();
 
   float[] springForce = new float[] { 0.05f };
   int[] repulsionForce = new int[] { 500 };
@@ -39,10 +36,9 @@ public class ObjectGraph extends View {
 
   private float MOUSE_THRESHOLD = 0.0f;
 
-  public ObjectGraph(ObjectGraphModel model) {
+  public ObjectGraph() {
     setName("Object Graph");
-    this.model = model;
-    layouter.setGraph(graph);
+    model.addObserver(layouter);
   }
 
   @Override
@@ -51,9 +47,13 @@ public class ObjectGraph extends View {
     super.render();
   }
 
+  public ObjectGraphModel getObjectGraphModel() {
+    return model;
+  }
+
   @Override
   protected void renderWindow() {
-    layouter.layoutRunner();
+    layouter.layoutRunner(transformer.getNodes());
 
     if (ImGui.sliderFloat("Spring Force", springForce, 0.01f, 1.0f, "%.2f")) {
       layouter.setSpringForce(springForce[0]);
@@ -88,13 +88,16 @@ public class ObjectGraph extends View {
 
   private void drawGraph() {
     Draw offsetDraw = new Draw(ImGui.getWindowDrawList(), new Vec2(origin));
-    for (LayoutNode node : graph.getNodes()) {
-      offsetDraw.addCircleFilled(node.position, 10, ImColor.rgb(255, 255, 255), 8);
+
+    // TODO: proper rendering logic based on whole OGM
+
+    for (LayoutableNode node : transformer.getNodes()) {
+      offsetDraw.addCircleFilled(node.getPosition(), 10, ImColor.rgb(255, 255, 255), 8);
     }
 
-    for (LayoutEdge edge : graph.getEdges()) {
-      offsetDraw.addLine(edge.source.position, edge.target.position, ImColor.rgb(255, 255, 255), 2);
-    }
+    // for (LayoutableEdge edge : transformer.getEdges()) {
+    //   offsetDraw.addLine(edge.source.position, edge.target.position, ImColor.rgb(255, 255, 255), 2);
+    // }
   }
 
   private void handleCanvasInteraction(Vec2 canvasP0, Vec2 canvasSize) {

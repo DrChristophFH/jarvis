@@ -1,4 +1,4 @@
-package com.hagenberg.jarvis.debuggee;
+package com.hagenberg.debuggee;
 
 public class Robot {
     private int x;

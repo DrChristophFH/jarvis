@@ -1,4 +1,4 @@
-package com.hagenberg.jarvis.debuggee;
+package com.hagenberg.debuggee;
 
 public class JDIExampleDebuggee {
 //    public static void main(String[] args) {
