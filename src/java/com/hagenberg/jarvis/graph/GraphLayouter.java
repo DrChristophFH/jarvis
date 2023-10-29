@@ -6,10 +6,11 @@ import com.hagenberg.imgui.Vec2;
 import com.hagenberg.jarvis.util.Observer;
 
 public class GraphLayouter implements Observer {
-  private double springForce = 0.05;
-  private double repulsionForce = 500;
-  private double dampingFactor = 0.95;
-  private double threshold = 0.1;
+  private float springForce = 0.05f;
+  private int repulsionForce = 500;
+  private float dampingFactor = 0.65f;
+  private float threshold = 0.1f;
+  private int maxVelocity = 100;
   private Random random = new Random();
 
   private boolean isLayoutStable = false;
@@ -28,11 +29,12 @@ public class GraphLayouter implements Observer {
     for (LayoutableNode node : nodes) {
       if (node.isFrozen()) continue;
 
+      System.out.println("Node:" + node);
       System.out.println("\tPos:" + node.getPosition());
-      System.out.println("\tNeighbours:" + node.getNeighbors());
 
       Vec2 netForce = new Vec2(0, 0);
       for (LayoutableNode other : nodes) {
+        //TODO use fluent Vec2 API
         if (node == other) continue;
 
         double dx = other.getPosition().x - node.getPosition().x;
@@ -44,7 +46,6 @@ public class GraphLayouter implements Observer {
 
         netForce.x -= rf * dx / distance;
         netForce.y -= rf * dy / distance;
-
       }
 
       for (LayoutableNode neighbor : node.getNeighbors()) {
@@ -57,26 +58,22 @@ public class GraphLayouter implements Observer {
         netForce.x += sf * dx / distance;
         netForce.y += sf * dy / distance;
       }
-      
+
       // if netForce is NaN, set it to a random value to untangle the graph
       if (Double.isNaN(netForce.x) || Double.isNaN(netForce.y)) {
         netForce.x = random.nextFloat() * 10;
         netForce.y = random.nextFloat() * 10;
       }
 
-      System.out.println("\t" + (dampingFactor * (node.getVelocity().x + netForce.x)));
-      System.out.println("\t" + (dampingFactor * (node.getVelocity().y + netForce.y)));
+      node.getVelocity().add(netForce).scale(dampingFactor).clampAbs(maxVelocity);
 
-      node.getVelocity().x = (int) (dampingFactor * (node.getVelocity().x + netForce.x));
-      node.getVelocity().y = (int) (dampingFactor * (node.getVelocity().y + netForce.y));
+      System.out.println("\tVel:" + node.getVelocity());
 
-      if (isLayoutStable
-          && (Math.abs(node.getVelocity().x) > threshold || Math.abs(node.getVelocity().y) > threshold)) {
+      if (isLayoutStable && (Math.abs(node.getVelocity().x) > threshold || Math.abs(node.getVelocity().y) > threshold)) {
         isLayoutStable = false;
       }
 
-      node.getPosition().x += node.getVelocity().x;
-      node.getPosition().y += node.getVelocity().y;
+      node.getPosition().add(node.getVelocity());
     }
 
     System.out.println("Layouting done");
@@ -86,39 +83,48 @@ public class GraphLayouter implements Observer {
     return isLayoutStable;
   }
 
-  public double getSpringForce() {
+  public float getSpringForce() {
     return springForce;
   }
 
-  public void setSpringForce(double springForce) {
+  public void setSpringForce(float springForce) {
     this.springForce = springForce;
     isLayoutStable = false;
   }
 
-  public double getRepulsionForce() {
+  public int getRepulsionForce() {
     return repulsionForce;
   }
 
-  public void setRepulsionForce(double repulsionForce) {
+  public void setRepulsionForce(int repulsionForce) {
     this.repulsionForce = repulsionForce;
     isLayoutStable = false;
   }
 
-  public double getDampingFactor() {
+  public float getDampingFactor() {
     return dampingFactor;
   }
 
-  public void setDampingFactor(double dampingFactor) {
+  public void setDampingFactor(float dampingFactor) {
     this.dampingFactor = dampingFactor;
     isLayoutStable = false;
   }
 
-  public void setThreshold(double threshold) {
+  public void setThreshold(float threshold) {
     this.threshold = threshold;
     isLayoutStable = false;
   }
 
-  public double getThreshold() {
+  public float getThreshold() {
     return threshold;
+  }
+
+  public int getMaxVelocity() {
+    return maxVelocity;
+  }
+
+  public void setMaxVelocity(int maxVelocity) {
+    this.maxVelocity = maxVelocity;
+    isLayoutStable = false;
   }
 }

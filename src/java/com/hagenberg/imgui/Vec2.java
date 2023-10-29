@@ -96,6 +96,16 @@ public class Vec2 {
     return this; 
   }
 
+  public Vec2 clampAbs(float max) {
+    if (Math.abs(this.x) > max) {
+      this.x = Math.signum(this.x) * max;
+    }
+    if (Math.abs(this.y) > max) {
+      this.y = Math.signum(this.y) * max;
+    }
+    return this; 
+  }
+
   @Override
   public String toString() {
     return "Vec2(" + x + ", " + y + ")";

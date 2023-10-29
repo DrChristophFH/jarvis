@@ -1,8 +1,6 @@
 package com.hagenberg.jarvis.debugger;
 
-import com.hagenberg.jarvis.models.CallStackModel;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
-import com.hagenberg.jarvis.models.entities.*;
 import com.hagenberg.jarvis.models.entities.graph.StackFrameInformation;
 import com.hagenberg.jarvis.views.Log;
 import com.sun.jdi.*;

@@ -22,11 +22,6 @@ public class ObjectGraph extends View {
   private ObjectGraphModel model = new ObjectGraphModel();
   private OGMTransformer transformer = new OGMTransformer(model);
 
-  float[] springForce = new float[] { 0.05f };
-  int[] repulsionForce = new int[] { 500 };
-  float[] dampingFactor = new float[] { 0.95f };
-  float[] threshold = new float[] { 0.1f };
-
   int[] position = new int[2];
   ImInt id = new ImInt();
   int[] edge = new int[2];
@@ -55,18 +50,22 @@ public class ObjectGraph extends View {
   protected void renderWindow() {
     layouter.layoutRunner(transformer.getNodes());
 
-    if (ImGui.sliderFloat("Spring Force", springForce, 0.01f, 1.0f, "%.2f")) {
-      layouter.setSpringForce(springForce[0]);
+    if (this.sliderFloat("Spring Force", layouter.getSpringForce(), 0.01f, 1.0f, "%.2f")) {
+      layouter.setSpringForce(flContainer[0]);
     }
-    if (ImGui.sliderInt("Repulsion Force", repulsionForce, 1, 10000)) {
-      layouter.setRepulsionForce(repulsionForce[0] * 10);
+    if (this.sliderInt("Repulsion Force", layouter.getRepulsionForce(), 1, 10000)) {
+      layouter.setRepulsionForce(iContainer[0]);
     }
-    if (ImGui.sliderFloat("Damping Factor", dampingFactor, 0.01f, 1.0f, "%.2f")) {
-      layouter.setDampingFactor(dampingFactor[0]);
+    if (this.sliderFloat("Damping Factor", layouter.getDampingFactor(), 0.01f, 1.0f, "%.2f")) {
+      layouter.setDampingFactor(flContainer[0]);
     }
-    if (ImGui.sliderFloat("Stability Threshold", threshold, 0.01f, 1.0f, "%.2f")) {
-      layouter.setThreshold(threshold[0]);
+    if (this.sliderFloat("Stability Threshold", layouter.getThreshold(), 0.1f, 10.0f, "%.1f")) {
+      layouter.setThreshold(flContainer[0]);
     }
+    if (this.sliderInt("Max Velocity", layouter.getMaxVelocity(), 1, 100)) {
+      layouter.setMaxVelocity(iContainer[0]);
+    }
+
     ImGui.checkbox("Stable", layouter.isLayoutStable());
 
     ImGui.separator();

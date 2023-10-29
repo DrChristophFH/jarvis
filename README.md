@@ -28,3 +28,5 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [ ] fuzzy search known classes
 - [ ] better breakpoint selection and adding with line display
 - [ ] fix concurrent modification exception shit with layout
+- [ ] context menu in object/local var list to focus OG to node
+- [ ] add call stack view back
