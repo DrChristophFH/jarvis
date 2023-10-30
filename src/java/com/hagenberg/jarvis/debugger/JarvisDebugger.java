@@ -102,6 +102,7 @@ public class JarvisDebugger {
       for (Event event : eventSet) {
         eventLog.log(event.toString());
         if (event instanceof ClassPrepareEvent e) {
+          eventLog.log("Class prepared: " + e.referenceType().name());
           this.setBreakPoints(e);
         }
         if (event instanceof BreakpointEvent || event instanceof StepEvent) {
@@ -220,22 +221,24 @@ public class JarvisDebugger {
   }
 
   // private void updateCallStackModel(ThreadReference thread)
-  //     throws IncompatibleThreadStateException, AbsentInformationException, ClassNotLoadedException {
-  //   List<StackFrame> frames = thread.frames();
+  // throws IncompatibleThreadStateException, AbsentInformationException,
+  // ClassNotLoadedException {
+  // List<StackFrame> frames = thread.frames();
 
-  //   for (StackFrame frame : frames) {
-  //     Location location = frame.location();
-  //     String className = location.declaringType().name();
-  //     String methodName = location.method().name();
-  //     List<MethodParameter> parameters = new ArrayList<>();
+  // for (StackFrame frame : frames) {
+  // Location location = frame.location();
+  // String className = location.declaringType().name();
+  // String methodName = location.method().name();
+  // List<MethodParameter> parameters = new ArrayList<>();
 
-  //     for (LocalVariable variable : frame.visibleVariables()) {
-  //       if (variable.isArgument()) {
-  //         parameters
-  //             .add(new MethodParameter(variable.typeName(), variable.name(), frame.getValue(variable).toString()));
-  //       }
-  //     }
-  //   }
+  // for (LocalVariable variable : frame.visibleVariables()) {
+  // if (variable.isArgument()) {
+  // parameters
+  // .add(new MethodParameter(variable.typeName(), variable.name(),
+  // frame.getValue(variable).toString()));
+  // }
+  // }
+  // }
   // }
 
   private void setBreakPoints(ClassPrepareEvent event) throws AbsentInformationException {

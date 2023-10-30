@@ -23,10 +23,24 @@ This thesis aims to push the boundaries of current program runtime visualization
 
 ## TODO
 
-- [ ] add shutdown button
-- [ ] add directory selector
-- [ ] fuzzy search known classes
-- [ ] better breakpoint selection and adding with line display
+### High Prio
+
 - [ ] fix concurrent modification exception shit with layout
-- [ ] context menu in object/local var list to focus OG to node
+- [ ] add shutdown button
 - [ ] add call stack view back
+- [ ] object tree list indentation fucked
+- [ ] object tree list -> toString() for objects
+
+### Med Prio
+
+- [ ] object graph settings in own dock
+- [ ] class list
+- [ ] context menu in object/local var list to focus OG to node
+- [ ] better breakpoint selection and adding with line display
+
+### Low Prio
+
+- [ ] better event logging (class prepare event)
+- [ ] logging with coloring
+- [ ] fuzzy search known classes
+- [ ] add directory selector
