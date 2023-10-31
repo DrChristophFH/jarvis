@@ -26,13 +26,13 @@ This thesis aims to push the boundaries of current program runtime visualization
 ### High Prio
 
 - [x] add call stack view back
+- [x] static vs dynamic binding 
+- [ ] parameters in stack frames should be local vars...
 - [ ] fix concurrent modification exception with models
-- [ ] static vs dynamic binding 
 - [ ] object graph rendering
 - [ ] specific renderers
-- [ ] add shutdown button
 - [ ] incremental model updates
-- [ ] parameters in stack frames should be local vars...
+- [ ] add shutdown button
 
 ### Med Prio
 
