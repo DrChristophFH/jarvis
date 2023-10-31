@@ -25,14 +25,19 @@ This thesis aims to push the boundaries of current program runtime visualization
 
 ### High Prio
 
-- [ ] fix concurrent modification exception shit with layout
+- [x] add call stack view back
+- [ ] fix concurrent modification exception with models
+- [ ] static vs dynamic binding 
+- [ ] object graph rendering
+- [ ] specific renderers
 - [ ] add shutdown button
-- [ ] add call stack view back
-- [ ] object tree list indentation fucked
-- [ ] object tree list -> toString() for objects
+- [ ] incremental model updates
+- [ ] parameters in stack frames should be local vars...
 
 ### Med Prio
 
+- [ ] object tree list indentation fucked
+- [ ] object tree list -> toString() for objects
 - [ ] object graph settings in own dock
 - [ ] class list
 - [ ] context menu in object/local var list to focus OG to node

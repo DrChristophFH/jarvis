@@ -90,7 +90,8 @@ public class ObjectGraph extends View {
     Draw offsetDraw = new Draw(ImGui.getWindowDrawList(), new Vec2(origin));
 
     for (LayoutableNode node : transformer.getNodes()) {
-      RendererRegistry.getInstance().getRenderer(node).render(offsetDraw, node);
+      //RendererRegistry.getInstance().getRenderer(node).render(offsetDraw, node);
+      offsetDraw.addCircleFilled(node.getPosition(), 10, ImColor.rgb(255, 255, 255), 4);
     }
 
     // for (LayoutableEdge edge : transformer.getEdges()) {

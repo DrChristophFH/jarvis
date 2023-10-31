@@ -38,7 +38,7 @@ public class LocalVarList extends View {
     int tableFlags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Resizable
         | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable;
 
-    if (ImGui.beginTable("table", 3, tableFlags)) {
+    if (ImGui.beginTable("localVarList", 3, tableFlags)) {
 
       // Setup the table columns
       ImGui.tableSetupColumn("Name", ImGuiTableColumnFlags.NoHide);
@@ -62,7 +62,8 @@ public class LocalVarList extends View {
       ImGui.text(localVar.getNode().getType()); // TODO static vs dynamic type (this is dynamic)
       ImGui.tableNextColumn();
       if (localVar.getNode() instanceof ObjectGNode object) {
-        if (ImGui.selectable("Object#" + object.getId(), iState.getSelectedObjectId() == object.getId(),
+        String name = "Object#%s = %s".formatted(object.getId(), "todo");
+        if (ImGui.selectable(name, iState.getSelectedObjectId() == object.getId(),
             ImGuiSelectableFlags.SpanAllColumns)) {
           iState.setSelectedObjectId(object.getId());
         }
