@@ -25,7 +25,7 @@ public class JDIExampleDebuggee {
 
     public static void main(String[] args) {
         Robot robot = new Robot();
-        Robot robot2 = robot;
+        Robot robot2 = new UberRobot();
         robot.whereAreYou();
         robot.move(1, 2, 3);
         robot.howAreYou();
