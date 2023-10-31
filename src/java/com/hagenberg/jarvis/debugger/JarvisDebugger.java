@@ -213,16 +213,17 @@ public class JarvisDebugger {
 
   private void updateObjectGraphModel(ThreadReference thread)
       throws IncompatibleThreadStateException, AbsentInformationException, ClassNotLoadedException {
-    // clear root objects
+    // TODO clear root objects
     objectGraphModel.getLocalVars().clear();
 
     for (StackFrame frame : thread.frames()) {
       for (LocalVariable variable : frame.visibleVariables()) {
         String varName = variable.name();
+        String staticType = variable.typeName();
         Value varValue = frame.getValue(variable);
         StackFrameInformation sfInfo = new StackFrameInformation();
         System.out.println("Variable: " + varName + " = " + varValue);
-        objectGraphModel.addLocalVariable(varName, varValue, sfInfo);
+        objectGraphModel.addLocalVariable(varName, varValue, staticType, sfInfo);
       }
     }
   }

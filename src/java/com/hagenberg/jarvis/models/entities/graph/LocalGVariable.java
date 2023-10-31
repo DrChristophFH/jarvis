@@ -13,8 +13,8 @@ public class LocalGVariable extends GVariable implements LayoutableNode {
   private boolean frozen = false;
   private boolean layouted = true;
 
-  public LocalGVariable(String name, StackFrameInformation stackFrameInformation) {
-    super(name);
+  public LocalGVariable(String name, String staticType, StackFrameInformation stackFrameInformation) {
+    super(name, staticType);
     this.stackFrameInformation = stackFrameInformation;
   }
 

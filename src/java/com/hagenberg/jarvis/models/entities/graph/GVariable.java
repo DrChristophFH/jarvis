@@ -3,15 +3,17 @@ package com.hagenberg.jarvis.models.entities.graph;
 import java.util.Objects;
 
 public class GVariable {
-  protected String name;
-  protected GNode node; // This can be an instance of PrimitiveNode, ArrayNode, or ReferenceNode
+  private String name;
+  private String staticType;
+  private GNode node;
 
-  public GVariable(String name) {
+  public GVariable(String name, String staticType) {
     this.name = name;
+    this.staticType = staticType;
   }
 
-  public GVariable(String name, GNode node) {
-    this(name);
+  public GVariable(String name, String staticType, GNode node) {
+    this(name, staticType);
     this.node = node;
   }
 
@@ -27,8 +29,8 @@ public class GVariable {
     this.node = node;
   }
 
-  public static GVariable fromNode(GNode node, String name) {
-    return new GVariable(name, node);
+  public String getStaticType() {
+    return staticType;
   }
 
   @Override

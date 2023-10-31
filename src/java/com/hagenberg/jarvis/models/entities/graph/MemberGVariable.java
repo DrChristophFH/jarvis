@@ -7,8 +7,8 @@ public class MemberGVariable extends GVariable {
   private final AccessModifier accessModifier; // from JVM specification see
                                                // https://docs.oracle.com/javase/specs/jvms/se17/html/jvms-4.html#jvms-4.5
 
-  public MemberGVariable(String name, ObjectGNode parentObj, int accessModifier) {
-    super(name);
+  public MemberGVariable(String name, String staticType, ObjectGNode parentObj, int accessModifier) {
+    super(name, staticType);
     this.containingObject = parentObj;
     this.accessModifier = new AccessModifier(accessModifier);
   }

@@ -27,8 +27,8 @@ public class ObjectGraphModel implements Observable {
     }
   }
 
-  public void addLocalVariable(String varName, Value varValue, StackFrameInformation sfInfo) {
-    LocalGVariable newVar = new LocalGVariable(varName, sfInfo);
+  public void addLocalVariable(String varName, Value varValue, String staticType, StackFrameInformation sfInfo) {
+    LocalGVariable newVar = new LocalGVariable(varName, staticType, sfInfo);
 
     if (varValue instanceof ObjectReference objRef) {
       newVar.setNode(lookUpObjectNode(objRef, newVar));
@@ -92,7 +92,7 @@ public class ObjectGraphModel implements Observable {
       if (field.isStatic()) continue; // skip static fields
 
       Value fieldValue = objRef.getValue(field);
-      MemberGVariable member = createMemberGVariable(newNode, field.name(), fieldValue, field.modifiers());
+      MemberGVariable member = createMemberGVariable(newNode, field.name(), field.typeName(), fieldValue, field.modifiers());
       newNode.addMember(member);
     }
     return newNode;
@@ -103,7 +103,7 @@ public class ObjectGraphModel implements Observable {
     List<Value> values = arrayRef.getValues();
     for (int i = 0; i < values.size(); i++) {
       Value value = values.get(i);
-      MemberGVariable arrayMember = createMemberGVariable(newNode, "[" + i + "]", value, 0);
+      MemberGVariable arrayMember = createMemberGVariable(newNode, "[" + i + "]", newNode.getType(), value, 0);
       newNode.addContent(arrayMember);
     }
     return newNode;
@@ -113,8 +113,8 @@ public class ObjectGraphModel implements Observable {
     return new PrimitiveGNode(primValue.type().toString(), primValue.toString());
   }
 
-  private MemberGVariable createMemberGVariable(ObjectGNode parent, String name, Value value, int accessModifier) {
-    MemberGVariable member = new MemberGVariable(name, parent, accessModifier);
+  private MemberGVariable createMemberGVariable(ObjectGNode parent, String name, String staticType, Value value, int accessModifier) {
+    MemberGVariable member = new MemberGVariable(name, staticType, parent, accessModifier);
 
     if (value instanceof ObjectReference objRef) {
       member.setNode(lookUpObjectNode(objRef, member));

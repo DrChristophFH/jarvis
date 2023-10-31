@@ -38,11 +38,12 @@ public class LocalVarList extends View {
     int tableFlags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Resizable
         | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable;
 
-    if (ImGui.beginTable("localVarList", 3, tableFlags)) {
+    if (ImGui.beginTable("localVarList", 4, tableFlags)) {
 
       // Setup the table columns
       ImGui.tableSetupColumn("Name", ImGuiTableColumnFlags.NoHide);
-      ImGui.tableSetupColumn("Type");
+      ImGui.tableSetupColumn("Static Type");
+      ImGui.tableSetupColumn("Dynamic Type");
       ImGui.tableSetupColumn("Value");
       ImGui.tableHeadersRow();
 
@@ -58,6 +59,8 @@ public class LocalVarList extends View {
       ImGui.tableNextRow();
       ImGui.tableNextColumn();
       ImGui.text(localVar.getName());
+      ImGui.tableNextColumn();
+      ImGui.text(localVar.getStaticType());
       ImGui.tableNextColumn();
       ImGui.text(localVar.getNode().getType()); // TODO static vs dynamic type (this is dynamic)
       ImGui.tableNextColumn();

@@ -54,14 +54,14 @@ public class CallStack extends View {
   }
 
   private void showParameters(List<MethodParameter> parameters) {
-    for (MethodParameter paremeter : parameters) {
+    for (MethodParameter parameter : parameters) {
       ImGui.tableNextRow();
       ImGui.tableNextColumn();
-      ImGui.text(paremeter.getName());
+      ImGui.text(parameter.getName());
       ImGui.tableNextColumn();
-      ImGui.text(paremeter.getType()); // TODO static vs dynamic type (this is dynamic)
+      ImGui.text(parameter.getType()); 
       ImGui.tableNextColumn();
-      ImGui.text(paremeter.getValue()); // TODO parmeters -> localgvar?
+      ImGui.text(parameter.getValue()); // TODO parmeters -> localgvar?
     }
   }
 }
