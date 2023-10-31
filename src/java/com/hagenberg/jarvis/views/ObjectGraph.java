@@ -14,7 +14,6 @@ import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.graph.GraphLayouter;
 import com.hagenberg.jarvis.graph.LayoutableNode;
 import com.hagenberg.jarvis.graph.OGMTransformer;
-import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
 
 public class ObjectGraph extends View {

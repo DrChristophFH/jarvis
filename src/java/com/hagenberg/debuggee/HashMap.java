@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+@SuppressWarnings("unchecked")
 public class HashMap<K, V> implements Iterable<KeyValuePair<K,V>>{
 
     private static class HashMapEntry<K, V> {

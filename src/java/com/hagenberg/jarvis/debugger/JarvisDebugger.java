@@ -5,7 +5,6 @@ import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.models.entities.CallStackFrame;
 import com.hagenberg.jarvis.models.entities.MethodParameter;
 import com.hagenberg.jarvis.models.entities.graph.StackFrameInformation;
-import com.hagenberg.jarvis.views.CallStack;
 import com.hagenberg.jarvis.views.Log;
 import com.sun.jdi.*;
 import com.sun.jdi.connect.Connector;
