@@ -17,16 +17,14 @@ public class ObjectGraphModel implements Observable {
   private final List<LocalGVariable> localVars = new ArrayList<>(); // The roots are the local variables visible
   private final Map<Long, ObjectGNode> objectMap = new HashMap<>(); // maps object ids to graph objects
 
-  public void addLocalVariable(LocalGVariable localVariable) {
-    localVars.add(localVariable);
-  }
-
   public List<LocalGVariable> getLocalVars() {
     return localVars;
   }
 
   public List<ObjectGNode> getObjects() {
-    return new ArrayList<>(objectMap.values());
+    synchronized (objectMap) {
+      return new ArrayList<>(objectMap.values());
+    }
   }
 
   public void addLocalVariable(String varName, Value varValue, StackFrameInformation sfInfo) {
@@ -38,7 +36,9 @@ public class ObjectGraphModel implements Observable {
       newVar.setNode(createPrimitiveNode(primValue));
     }
 
-    localVars.add(newVar);
+    synchronized (localVars) {
+      localVars.add(newVar);
+    }
     notifyObservers();
   }
 
@@ -54,22 +54,18 @@ public class ObjectGraphModel implements Observable {
 
   @Override
   public void notifyObservers() {
-    // for (LocalGVariable node : localVars) {
-    //   System.out.println(node.getName() + " " + node.getNode());
-    // }
-
-    // for (ObjectGNode node : objectMap.values()) {
-    //   System.out.println(node.getType() + " " + node.getId() + " " + node.getPosition());
-    // }
-
     for (Observer observer : observers) {
       observer.update();
     }
   }
   
   public void clear() {
-    localVars.clear();
-    objectMap.clear();
+    synchronized (localVars) {
+      localVars.clear();
+    }
+    synchronized (objectMap) {
+      objectMap.clear();
+    }
     notifyObservers();
   }
 
