@@ -1,5 +1,8 @@
 package com.hagenberg.jarvis.views;
 
+import org.lwjgl.glfw.GLFW;
+
+import com.hagenberg.imgui.Application;
 import com.hagenberg.jarvis.debugger.JarvisDebugger;
 import com.hagenberg.jarvis.models.InteractionState;
 
@@ -10,21 +13,27 @@ import imgui.type.ImString;
 public class Jarvis {
   private final String name = "Jarvis Control Panel";
 
+  private final Application application;
+
   private ImString classPath = new ImString();
   private ImString mainClass = new ImString();
 
-  InteractionState interactionState = new InteractionState();
+  private InteractionState interactionState = new InteractionState();
 
-  Log eventLog = new Log("Event Log");
-  Console console = new Console();
-  ObjectGraph objectGraph = new ObjectGraph();
-  DebugStepControl debugStepControl = new DebugStepControl();
-  BreakPointControl breakPointControl = new BreakPointControl();
-  LocalVarList localVarList = new LocalVarList(interactionState);
-  ObjectList objectList = new ObjectList(interactionState);
-  CallStack callStack = new CallStack();
+  private Log eventLog = new Log("Event Log");
+  private Console console = new Console();
+  private ObjectGraph objectGraph = new ObjectGraph();
+  private DebugStepControl debugStepControl = new DebugStepControl();
+  private BreakPointControl breakPointControl = new BreakPointControl();
+  private LocalVarList localVarList = new LocalVarList(interactionState);
+  private ObjectList objectList = new ObjectList(interactionState);
+  private CallStack callStack = new CallStack();
 
-  JarvisDebugger jarvisDebugger = new JarvisDebugger(eventLog, breakPointControl, console);
+  private JarvisDebugger jarvisDebugger = new JarvisDebugger(eventLog, breakPointControl, console);
+
+  public Jarvis(Application application) {
+    this.application = application;
+  }
 
   public void render() {
     ImGui.setNextWindowSize(0, 0, ImGuiCond.FirstUseEver);
@@ -60,6 +69,11 @@ public class Jarvis {
       localVarList.setObjectGraphModel(objectGraph.getObjectGraphModel());
       jarvisDebugger.launch();
       debugStepControl.setCommandExecutor(jarvisDebugger::executeCommand);
+    }
+    ImGui.sameLine();
+    if (ImGui.button("Shutdown")) {
+      jarvisDebugger.shutdown();
+      GLFW.glfwSetWindowShouldClose(application.getHandle(), true);
     }
   }
 

@@ -10,7 +10,7 @@ import imgui.type.ImBoolean;
 public class Main extends Application {
 
   ImBoolean showDemoWindow = new ImBoolean(true);
-  Jarvis jarvis = new Jarvis();
+  Jarvis jarvis = new Jarvis(this);
 
   @Override
   protected void preRun() {

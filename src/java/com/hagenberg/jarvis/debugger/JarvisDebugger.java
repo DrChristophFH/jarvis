@@ -25,6 +25,7 @@ public class JarvisDebugger {
   private String mainClass;
   private VirtualMachine vm;
 
+
   private CompletableFuture<StepCommand> stepCommand;
 
   private CallStackModel callStackModel;
@@ -46,7 +47,10 @@ public class JarvisDebugger {
   }
 
   public void launch() {
-    new Thread(this::startDebugging).start();
+    Thread debugThread = new Thread(this::startDebugging);
+    debugThread.setDaemon(true);
+    debugThread.setName("Jarvis Debugger");
+    debugThread.start();
   }
 
   public void executeCommand(StepCommand command) {
@@ -79,6 +83,10 @@ public class JarvisDebugger {
     this.callStackModel = callStackModel;
   }
 
+  public void shutdown() {
+    vm.exit(0);
+  }
+
   // -------------------------------------------
   // ------------- Private Methods -------------
   // -------------------------------------------
@@ -99,8 +107,7 @@ public class JarvisDebugger {
     }
   }
 
-  private void debug() throws InterruptedException, AbsentInformationException, IncompatibleThreadStateException,
-      InvalidTypeException, ClassNotLoadedException, InvocationException {
+  private void debug() throws InterruptedException, AbsentInformationException, IncompatibleThreadStateException, InvalidTypeException, ClassNotLoadedException, InvocationException {
     EventSet eventSet;
     while ((eventSet = vm.eventQueue().remove()) != null) {
       for (Event event : eventSet) {
@@ -120,8 +127,7 @@ public class JarvisDebugger {
           Method toStringMethod = exceptionObj.referenceType().methodsByName("toString").get(0);
 
           // Invoke the toString() method
-          String exceptionAsString = exceptionObj.invokeMethod(exceptionEvent.thread(), toStringMethod, new ArrayList<>(), 0)
-              .toString();
+          String exceptionAsString = exceptionObj.invokeMethod(exceptionEvent.thread(), toStringMethod, new ArrayList<>(), 0).toString();
 
           eventLog.log(exceptionAsString);
         }
@@ -140,8 +146,7 @@ public class JarvisDebugger {
   }
 
   private void handleInput(String input) {
-    try (OutputStream os = vm.process().getOutputStream();
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os))) {
+    try (OutputStream os = vm.process().getOutputStream(); BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os))) {
 
       writer.write(input);
       writer.newLine();
@@ -152,7 +157,7 @@ public class JarvisDebugger {
   }
 
   private void startStreamThread() {
-    new Thread(() -> {
+    Thread streamThread = new Thread(() -> {
       try {
         InputStream inStream = vm.process().getInputStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
@@ -163,7 +168,11 @@ public class JarvisDebugger {
       } catch (IOException e) {
         e.printStackTrace();
       }
-    }).start();
+    });
+
+    streamThread.setDaemon(true);
+    streamThread.setName("Jarvis In/Output Stream Thread");
+    streamThread.start();
   }
 
   private void processUserCommand(ThreadReference currentThread, StepCommand command) {
@@ -179,30 +188,27 @@ public class JarvisDebugger {
     }
 
     switch (command) {
-    case STEP_INTO -> {
-      StepRequest stepIntoRequest = eventRequestManager.createStepRequest(currentThread, StepRequest.STEP_LINE,
-          StepRequest.STEP_INTO);
-      stepIntoRequest.addCountFilter(1);
-      stepIntoRequest.enable();
-    }
-    case STEP_OVER -> {
-      StepRequest stepOverRequest = eventRequestManager.createStepRequest(currentThread, StepRequest.STEP_LINE,
-          StepRequest.STEP_OVER);
-      stepOverRequest.addCountFilter(1);
-      stepOverRequest.enable();
-    }
-    case STEP_OUT -> {
-      StepRequest stepOutRequest = eventRequestManager.createStepRequest(currentThread, StepRequest.STEP_LINE,
-          StepRequest.STEP_OUT);
-      stepOutRequest.addCountFilter(1);
-      stepOutRequest.enable();
-    }
-    case RESUME -> {
-    }
-    case STOP -> {
-      vm.exit(0);
-    }
-    default -> throw new IllegalArgumentException("Unexpected value: " + command);
+      case STEP_INTO -> {
+        StepRequest stepIntoRequest = eventRequestManager.createStepRequest(currentThread, StepRequest.STEP_LINE, StepRequest.STEP_INTO);
+        stepIntoRequest.addCountFilter(1);
+        stepIntoRequest.enable();
+      }
+      case STEP_OVER -> {
+        StepRequest stepOverRequest = eventRequestManager.createStepRequest(currentThread, StepRequest.STEP_LINE, StepRequest.STEP_OVER);
+        stepOverRequest.addCountFilter(1);
+        stepOverRequest.enable();
+      }
+      case STEP_OUT -> {
+        StepRequest stepOutRequest = eventRequestManager.createStepRequest(currentThread, StepRequest.STEP_LINE, StepRequest.STEP_OUT);
+        stepOutRequest.addCountFilter(1);
+        stepOutRequest.enable();
+      }
+      case RESUME -> {
+      }
+      case STOP -> {
+        vm.exit(0);
+      }
+      default -> throw new IllegalArgumentException("Unexpected value: " + command);
     }
   }
 
