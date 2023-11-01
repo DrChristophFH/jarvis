@@ -10,6 +10,7 @@ public class ObjectGNode extends GNode implements LayoutableNode {
   private final long id; // ID from JDI
   private final List<MemberGVariable> members = new ArrayList<>();
   private final List<GVariable> referenceHolders = new ArrayList<>();
+  private String toStringRepresentation = "";
   private Vec2 position = new Vec2(0, 0);
   private Vec2 velocity = new Vec2(0, 0);
   private boolean frozen = false;
@@ -18,6 +19,14 @@ public class ObjectGNode extends GNode implements LayoutableNode {
   public ObjectGNode(long id, String type) {
     super(type);
     this.id = id;
+  }
+
+  public String getToString() {
+    return toStringRepresentation;
+  }
+
+  public void setToString(String toString) {
+    this.toStringRepresentation = toString;
   }
 
   public void addMember(MemberGVariable memberVariable) {

@@ -110,7 +110,7 @@ public class JarvisDebugger {
           this.setBreakPoints(e);
         } else if (event instanceof BreakpointEvent || event instanceof StepEvent) {
           ThreadReference currentThread = ((LocatableEvent) event).thread();
-          objectGraphModel.syncWith(new ArrayList<>(currentThread.frames()));
+          objectGraphModel.syncWith(new ArrayList<>(currentThread.frames()), currentThread);
           callStackModel.syncWith(new ArrayList<>(currentThread.frames()), objectGraphModel);
           processUserCommand(currentThread, this.waitForUserCommand());
         } else if (event instanceof ExceptionEvent exceptionEvent) {

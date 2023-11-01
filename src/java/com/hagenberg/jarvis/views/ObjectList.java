@@ -80,7 +80,7 @@ public class ObjectList extends View {
     ImGui.tableNextColumn();
     ImGui.text(object.getType());
     ImGui.tableNextColumn();
-    ImGui.textDisabled("--");
+    ImGui.text(object.getToString());
     if (open) {
       for (MemberGVariable member : object.getMembers()) {
         if (member.getNode() instanceof ObjectGNode memberObject) {

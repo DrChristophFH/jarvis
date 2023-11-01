@@ -65,7 +65,7 @@ public class LocalVarList extends View {
       ImGui.text(localVar.getNode().getType());
       ImGui.tableNextColumn();
       if (localVar.getNode() instanceof ObjectGNode object) {
-        String name = "Object#%s".formatted(object.getId());
+        String name = "Object#%s = %s".formatted(object.getId(), object.getToString());
         if (ImGui.selectable(name, iState.getSelectedObjectId() == object.getId(),
             ImGuiSelectableFlags.SpanAllColumns)) {
           iState.setSelectedObjectId(object.getId());

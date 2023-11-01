@@ -5,7 +5,10 @@ import java.util.List;
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.models.CallStackModel;
 import com.hagenberg.jarvis.models.entities.CallStackFrame;
+import com.hagenberg.jarvis.models.entities.graph.GNode;
 import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
+import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
+import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
 
 import imgui.ImGui;
 import imgui.flag.ImGuiTableColumnFlags;
@@ -61,7 +64,15 @@ public class CallStack extends View {
       ImGui.tableNextColumn();
       ImGui.text(parameter.getStaticType()); 
       ImGui.tableNextColumn();
-      ImGui.text(parameter.getNode().toString()); // TODO parmeters -> localgvar?
+      GNode gNode = parameter.getNode();
+
+      if (gNode instanceof PrimitiveGNode primitive) {
+        ImGui.text(primitive.getPrimitiveValue().toString());
+      } else {
+        ObjectGNode object = (ObjectGNode) gNode;
+        String name = "Object#%s = %s".formatted(object.getId(), object.getToString());
+        ImGui.text(name);
+      }
     }
   }
 }

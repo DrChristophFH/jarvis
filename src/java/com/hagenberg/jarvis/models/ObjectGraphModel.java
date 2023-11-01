@@ -11,13 +11,17 @@ import java.util.Map;
 import java.util.List;
 
 public class ObjectGraphModel implements Observable {
-
   private final List<Observer> observers = new ArrayList<>();
 
   private final Map<LocalVariable, LocalGVariable> localVars = new HashMap<>(); // The roots are the local variables visible
   private final Map<Long, ObjectGNode> objectMap = new HashMap<>(); // maps object ids to graph objects
 
-  public void syncWith(List<StackFrame> frames) {
+  private ThreadReference currentThread;
+
+  public void syncWith(List<StackFrame> frames, ThreadReference currentThread) {
+    this.currentThread = currentThread;
+    List<LocalVariable> localVarsToRemove = new ArrayList<>(localVars.keySet());
+
     for (StackFrame frame : frames) {
       try {
         for (LocalVariable variable : frame.visibleVariables()) {
@@ -28,12 +32,18 @@ public class ObjectGraphModel implements Observable {
           } else {
             addLocalVariable(variable, varValue, sfInfo);
           }
+          localVarsToRemove.remove(variable);
         }
       } catch (AbsentInformationException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
     }
+
+    for (LocalVariable lvar : localVarsToRemove) {
+      localVars.remove(lvar);
+    }
+
     notifyObservers();
   }
 
@@ -163,6 +173,7 @@ public class ObjectGraphModel implements Observable {
 
   private ObjectGNode createObjectNode(ObjectReference objRef) {
     ObjectGNode newNode = new ObjectGNode(objRef.uniqueID(), objRef.referenceType().name());
+    newNode.setToString(resolveToString(objRef));
     for (Field field : objRef.referenceType().fields()) {
       if (field.isStatic()) continue; // skip static fields
 
@@ -171,6 +182,18 @@ public class ObjectGraphModel implements Observable {
       newNode.addMember(member);
     }
     return newNode;
+  }
+
+  private String resolveToString(ObjectReference objRef) {
+    String result;
+
+    try {
+      result = objRef.invokeMethod(currentThread, objRef.referenceType().methodsByName("toString").get(0), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED).toString();
+    } catch (InvalidTypeException | ClassNotLoadedException | IncompatibleThreadStateException | InvocationException e) {
+      result = "toString() not available";
+    }
+
+    return result;
   }
 
   private ObjectGNode createArrayNode(ArrayReference arrayRef) {
