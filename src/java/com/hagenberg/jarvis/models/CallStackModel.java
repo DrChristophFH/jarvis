@@ -1,16 +1,50 @@
 package com.hagenberg.jarvis.models;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.hagenberg.jarvis.models.entities.CallStackFrame;
+import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
+import com.sun.jdi.AbsentInformationException;
+import com.sun.jdi.LocalVariable;
+import com.sun.jdi.StackFrame;
 
 public class CallStackModel {
-  private List<CallStackFrame> callStack = new ArrayList<>();
+  private List<CallStackFrame> callStack = new CopyOnWriteArrayList<>();
 
-  public void add(CallStackFrame frame) {
-    synchronized (callStack) {
-      callStack.add(frame);
+  /**
+   * Builds the call stack from the given frames. Must be rebuild every step
+   * due to lifetime of StackFrames from JDI.
+   * Must be called after LocalVariables have been added to the ObjectGraphModel.
+   * @param frames
+   */
+  public void syncWith(List<StackFrame> frames, ObjectGraphModel objectGraphModel) {
+    callStack.clear();
+    Collections.reverse(frames); // jdi has most recent frame at index 0
+
+    for (StackFrame frame : frames) {
+      List<LocalVariable> parameters = new ArrayList<>();
+
+      try {
+        for (LocalVariable variable : frame.visibleVariables()) {
+          if (variable.isArgument()) {
+            parameters.add(variable);
+          }
+        }
+      } catch (AbsentInformationException e) {
+        e.printStackTrace();
+      }
+      
+      CallStackFrame newFrame = new CallStackFrame(
+        frame,
+        frame.location().declaringType().name(),
+        frame.location().method().name(),
+        objectGraphModel.getLocalVariables(parameters),
+        frame.location().lineNumber()
+      );
+      callStack.add(newFrame);
     }
   }
 
@@ -19,8 +53,6 @@ public class CallStackModel {
   }
 
   public void clear() {
-    synchronized (callStack) {
-      callStack.clear();
-    }
+    callStack.clear();
   }
 }

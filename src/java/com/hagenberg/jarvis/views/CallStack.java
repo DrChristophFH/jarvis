@@ -6,6 +6,7 @@ import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.models.CallStackModel;
 import com.hagenberg.jarvis.models.entities.CallStackFrame;
 import com.hagenberg.jarvis.models.entities.MethodParameter;
+import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
 
 import imgui.ImGui;
 import imgui.flag.ImGuiTableColumnFlags;
@@ -53,15 +54,15 @@ public class CallStack extends View {
     }
   }
 
-  private void showParameters(List<MethodParameter> parameters) {
-    for (MethodParameter parameter : parameters) {
+  private void showParameters(List<LocalGVariable> parameters) {
+    for (LocalGVariable parameter : parameters) {
       ImGui.tableNextRow();
       ImGui.tableNextColumn();
       ImGui.text(parameter.getName());
       ImGui.tableNextColumn();
-      ImGui.text(parameter.getType()); 
+      ImGui.text(parameter.getStaticType()); 
       ImGui.tableNextColumn();
-      ImGui.text(parameter.getValue()); // TODO parmeters -> localgvar?
+      ImGui.text(parameter.getNode().toString()); // TODO parmeters -> localgvar?
     }
   }
 }

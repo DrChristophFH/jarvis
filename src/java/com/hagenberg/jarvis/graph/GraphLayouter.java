@@ -24,13 +24,13 @@ public class GraphLayouter implements Observer {
 
     isLayoutStable = true;
 
-    System.out.println("Layouting");
+    // System.out.println("Layouting");
 
     for (LayoutableNode node : nodes) {
       if (node.isFrozen()) continue;
 
-      System.out.println("Node:" + node);
-      System.out.println("\tPos:" + node.getPosition());
+      // System.out.println("Node:" + node);
+      // System.out.println("\tPos:" + node.getPosition());
 
       Vec2 netForce = new Vec2(0, 0);
       for (LayoutableNode other : nodes) {
@@ -67,7 +67,7 @@ public class GraphLayouter implements Observer {
 
       node.getVelocity().add(netForce).scale(dampingFactor).clampAbs(maxVelocity);
 
-      System.out.println("\tVel:" + node.getVelocity());
+      // System.out.println("\tVel:" + node.getVelocity());
 
       if (isLayoutStable && (Math.abs(node.getVelocity().x) > threshold || Math.abs(node.getVelocity().y) > threshold)) {
         isLayoutStable = false;
@@ -76,7 +76,7 @@ public class GraphLayouter implements Observer {
       node.getPosition().add(node.getVelocity());
     }
 
-    System.out.println("Layouting done");
+    // System.out.println("Layouting done");
   }
 
   public boolean isLayoutStable() {

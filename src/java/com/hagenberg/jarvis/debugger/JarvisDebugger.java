@@ -4,6 +4,7 @@ import com.hagenberg.jarvis.models.CallStackModel;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.models.entities.CallStackFrame;
 import com.hagenberg.jarvis.models.entities.MethodParameter;
+import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
 import com.hagenberg.jarvis.models.entities.graph.StackFrameInformation;
 import com.hagenberg.jarvis.views.Log;
 import com.sun.jdi.*;
@@ -114,8 +115,8 @@ public class JarvisDebugger {
         }
         if (event instanceof BreakpointEvent || event instanceof StepEvent) {
           ThreadReference currentThread = ((LocatableEvent) event).thread();
-          this.updateCallStackModel(currentThread);
           this.updateObjectGraphModel(currentThread);
+          callStackModel.syncWith(new ArrayList<>(currentThread.frames()), objectGraphModel);
           processUserCommand(currentThread, this.waitForUserCommand());
         }
         if (event instanceof ExceptionEvent exceptionEvent) {
@@ -222,31 +223,8 @@ public class JarvisDebugger {
         String staticType = variable.typeName();
         Value varValue = frame.getValue(variable);
         StackFrameInformation sfInfo = new StackFrameInformation();
-        System.out.println("Variable: " + varName + " = " + varValue);
-        objectGraphModel.addLocalVariable(varName, varValue, staticType, sfInfo);
+        objectGraphModel.addLocalVariable(variable, varName, varValue, staticType, sfInfo);
       }
-    }
-  }
-
-  private void updateCallStackModel(ThreadReference thread)
-      throws IncompatibleThreadStateException, AbsentInformationException, ClassNotLoadedException {
-    List<StackFrame> frames = thread.frames();
-
-    callStackModel.clear(); // TODO
-
-    for (StackFrame frame : frames) {
-      Location location = frame.location();
-      String className = location.declaringType().name();
-      String methodName = location.method().name();
-      List<MethodParameter> parameters = new ArrayList<>();
-
-      for (LocalVariable variable : frame.visibleVariables()) {
-        if (variable.isArgument()) {
-          parameters.add(new MethodParameter(variable.typeName(), variable.name(), frame.getValue(variable).toString()));
-        }
-      }
-
-      callStackModel.add(new CallStackFrame(className, methodName, parameters, location.lineNumber()));
     }
   }
 

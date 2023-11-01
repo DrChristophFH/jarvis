@@ -14,11 +14,11 @@ public class ObjectGraphModel implements Observable {
 
   private final List<Observer> observers = new ArrayList<>();
 
-  private final List<LocalGVariable> localVars = new ArrayList<>(); // The roots are the local variables visible
+  private final Map<LocalVariable, LocalGVariable> localVars = new HashMap<>(); // The roots are the local variables visible
   private final Map<Long, ObjectGNode> objectMap = new HashMap<>(); // maps object ids to graph objects
 
   public List<LocalGVariable> getLocalVars() {
-    return localVars;
+    return new ArrayList<>(localVars.values());
   }
 
   public List<ObjectGNode> getObjects() {
@@ -27,7 +27,24 @@ public class ObjectGraphModel implements Observable {
     }
   }
 
-  public void addLocalVariable(String varName, Value varValue, String staticType, StackFrameInformation sfInfo) {
+  public List<LocalGVariable> getLocalVariables(List<LocalVariable> lvars) {
+    List<LocalGVariable> result = new ArrayList<>();
+    for (LocalVariable lvar : lvars) {
+      result.add(getLocalVariable(lvar));
+    }
+    return result;
+  }
+
+  public LocalGVariable getLocalVariable(LocalVariable lvar) {
+    return localVars.get(lvar);
+  }
+
+  public void addLocalVariable(LocalVariable lvar, String varName, Value varValue, String staticType, StackFrameInformation sfInfo) {
+    if (localVars.containsKey(lvar)) {
+      System.out.println("Local variable already exists: " + lvar.name() + " -> " + varValue.toString());
+      return;
+    }
+    
     LocalGVariable newVar = new LocalGVariable(varName, staticType, sfInfo);
 
     if (varValue instanceof ObjectReference objRef) {
@@ -37,11 +54,21 @@ public class ObjectGraphModel implements Observable {
     }
 
     synchronized (localVars) {
-      localVars.add(newVar);
+      localVars.put(lvar, newVar);
     }
     notifyObservers();
   }
-
+  
+  public void clear() {
+    synchronized (localVars) {
+      localVars.clear();
+    }
+    synchronized (objectMap) {
+      objectMap.clear();
+    }
+    notifyObservers();
+  }
+  
   @Override
   public void addObserver(Observer observer) {
     observers.add(observer);
@@ -57,16 +84,6 @@ public class ObjectGraphModel implements Observable {
     for (Observer observer : observers) {
       observer.update();
     }
-  }
-  
-  public void clear() {
-    synchronized (localVars) {
-      localVars.clear();
-    }
-    synchronized (objectMap) {
-      objectMap.clear();
-    }
-    notifyObservers();
   }
 
   private ObjectGNode lookUpObjectNode(ObjectReference objRef, GVariable referenceHolder) {

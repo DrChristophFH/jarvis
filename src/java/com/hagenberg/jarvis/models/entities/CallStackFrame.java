@@ -2,32 +2,41 @@ package com.hagenberg.jarvis.models.entities;
 
 import java.util.List;
 
+import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
+import com.sun.jdi.StackFrame;
+
 public class CallStackFrame {
-    private String className;
-    private String methodName;
-    private List<MethodParameter> parameters;
-    private int lineNumber;
+  private StackFrame stackFrame;
+  private String className;
+  private String methodName;
+  private int lineNumber;
+  private List<LocalGVariable> parameters;
 
-    public CallStackFrame(String className, String methodName, List<MethodParameter> parameters, int lineNumber) {
-        this.className = className;
-        this.methodName = methodName;
-        this.parameters = parameters;
-        this.lineNumber = lineNumber;
-    }
+  public CallStackFrame(StackFrame frame, String className, String methodName, List<LocalGVariable> parameters, int lineNumber) {
+    this.stackFrame = frame;
+    this.className = className;
+    this.methodName = methodName;
+    this.parameters = parameters;
+    this.lineNumber = lineNumber;
+  }
 
-    public String getClassName() {
-        return className;
-    }
+  public StackFrame getStackFrame() {
+    return stackFrame;
+  }
 
-    public String getMethodName() {
-        return methodName;
-    }
+  public String getClassName() {
+    return className;
+  }
 
-    public List<MethodParameter> getParameters() {
-        return parameters;
-    }
+  public String getMethodName() {
+    return methodName;
+  }
 
-    public int getLineNumber() {
-        return lineNumber;
-    }
+  public List<LocalGVariable> getParameters() {
+    return parameters;
+  }
+
+  public int getLineNumber() {
+    return lineNumber;
+  }
 }
