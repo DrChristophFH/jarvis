@@ -28,17 +28,20 @@ public class ObjectGNode extends GNode implements LayoutableNode {
     referenceHolders.add(referenceHolder);
   }
 
+  public void removeReferenceHolder(GVariable referenceHolder) {
+    referenceHolders.remove(referenceHolder);
+  }
+
+  public List<GVariable> getReferenceHolders() {
+    return referenceHolders;
+  }
+
   public List<MemberGVariable> getMembers() {
     return members;
   }
 
   public long getId() {
     return id;
-  }
-
-  @Override
-  public void loadContents() {
-
   }
 
   @Override

@@ -35,7 +35,7 @@ public class OGMTransformer implements Observer {
       }
     }
 
-    for (LayoutableNode layoutableNode : ogm.getLocalVars()) {
+    for (LayoutableNode layoutableNode : ogm.getLocalVariables()) {
       if (layoutableNode.isLayouted()) {
         nodesToLayout.add(layoutableNode);
       }

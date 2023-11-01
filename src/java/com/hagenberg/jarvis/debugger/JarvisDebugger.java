@@ -2,10 +2,6 @@ package com.hagenberg.jarvis.debugger;
 
 import com.hagenberg.jarvis.models.CallStackModel;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
-import com.hagenberg.jarvis.models.entities.CallStackFrame;
-import com.hagenberg.jarvis.models.entities.MethodParameter;
-import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
-import com.hagenberg.jarvis.models.entities.graph.StackFrameInformation;
 import com.hagenberg.jarvis.views.Log;
 import com.sun.jdi.*;
 import com.sun.jdi.connect.Connector;
@@ -112,14 +108,12 @@ public class JarvisDebugger {
         if (event instanceof ClassPrepareEvent e) {
           eventLog.log("Class prepared: " + e.referenceType().name());
           this.setBreakPoints(e);
-        }
-        if (event instanceof BreakpointEvent || event instanceof StepEvent) {
+        } else if (event instanceof BreakpointEvent || event instanceof StepEvent) {
           ThreadReference currentThread = ((LocatableEvent) event).thread();
-          this.updateObjectGraphModel(currentThread);
+          objectGraphModel.syncWith(new ArrayList<>(currentThread.frames()));
           callStackModel.syncWith(new ArrayList<>(currentThread.frames()), objectGraphModel);
           processUserCommand(currentThread, this.waitForUserCommand());
-        }
-        if (event instanceof ExceptionEvent exceptionEvent) {
+        } else if (event instanceof ExceptionEvent exceptionEvent) {
           ObjectReference exceptionObj = exceptionEvent.exception();
 
           // Get the toString() method of the exception
@@ -209,22 +203,6 @@ public class JarvisDebugger {
       vm.exit(0);
     }
     default -> throw new IllegalArgumentException("Unexpected value: " + command);
-    }
-  }
-
-  private void updateObjectGraphModel(ThreadReference thread)
-      throws IncompatibleThreadStateException, AbsentInformationException, ClassNotLoadedException {
-    // TODO clear root objects
-    objectGraphModel.getLocalVars().clear();
-
-    for (StackFrame frame : thread.frames()) {
-      for (LocalVariable variable : frame.visibleVariables()) {
-        String varName = variable.name();
-        String staticType = variable.typeName();
-        Value varValue = frame.getValue(variable);
-        StackFrameInformation sfInfo = new StackFrameInformation();
-        objectGraphModel.addLocalVariable(variable, varName, varValue, staticType, sfInfo);
-      }
     }
   }
 

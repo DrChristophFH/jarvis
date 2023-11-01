@@ -5,7 +5,6 @@ import java.util.List;
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.models.CallStackModel;
 import com.hagenberg.jarvis.models.entities.CallStackFrame;
-import com.hagenberg.jarvis.models.entities.MethodParameter;
 import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
 
 import imgui.ImGui;

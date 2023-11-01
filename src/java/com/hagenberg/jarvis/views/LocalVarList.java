@@ -47,7 +47,7 @@ public class LocalVarList extends View {
       ImGui.tableSetupColumn("Value");
       ImGui.tableHeadersRow();
 
-      showLocalVarsTable(model.getLocalVars());
+      showLocalVarsTable(model.getLocalVariables());
 
       // End the table
       ImGui.endTable();

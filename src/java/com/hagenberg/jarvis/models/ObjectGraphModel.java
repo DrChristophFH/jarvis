@@ -17,14 +17,38 @@ public class ObjectGraphModel implements Observable {
   private final Map<LocalVariable, LocalGVariable> localVars = new HashMap<>(); // The roots are the local variables visible
   private final Map<Long, ObjectGNode> objectMap = new HashMap<>(); // maps object ids to graph objects
 
-  public List<LocalGVariable> getLocalVars() {
-    return new ArrayList<>(localVars.values());
+  public void syncWith(List<StackFrame> frames) {
+    for (StackFrame frame : frames) {
+      try {
+        for (LocalVariable variable : frame.visibleVariables()) {
+          Value varValue = frame.getValue(variable);
+          StackFrameInformation sfInfo = new StackFrameInformation();
+          if (localVars.containsKey(variable)) {
+            updateVariable(localVars.get(variable), varValue);
+          } else {
+            addLocalVariable(variable, varValue, sfInfo);
+          }
+        }
+      } catch (AbsentInformationException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
+    notifyObservers();
   }
 
   public List<ObjectGNode> getObjects() {
     synchronized (objectMap) {
       return new ArrayList<>(objectMap.values());
     }
+  }
+
+  public LocalGVariable getLocalVariable(LocalVariable lvar) {
+    return localVars.get(lvar);
+  }
+
+  public List<LocalGVariable> getLocalVariables() {
+    return new ArrayList<>(localVars.values());
   }
 
   public List<LocalGVariable> getLocalVariables(List<LocalVariable> lvars) {
@@ -35,30 +59,6 @@ public class ObjectGraphModel implements Observable {
     return result;
   }
 
-  public LocalGVariable getLocalVariable(LocalVariable lvar) {
-    return localVars.get(lvar);
-  }
-
-  public void addLocalVariable(LocalVariable lvar, String varName, Value varValue, String staticType, StackFrameInformation sfInfo) {
-    if (localVars.containsKey(lvar)) {
-      System.out.println("Local variable already exists: " + lvar.name() + " -> " + varValue.toString());
-      return;
-    }
-    
-    LocalGVariable newVar = new LocalGVariable(varName, staticType, sfInfo);
-
-    if (varValue instanceof ObjectReference objRef) {
-      newVar.setNode(lookUpObjectNode(objRef, newVar));
-    } else if (varValue instanceof PrimitiveValue primValue) {
-      newVar.setNode(createPrimitiveNode(primValue));
-    }
-
-    synchronized (localVars) {
-      localVars.put(lvar, newVar);
-    }
-    notifyObservers();
-  }
-  
   public void clear() {
     synchronized (localVars) {
       localVars.clear();
@@ -68,7 +68,7 @@ public class ObjectGraphModel implements Observable {
     }
     notifyObservers();
   }
-  
+
   @Override
   public void addObserver(Observer observer) {
     observers.add(observer);
@@ -83,6 +83,65 @@ public class ObjectGraphModel implements Observable {
   public void notifyObservers() {
     for (Observer observer : observers) {
       observer.update();
+    }
+  }
+
+  private void updateVariable(GVariable variable, Value varValue) {
+    if (varValue instanceof ObjectReference objRef) {
+      ObjectGNode newNode = objectMap.get(objRef.uniqueID());
+
+      // new object in general
+      if (newNode == null) {
+        if (objRef instanceof ArrayReference arrayRef) {
+          variable.setNode(createArrayNode(arrayRef));
+        } else {
+          variable.setNode(createObjectNode(objRef));
+        }
+      } else { // existing object
+        ObjectGNode currentNode = (ObjectGNode) variable.getNode();
+        currentNode.removeReferenceHolder(variable);
+        newNode.addReferenceHolder(variable);
+        variable.setNode(newNode);
+
+        // update members
+        updateMembers(newNode, objRef);
+
+        if (newNode instanceof ArrayGNode newArrayNode) {
+          updateContents(newArrayNode, (ArrayReference) objRef);
+        }
+
+        if (currentNode.getReferenceHolders().isEmpty()) {
+          objectMap.remove(currentNode.getId());
+        }
+      }
+    } else if (varValue instanceof PrimitiveValue primValue) {
+      variable.setNode(createPrimitiveNode(primValue));
+    }
+  }
+
+  private void updateMembers(ObjectGNode node, ObjectReference objRef) {
+    for (MemberGVariable member : node.getMembers()) {
+      updateVariable(member, objRef.getValue(member.getField()));
+    }
+  }
+
+  private void updateContents(ArrayGNode node, ArrayReference arrayRef) {
+    for (ContentGVariable member : node.getContentGVariables()) {
+      updateVariable(member, arrayRef.getValue(member.getIndex()));
+    }
+  }
+
+  private void addLocalVariable(LocalVariable lvar, Value varValue, StackFrameInformation sfInfo) {
+    LocalGVariable newVar = new LocalGVariable(lvar.name(), lvar.typeName(), sfInfo);
+
+    if (varValue instanceof ObjectReference objRef) {
+      newVar.setNode(lookUpObjectNode(objRef, newVar));
+    } else if (varValue instanceof PrimitiveValue primValue) {
+      newVar.setNode(createPrimitiveNode(primValue));
+    }
+
+    synchronized (localVars) {
+      localVars.put(lvar, newVar);
     }
   }
 
@@ -109,7 +168,7 @@ public class ObjectGraphModel implements Observable {
       if (field.isStatic()) continue; // skip static fields
 
       Value fieldValue = objRef.getValue(field);
-      MemberGVariable member = createMemberGVariable(newNode, field.name(), field.typeName(), fieldValue, field.modifiers());
+      MemberGVariable member = createMemberGVariable(field, newNode, field.name(), field.typeName(), fieldValue, field.modifiers());
       newNode.addMember(member);
     }
     return newNode;
@@ -120,7 +179,7 @@ public class ObjectGraphModel implements Observable {
     List<Value> values = arrayRef.getValues();
     for (int i = 0; i < values.size(); i++) {
       Value value = values.get(i);
-      MemberGVariable arrayMember = createMemberGVariable(newNode, "[" + i + "]", newNode.getType(), value, 0);
+      ContentGVariable arrayMember = createContentGVariable(newNode, "[" + i + "]", newNode.getType(), value, i);
       newNode.addContent(arrayMember);
     }
     return newNode;
@@ -130,8 +189,20 @@ public class ObjectGraphModel implements Observable {
     return new PrimitiveGNode(primValue.type().toString(), primValue.toString());
   }
 
-  private MemberGVariable createMemberGVariable(ObjectGNode parent, String name, String staticType, Value value, int accessModifier) {
-    MemberGVariable member = new MemberGVariable(name, staticType, parent, accessModifier);
+  private MemberGVariable createMemberGVariable(Field field, ObjectGNode parent, String name, String staticType, Value value, int accessModifier) {
+    MemberGVariable member = new MemberGVariable(field, name, staticType, parent, accessModifier);
+
+    if (value instanceof ObjectReference objRef) {
+      member.setNode(lookUpObjectNode(objRef, member));
+    } else if (value instanceof PrimitiveValue primValue) {
+      member.setNode(createPrimitiveNode(primValue));
+    }
+
+    return member;
+  }
+
+  private ContentGVariable createContentGVariable(ObjectGNode parent, String name, String staticType, Value value, int index) {
+    ContentGVariable member = new ContentGVariable(name, staticType, parent, index);
 
     if (value instanceof ObjectReference objRef) {
       member.setNode(lookUpObjectNode(objRef, member));

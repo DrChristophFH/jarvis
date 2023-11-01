@@ -4,23 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ArrayGNode extends ObjectGNode {
-  private final List<MemberGVariable> contents = new ArrayList<>();
+  private final List<ContentGVariable> contents = new ArrayList<>();
 
   public ArrayGNode(long id, String type) {
     super(id, type);
   }
 
-  @Override
-  public void loadContents() {
-    // Implementation for loading array contents
-  }
-
-  public void addContent(MemberGVariable arrayMember) {
+  public void addContent(ContentGVariable arrayMember) {
     contents.add(arrayMember);
   }
 
-  @Override
-  public List<MemberGVariable> getMembers() {
+  public List<ContentGVariable> getContentGVariables() {
     return contents;
   }
 }
