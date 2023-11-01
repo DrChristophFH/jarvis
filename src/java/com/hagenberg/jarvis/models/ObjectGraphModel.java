@@ -89,7 +89,6 @@ public class ObjectGraphModel implements Observable {
   private void updateVariable(GVariable variable, Value varValue) {
     if (varValue instanceof ObjectReference objRef) {
       ObjectGNode newNode = objectMap.get(objRef.uniqueID());
-
       // new object in general
       if (newNode == null) {
         if (objRef instanceof ArrayReference arrayRef) {

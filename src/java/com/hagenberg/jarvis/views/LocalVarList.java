@@ -62,10 +62,10 @@ public class LocalVarList extends View {
       ImGui.tableNextColumn();
       ImGui.text(localVar.getStaticType());
       ImGui.tableNextColumn();
-      ImGui.text(localVar.getNode().getType()); // TODO static vs dynamic type (this is dynamic)
+      ImGui.text(localVar.getNode().getType());
       ImGui.tableNextColumn();
       if (localVar.getNode() instanceof ObjectGNode object) {
-        String name = "Object#%s = %s".formatted(object.getId(), "todo");
+        String name = "Object#%s".formatted(object.getId());
         if (ImGui.selectable(name, iState.getSelectedObjectId() == object.getId(),
             ImGuiSelectableFlags.SpanAllColumns)) {
           iState.setSelectedObjectId(object.getId());
