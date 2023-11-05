@@ -120,7 +120,7 @@ public class ObjectGraphModel implements Observable {
         }
 
         if (currentNode.getReferenceHolders().isEmpty()) {
-          objectMap.remove(currentNode.getId());
+          objectMap.remove(currentNode.getObjectId());
         }
       }
     } else if (varValue instanceof PrimitiveValue primValue) {

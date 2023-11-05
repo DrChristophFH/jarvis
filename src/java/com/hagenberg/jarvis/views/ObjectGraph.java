@@ -1,20 +1,22 @@
 package com.hagenberg.jarvis.views;
 
-import imgui.ImColor;
 import imgui.ImGui;
-import imgui.ImGuiIO;
+import imgui.ImVec2;
 import imgui.extension.imnodes.ImNodes;
-import imgui.flag.ImGuiButtonFlags;
+import imgui.extension.imnodes.flag.ImNodesMiniMapLocation;
 import imgui.flag.ImGuiCond;
-import imgui.flag.ImGuiMouseButton;
 import imgui.type.ImInt;
 
-import com.hagenberg.imgui.Draw;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import com.hagenberg.imgui.Vec2;
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.graph.GraphLayouter;
 import com.hagenberg.jarvis.graph.LayoutableNode;
 import com.hagenberg.jarvis.graph.OGMTransformer;
+import com.hagenberg.jarvis.graph.rendering.Link;
 import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
@@ -29,11 +31,6 @@ public class ObjectGraph extends View {
   int[] position = new int[2];
   ImInt id = new ImInt();
   int[] edge = new int[2];
-
-  private Vec2 scrolling = new Vec2(0, 0);
-  private Vec2 origin = new Vec2(0, 0);
-
-  private float MOUSE_THRESHOLD = 0.0f;
 
   public ObjectGraph() {
     setName("Object Graph");
@@ -52,7 +49,9 @@ public class ObjectGraph extends View {
 
   @Override
   protected void renderWindow() {
-    layouter.layoutRunner(transformer.getNodes());
+    Set<LayoutableNode> nodes = transformer.getNodes();
+
+    layouter.layoutRunner(nodes);
 
     if (this.sliderFloat("Spring Force", layouter.getSpringForce(), 0.001f, 1.0f, "%.3f")) {
       layouter.setSpringForce(flContainer[0]);
@@ -74,50 +73,38 @@ public class ObjectGraph extends View {
 
     ImGui.separator();
 
-    // Vec2 canvasP0 = new Vec2(ImGui.getCursorScreenPos());
-    // Vec2 canvasSize = new Vec2(ImGui.getContentRegionAvail());
-    // Vec2 canvasP1 = new Vec2(canvasP0).add(canvasSize);
-
-    // handleCanvasInteraction(canvasP0, canvasSize);
-
-    // Draw draw = new Draw(ImGui.getWindowDrawList());
-    // draw.pushClipRect(canvasP0, canvasP1, true);
-    // draw.addRectFilled(canvasP0, canvasP1, ImColor.rgba(47, 49, 53, 255));
-
     ImNodes.beginNodeEditor();
 
     drawGraph();
 
+    ImNodes.miniMap(0.2f, ImNodesMiniMapLocation.BottomLeft);
     ImNodes.endNodeEditor();
-    // draw.popClipRect();
+
+    // update positions from dragging
+    if (ImNodes.numSelectedNodes() > 0) {
+      ImVec2 pos = new ImVec2();
+      for (LayoutableNode node : nodes) {
+        ImNodes.getNodeGridSpacePos(node.getNodeId(), pos);
+        node.setPosition(new Vec2(pos));
+      }
+      layouter.update();
+    }
   }
 
   private void drawGraph() {
-    Draw scrollDraw = new Draw(ImGui.getWindowDrawList(), new Vec2(origin));
+    List<Link> links = new ArrayList<>();
 
     for (ObjectGNode node : model.getObjects()) {
-      scrollDraw.pushOffset(node.getPosition());
-      RendererRegistry.getInstance().getObjectRenderer(node).render(scrollDraw, node);
-      scrollDraw.popOffset();
+      RendererRegistry.getInstance().getObjectRenderer(node).render(node, links);
     }
 
-    for (LocalGVariable node : model.getLocalVariables()) {
-      scrollDraw.pushOffset(node.getPosition());
-      RendererRegistry.getInstance().getVariableRenderer(node).render(scrollDraw, node);
-      scrollDraw.popOffset();
-    }
-  }
-
-  private void handleCanvasInteraction(Vec2 canvasP0, Vec2 canvasSize) {
-    ImGuiIO io = ImGui.getIO();
-
-    ImGui.invisibleButton("canvas", canvasSize.x, canvasSize.y, ImGuiButtonFlags.MouseButtonRight);
-
-    // dragging right mouse button for moving
-    if (ImGui.isItemActive() && ImGui.isMouseDragging(ImGuiMouseButton.Right, MOUSE_THRESHOLD)) {
-      scrolling.add(io.getMouseDelta());
+    for (LocalGVariable localVar : model.getLocalVariables()) {
+      RendererRegistry.getInstance().getLocalVariableRenderer(localVar).render(localVar, links);
     }
 
-    origin = new Vec2(canvasP0).add(scrolling);
+    int linkId = 0;
+    for (Link link : links) {
+      ImNodes.link(linkId++, link.startNodeId(), link.endNodeId());
+    }
   }
 }

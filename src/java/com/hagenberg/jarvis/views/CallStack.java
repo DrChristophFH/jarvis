@@ -70,7 +70,7 @@ public class CallStack extends View {
         ImGui.text(primitive.getPrimitiveValue().toString());
       } else {
         ObjectGNode object = (ObjectGNode) gNode;
-        String name = "Object#%s = %s".formatted(object.getId(), object.getToString());
+        String name = "Object#%s = %s".formatted(object.getObjectId(), object.getToString());
         ImGui.text(name);
       }
     }

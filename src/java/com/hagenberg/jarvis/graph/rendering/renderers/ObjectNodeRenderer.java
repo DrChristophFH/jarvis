@@ -1,45 +1,42 @@
 package com.hagenberg.jarvis.graph.rendering.renderers;
 
-import com.hagenberg.imgui.Bounder;
+import java.util.List;
+
 import com.hagenberg.imgui.Colors;
-import com.hagenberg.imgui.Draw;
 import com.hagenberg.imgui.Vec2;
+import com.hagenberg.jarvis.graph.rendering.Link;
 import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 
 import imgui.ImGui;
-import imgui.flag.ImGuiButtonFlags;
-import imgui.flag.ImGuiMouseButton;
+import imgui.extension.imnodes.ImNodes;
 
 public class ObjectNodeRenderer {
-  public void render(Draw draw, ObjectGNode node) {
-    Vec2 origin = new Vec2();
+  public void render(ObjectGNode node, List<Link> links) {
+    int nodeId = node.getNodeId();
+    ImNodes.beginNode(nodeId);
 
-    String text = node.getType() + " Object#" + node.getId();
+    ImNodes.setNodeDraggable(nodeId, true);
+    ImNodes.setNodeGridSpacePos(nodeId, node.getPosition().x, node.getPosition().y);
 
-    Vec2 textOffset = new Vec2(5, 5);
-    Vec2 textSize = new Vec2(ImGui.calcTextSize(text));
-    Vec2 nameBoxBR = new Vec2(textOffset).scale(2).add(textSize);
+    ImNodes.beginNodeTitleBar();
+    ImGui.textColored(Colors.Type, node.getType());
+    ImGui.sameLine();
+    ImGui.text("Object#" + node.getObjectId());
+    ImNodes.endNodeTitleBar();
 
-    if (ImGui.isItemActive() && ImGui.isMouseClicked(1)) {
-      System.out.println("right click on canvas")
-    }
+    int attId = nodeId;
 
-    draw.addRect(origin, nameBoxBR, Colors.TextColor);
-    draw.addText(textOffset, Colors.TextColor, text, 13);
-
-    draw.pushOffset(new Vec2(0, nameBoxBR.y));
-
-    draw.pushBounder(new Bounder());
+    // Reference attribute has node id
+    ImNodes.beginInputAttribute(attId++);
+    ImGui.text(node.getReferenceHolders().size() + " references");
+    ImNodes.endInputAttribute();
 
     for (MemberGVariable member : node.getMembers()) {
-      RendererRegistry.getInstance().getVariableRenderer(member).render(draw, member);
+      RendererRegistry.getInstance().getMemberVariableRenderer(member).render(member, attId++, links);
     }
-    Vec2 memberBoxBR = draw.popBounder();
 
-    draw.addRect(origin, memberBoxBR, Colors.TextColor);
-
-    draw.popOffset();
+    ImNodes.endNode();
   }
 }

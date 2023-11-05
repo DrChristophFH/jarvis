@@ -8,6 +8,7 @@ import com.hagenberg.jarvis.graph.LayoutableNode;
 
 public class LocalGVariable extends GVariable implements LayoutableNode {
   private final StackFrameInformation stackFrameInformation; // A class to store stack frame information
+  private int nodeId; // ID for imnodes
   private Vec2 position = new Vec2(0, 0);
   private Vec2 velocity = new Vec2(0, 0);
   private boolean frozen = false;
@@ -55,6 +56,16 @@ public class LocalGVariable extends GVariable implements LayoutableNode {
   @Override
   public boolean isLayouted() {
     return layouted;
+  }
+
+  @Override
+  public void setNodeId(int nodeId) {
+    this.nodeId = nodeId;
+  }
+
+  @Override
+  public int getNodeId() {
+    return nodeId;
   }
 
   @Override

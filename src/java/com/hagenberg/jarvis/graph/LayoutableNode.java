@@ -10,5 +10,7 @@ public interface LayoutableNode {
   public boolean isFrozen();
   public void setFrozen(boolean frozen);
   public boolean isLayouted();
+  public int getNodeId();
+  public void setNodeId(int nodeId);
   public Iterable<LayoutableNode> getNeighbors();
 }

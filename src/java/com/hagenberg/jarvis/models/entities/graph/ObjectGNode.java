@@ -7,10 +7,11 @@ import com.hagenberg.imgui.Vec2;
 import com.hagenberg.jarvis.graph.LayoutableNode;
 
 public class ObjectGNode extends GNode implements LayoutableNode {
-  private final long id; // ID from JDI
+  private final long objectId; // ID from JDI
   private final List<MemberGVariable> members = new ArrayList<>();
   private final List<GVariable> referenceHolders = new ArrayList<>();
   private String toStringRepresentation = "";
+  private int nodeId; // ID for imnodes
   private Vec2 position = new Vec2(0, 0);
   private Vec2 velocity = new Vec2(0, 0);
   private boolean frozen = false;
@@ -18,7 +19,7 @@ public class ObjectGNode extends GNode implements LayoutableNode {
 
   public ObjectGNode(long id, String type) {
     super(type);
-    this.id = id;
+    this.objectId = id;
   }
 
   public String getToString() {
@@ -49,8 +50,8 @@ public class ObjectGNode extends GNode implements LayoutableNode {
     return members;
   }
 
-  public long getId() {
-    return id;
+  public long getObjectId() {
+    return objectId;
   }
 
   @Override
@@ -86,6 +87,16 @@ public class ObjectGNode extends GNode implements LayoutableNode {
   @Override
   public boolean isLayouted() {
     return layouted;
+  }
+
+  @Override
+  public void setNodeId(int nodeId) {
+    this.nodeId = nodeId;
+  }
+
+  @Override
+  public int getNodeId() {
+    return nodeId;
   }
 
   @Override

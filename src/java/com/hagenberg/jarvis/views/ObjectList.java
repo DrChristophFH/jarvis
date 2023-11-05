@@ -71,11 +71,11 @@ public class ObjectList extends View {
       treeFlags |= ImGuiTreeNodeFlags.Leaf;
     }
 
-    if (iState.getSelectedObjectId() == object.getId()) {
+    if (iState.getSelectedObjectId() == object.getObjectId()) {
       ImGui.tableSetBgColor(ImGuiTableBgTarget.RowBg1, ImGui.getColorU32(ImGuiCol.TextSelectedBg));
     }
 
-    boolean open = ImGui.treeNodeEx("Object#" + object.getId(), treeFlags);
+    boolean open = ImGui.treeNodeEx("Object#" + object.getObjectId(), treeFlags);
 
     ImGui.tableNextColumn();
     ImGui.text(object.getType());
