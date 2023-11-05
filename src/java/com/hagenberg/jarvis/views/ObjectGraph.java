@@ -3,6 +3,7 @@ package com.hagenberg.jarvis.views;
 import imgui.ImColor;
 import imgui.ImGui;
 import imgui.ImGuiIO;
+import imgui.extension.imnodes.ImNodes;
 import imgui.flag.ImGuiButtonFlags;
 import imgui.flag.ImGuiCond;
 import imgui.flag.ImGuiMouseButton;
@@ -14,7 +15,10 @@ import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.graph.GraphLayouter;
 import com.hagenberg.jarvis.graph.LayoutableNode;
 import com.hagenberg.jarvis.graph.OGMTransformer;
+import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
+import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
+import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 
 public class ObjectGraph extends View {
 
@@ -50,10 +54,10 @@ public class ObjectGraph extends View {
   protected void renderWindow() {
     layouter.layoutRunner(transformer.getNodes());
 
-    if (this.sliderFloat("Spring Force", layouter.getSpringForce(), 0.01f, 1.0f, "%.2f")) {
+    if (this.sliderFloat("Spring Force", layouter.getSpringForce(), 0.001f, 1.0f, "%.3f")) {
       layouter.setSpringForce(flContainer[0]);
     }
-    if (this.sliderInt("Repulsion Force", layouter.getRepulsionForce(), 1, 10000)) {
+    if (this.sliderInt("Repulsion Force", layouter.getRepulsionForce(), 1, 100000)) {
       layouter.setRepulsionForce(iContainer[0]);
     }
     if (this.sliderFloat("Damping Factor", layouter.getDampingFactor(), 0.01f, 1.0f, "%.2f")) {
@@ -70,32 +74,38 @@ public class ObjectGraph extends View {
 
     ImGui.separator();
 
-    Vec2 canvasP0 = new Vec2(ImGui.getCursorScreenPos());
-    Vec2 canvasSize = new Vec2(ImGui.getContentRegionAvail());
-    Vec2 canvasP1 = new Vec2(canvasP0).add(canvasSize);
+    // Vec2 canvasP0 = new Vec2(ImGui.getCursorScreenPos());
+    // Vec2 canvasSize = new Vec2(ImGui.getContentRegionAvail());
+    // Vec2 canvasP1 = new Vec2(canvasP0).add(canvasSize);
 
-    handleCanvasInteraction(canvasP0, canvasSize);
+    // handleCanvasInteraction(canvasP0, canvasSize);
 
-    Draw draw = new Draw(ImGui.getWindowDrawList());
-    draw.pushClipRect(canvasP0, canvasP1, true);
-    draw.addRectFilled(canvasP0, canvasP1, ImColor.rgba(47, 49, 53, 255));
+    // Draw draw = new Draw(ImGui.getWindowDrawList());
+    // draw.pushClipRect(canvasP0, canvasP1, true);
+    // draw.addRectFilled(canvasP0, canvasP1, ImColor.rgba(47, 49, 53, 255));
+
+    ImNodes.beginNodeEditor();
 
     drawGraph();
 
-    draw.popClipRect();
+    ImNodes.endNodeEditor();
+    // draw.popClipRect();
   }
 
   private void drawGraph() {
-    Draw offsetDraw = new Draw(ImGui.getWindowDrawList(), new Vec2(origin));
+    Draw scrollDraw = new Draw(ImGui.getWindowDrawList(), new Vec2(origin));
 
-    for (LayoutableNode node : transformer.getNodes()) {
-      //RendererRegistry.getInstance().getRenderer(node).render(offsetDraw, node);
-      offsetDraw.addCircleFilled(node.getPosition(), 10, ImColor.rgb(255, 255, 255), 4);
+    for (ObjectGNode node : model.getObjects()) {
+      scrollDraw.pushOffset(node.getPosition());
+      RendererRegistry.getInstance().getObjectRenderer(node).render(scrollDraw, node);
+      scrollDraw.popOffset();
     }
 
-    // for (LayoutableEdge edge : transformer.getEdges()) {
-    //   offsetDraw.addLine(edge.source.position, edge.target.position, ImColor.rgb(255, 255, 255), 2);
-    // }
+    for (LocalGVariable node : model.getLocalVariables()) {
+      scrollDraw.pushOffset(node.getPosition());
+      RendererRegistry.getInstance().getVariableRenderer(node).render(scrollDraw, node);
+      scrollDraw.popOffset();
+    }
   }
 
   private void handleCanvasInteraction(Vec2 canvasP0, Vec2 canvasSize) {

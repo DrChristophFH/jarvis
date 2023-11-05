@@ -40,6 +40,7 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [ ] object tree list -> toString() for objects
 - [ ] object graph settings in own dock
 - [ ] class list
+- [ ] move from strings for types to actual Type Objects
 - [ ] context menu in object/local var list to focus OG to node
 - [ ] better breakpoint selection and adding with line display
 
@@ -49,3 +50,28 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [ ] logging with coloring
 - [ ] fuzzy search known classes
 - [ ] add directory selector
+
+
+## Renderer
+
+Render local vars via VarRenderer, registered to LocalVariables Map<LocalVariable, VarRenderer>
+  
+List<VarRenderer> varRenderers;
+List<PrimNodeRenderer>
+List<ObjNodeRenderer>
+List<ArrayNodeRenderer>
+
+select List of renderers based on node type. Then check conditions of renderers.
+
+Every renderer: boolean isApplicable();
+
+VarRenderer:
+Rect with name, and rect with either edge or prim value.
+
+Every Node has a Renderer component. -> strategy pattern
+
+ObjNodeRenderer default, renders all members with default VarRenderer.
+
+<T extends GNode> Renderer(T node)
+
+setRenderer(Renderer)

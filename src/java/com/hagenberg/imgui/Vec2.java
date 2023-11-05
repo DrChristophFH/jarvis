@@ -78,6 +78,16 @@ public class Vec2 {
     return this; 
   }
 
+  public Vec2 scaleX(float scalar) {
+    this.x *= scalar;
+    return this; 
+  }
+
+  public Vec2 scaleY(float scalar) {
+    this.y *= scalar;
+    return this; 
+  }
+
   public Vec2 addDirection(float angle, float distance) {
     this.x += Math.cos(angle) * distance;
     this.y += Math.sin(angle) * distance;

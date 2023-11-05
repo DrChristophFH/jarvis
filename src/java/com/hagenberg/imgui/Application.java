@@ -2,6 +2,7 @@ package com.hagenberg.imgui;
 
 import imgui.ImGui;
 import imgui.ImGuiIO;
+import imgui.extension.imnodes.ImNodes;
 import imgui.flag.ImGuiConfigFlags;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
@@ -135,6 +136,7 @@ public class Application {
    */
   protected void initImGui(final Configuration config) {
     ImGui.createContext();
+    ImNodes.createContext();
 
     final ImGuiIO io = ImGui.getIO();
     io.addConfigFlags(ImGuiConfigFlags.DockingEnable); // Enable Docking
@@ -230,6 +232,7 @@ public class Application {
    * Method to destroy Dear ImGui context.
    */
   protected void disposeImGui() {
+    ImNodes.destroyContext();
     ImGui.destroyContext();
   }
 
