@@ -55,26 +55,6 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [ ] add directory selector
 
 
-## Renderer
+## Layouting
 
-Render local vars via VarRenderer, registered to LocalVariables Map<LocalVariable, VarRenderer>
-  
-List<VarRenderer> varRenderers;
-List<PrimNodeRenderer>
-List<ObjNodeRenderer>
-List<ArrayNodeRenderer>
-
-select List of renderers based on node type. Then check conditions of renderers.
-
-Every renderer: boolean isApplicable();
-
-VarRenderer:
-Rect with name, and rect with either edge or prim value.
-
-Every Node has a Renderer component. -> strategy pattern
-
-ObjNodeRenderer default, renders all members with default VarRenderer.
-
-<T extends GNode> Renderer(T node)
-
-setRenderer(Renderer)
+Adjust spring length based on node size
