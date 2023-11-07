@@ -56,8 +56,6 @@ public class LocalVarList extends View {
   private void showLocalVarsTable(List<LocalGVariable> localVars) {
     for (LocalGVariable localVar : localVars) {
       ImGui.tableNextRow();
-
-      
       ImGui.tableNextColumn();
       ImGui.text(localVar.getName());
       // Context menu for each row

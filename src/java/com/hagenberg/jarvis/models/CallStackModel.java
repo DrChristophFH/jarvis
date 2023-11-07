@@ -38,8 +38,8 @@ public class CallStackModel {
       
       CallStackFrame newFrame = new CallStackFrame(
         frame,
-        frame.location().declaringType().name(),
-        frame.location().method().name(),
+        frame.location().declaringType(),
+        frame.location().method(),
         objectGraphModel.getLocalVariables(parameters),
         frame.location().lineNumber()
       );

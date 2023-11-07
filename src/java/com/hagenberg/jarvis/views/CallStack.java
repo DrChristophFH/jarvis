@@ -9,8 +9,11 @@ import com.hagenberg.jarvis.models.entities.graph.GNode;
 import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
+import com.hagenberg.jarvis.util.Snippets;
+import com.hagenberg.jarvis.util.TypeFormatter;
 
 import imgui.ImGui;
+import imgui.flag.ImGuiSelectableFlags;
 import imgui.flag.ImGuiTableColumnFlags;
 import imgui.flag.ImGuiTableFlags;
 
@@ -34,16 +37,16 @@ public class CallStack extends View {
     }
 
     for (CallStackFrame frame : model.getCallStack()) {
-      String call = "%s : %s %s".formatted(frame.getMethodName(), frame.getClassName(), frame.getLineNumber());
+      String call = "%s : %s".formatted(frame.getFullMethodHeader(), frame.getLineNumber());
       if (ImGui.collapsingHeader(call)) {
-        int tableFlags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Resizable | ImGuiTableFlags.Reorderable
-            | ImGuiTableFlags.Hideable;
+        int tableFlags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Resizable | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable;
 
-        if (ImGui.beginTable("localVarList", 3, tableFlags)) {
+        if (ImGui.beginTable("callStack", 4, tableFlags)) {
 
           // Setup the table columns
           ImGui.tableSetupColumn("Name", ImGuiTableColumnFlags.NoHide);
-          ImGui.tableSetupColumn("Type");
+          ImGui.tableSetupColumn("Static Type");
+          ImGui.tableSetupColumn("Dynamic Type");
           ImGui.tableSetupColumn("Value");
           ImGui.tableHeadersRow();
 
@@ -61,17 +64,20 @@ public class CallStack extends View {
       ImGui.tableNextRow();
       ImGui.tableNextColumn();
       ImGui.text(parameter.getName());
+      // Context menu for each row
+      if (ImGui.beginPopupContextItem("parameterContextMenu" + parameter.getNodeId())) {
+        Snippets.focusOnNode(parameter.getNodeId());
+        ImGui.endPopup();
+      }
       ImGui.tableNextColumn();
-      ImGui.text(parameter.getStaticType().name()); 
+      Snippets.drawTypeWithTooltip(parameter.getStaticType());
       ImGui.tableNextColumn();
-      GNode gNode = parameter.getNode();
-
-      if (gNode instanceof PrimitiveGNode primitive) {
+      Snippets.drawTypeWithTooltip(parameter.getNode().getType());
+      ImGui.tableNextColumn();
+      if (parameter.getNode() instanceof ObjectGNode object) {
+        ImGui.text("Object#%s = %s".formatted(object.getObjectId(), object.getToString()));
+      } else if (parameter.getNode() instanceof PrimitiveGNode primitive) {
         ImGui.text(primitive.getPrimitiveValue().toString());
-      } else {
-        ObjectGNode object = (ObjectGNode) gNode;
-        String name = "Object#%s = %s".formatted(object.getObjectId(), object.getToString());
-        ImGui.text(name);
       }
     }
   }

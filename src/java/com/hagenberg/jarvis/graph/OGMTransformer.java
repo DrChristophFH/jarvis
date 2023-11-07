@@ -33,7 +33,6 @@ public class OGMTransformer implements Observer {
    */
   public void recalcWidthsIfNecessary() {
     if (recalcWidths) {
-      System.out.println("Recalculating widths");
       recalcWidths = false;
       for (LayoutableNode node : nodesToLayout) {
         node.setLength((int)ImNodes.getNodeDimensionsX(node.getNodeId()));

@@ -44,7 +44,7 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] move from strings for types to actual Type Objects
 - [x] Adjust spring length based on node size
 - [x] context menu in object/local var list to focus OG to node -> simple with ImNodes
-- [ ] MethodParameter class link with Object Graph
+- [x] MethodParameter class link with Object Graph (already got deleted is now done via LocalVar)
 - [ ] Class List (see methods, fields (also static fields), inheritance, interfaces)
 - [ ] object filtering in object list
 - [ ] node based settings, the easiest with shortcuts or button context menu
