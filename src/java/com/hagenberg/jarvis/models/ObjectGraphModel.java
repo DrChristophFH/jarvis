@@ -120,12 +120,24 @@ public class ObjectGraphModel implements Observable {
         }
 
         if (currentNode.getReferenceHolders().isEmpty()) {
-          objectMap.remove(currentNode.getObjectId());
+          removeObject(currentNode);
         }
       }
     } else if (varValue instanceof PrimitiveValue primValue) {
       variable.setNode(createPrimitiveNode(primValue));
     }
+  }
+
+  private void removeObject(ObjectGNode currentNode) {
+    for (MemberGVariable member : currentNode.getMembers()) {
+      if (member.getNode() instanceof ObjectGNode memberNode) {
+        memberNode.removeReferenceHolder(member);
+        if (memberNode.getReferenceHolders().isEmpty()) {
+          removeObject(memberNode);
+        }
+      }
+    }
+    objectMap.remove(currentNode.getObjectId());
   }
 
   private void updateMembers(ObjectGNode node, ObjectReference objRef) {
