@@ -6,12 +6,12 @@ import com.hagenberg.imgui.Vec2;
 import com.hagenberg.jarvis.util.Observer;
 
 public class GraphLayouter implements Observer {
-  private float springForce = 0.05f;
-  private int idealSpringLength = 20;
+  private float springForce = 4.5f;
+  private float springForceRoot = 1.8f;
+  private int idealSpringLength = 450;
   private float gravityForce = 0.05f;
-  private int repulsionForce = 500;
-  private int repulsionForceRoot = 500;
-  private float dampingFactor = 0.65f;
+  private int repulsionForce = 100;
+  private float dampingFactor = 0.95f;
   private float threshold = 0.1f;
   private int maxVelocity = 100;
   private Random random = new Random();
@@ -39,21 +39,10 @@ public class GraphLayouter implements Observer {
       Vec2 netForce = new Vec2(0, 0);
       for (LayoutableNode otherRoot : roots) {
         if (root == otherRoot) continue;
-
-        double dy = otherRoot.getPosition().y - root.getPosition().y;
-
-        // Repulsion force, only along y-axis
-        double rf = repulsionForceRoot / (dy * dy);
-        netForce.y -= rf * Math.signum(dy);
+        netForce.add(calcSpringForce(root, otherRoot));
       }
 
-      for (LayoutableNode neighbor : root.getNeighbors()) {
-        double dy = neighbor.getPosition().y - root.getPosition().y;
-
-        // Spring force, only along y-axis
-        double sf = springForce * dy;
-        netForce.y += sf;
-      }
+      netForce.x = 0; // no horizontal force
 
       if (Double.isNaN(netForce.y)) {
         netForce.y = random.nextFloat() * 10;
@@ -89,7 +78,7 @@ public class GraphLayouter implements Observer {
 
       // Spring forces from neighbors
       for (LayoutableNode neighbor : node.getNeighbors()) {
-        netForce.add(calcSpringForce(node, neighbor)).subtract(calcRepulsionForce(node, neighbor));
+        netForce.add(calcSpringForce(node, neighbor));
       }
 
       // Gravity force (to the right)
@@ -117,11 +106,16 @@ public class GraphLayouter implements Observer {
     double dy = neighbor.getPosition().y - node.getPosition().y;
     double distance = Math.sqrt(dx * dx + dy * dy);
 
-    // Spring force
-    double sf = springForce * distance / idealSpringLength;
+    System.out.println("Distance: " + distance);
 
-    result.x += sf * dx / distance;
-    result.y += sf * dy / distance;
+    double rf = repulsionForce / (distance * distance);
+    // Spring force
+    double sf = springForce * Math.log(distance / idealSpringLength);
+
+    System.out.println("Spring force: " + sf);
+
+    result.x += sf * dx / distance - rf * dx / distance;
+    result.y += sf * dy / distance - rf * dy / distance;
 
     return result;
   }
@@ -133,7 +127,7 @@ public class GraphLayouter implements Observer {
     double distance = Math.sqrt(dx * dx + dy * dy);
 
     // Repulsion force
-    double rf = repulsionForce / distance / distance;
+    double rf = repulsionForce / (distance * distance);
 
     result.x -= rf * dx / distance;
     result.y -= rf * dy / distance;
@@ -173,11 +167,11 @@ public class GraphLayouter implements Observer {
   }
 
   public int getRepulsionForceRoot() {
-    return repulsionForceRoot;
+    return idealSpringLength;
   }
 
   public void setRepulsionForceRoot(int repulsionForceRoot) {
-    this.repulsionForceRoot = repulsionForceRoot;
+    this.idealSpringLength = repulsionForceRoot;
     isLayoutStable = false;
   }
 
