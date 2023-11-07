@@ -8,6 +8,7 @@ import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
+import com.hagenberg.jarvis.util.TypeFormatter;
 
 import imgui.ImGui;
 import imgui.flag.ImGuiSelectableFlags;
@@ -60,9 +61,9 @@ public class LocalVarList extends View {
       ImGui.tableNextColumn();
       ImGui.text(localVar.getName());
       ImGui.tableNextColumn();
-      ImGui.text(localVar.getStaticType().name());
+      TypeFormatter.drawTypeWithTooltip(localVar.getStaticType());
       ImGui.tableNextColumn();
-      ImGui.text(localVar.getNode().getType().name());
+      TypeFormatter.drawTypeWithTooltip(localVar.getNode().getType());
       ImGui.tableNextColumn();
       if (localVar.getNode() instanceof ObjectGNode object) {
         String name = "Object#%s = %s".formatted(object.getObjectId(), object.getToString());

@@ -8,6 +8,7 @@ import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
+import com.hagenberg.jarvis.util.TypeFormatter;
 
 import imgui.ImGui;
 import imgui.flag.ImGuiCol;
@@ -78,7 +79,7 @@ public class ObjectList extends View {
     boolean open = ImGui.treeNodeEx("Object#" + object.getObjectId(), treeFlags);
 
     ImGui.tableNextColumn();
-    ImGui.text(object.getType().name());
+    TypeFormatter.drawTypeWithTooltip(object.getType());
     ImGui.tableNextColumn();
     ImGui.text(object.getToString());
     if (open) {
@@ -98,7 +99,7 @@ public class ObjectList extends View {
     ImGui.tableNextColumn();
     ImGui.text(name);
     ImGui.tableNextColumn();
-    ImGui.text(memberPrimitive.getType().name());
+    TypeFormatter.drawTypeWithTooltip(memberPrimitive.getType());
     ImGui.tableNextColumn();
     ImGui.text(memberPrimitive.getPrimitiveValue().toString());
   }

@@ -7,6 +7,7 @@ import com.hagenberg.jarvis.graph.rendering.Link;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
+import com.hagenberg.jarvis.util.TypeFormatter;
 
 import imgui.ImGui;
 import imgui.extension.imnodes.ImNodes;
@@ -24,7 +25,7 @@ public class MemberVariableRenderer {
     ImNodes.beginOutputAttribute(attId);
     ImGui.textColored(Colors.AccessModifier, var.getAccessModifier().toString());
     ImGui.sameLine();
-    ImGui.textColored(Colors.Type, var.getNode().getSimpleType());
+    TypeFormatter.drawTypeWithTooltip(var.getStaticType());
     ImGui.sameLine();
     ImGui.text(var.getName());
     

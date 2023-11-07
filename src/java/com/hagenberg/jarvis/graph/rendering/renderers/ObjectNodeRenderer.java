@@ -7,6 +7,7 @@ import com.hagenberg.jarvis.graph.rendering.Link;
 import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
+import com.hagenberg.jarvis.util.TypeFormatter;
 
 import imgui.ImGui;
 import imgui.extension.imnodes.ImNodes;
@@ -20,7 +21,7 @@ public class ObjectNodeRenderer {
     ImNodes.setNodeGridSpacePos(nodeId, node.getPosition().x, node.getPosition().y);
 
     ImNodes.beginNodeTitleBar();
-    ImGui.textColored(Colors.Type, node.getSimpleType());
+    TypeFormatter.drawTypeWithTooltip(node.getType());
     ImGui.sameLine();
     ImGui.text("Object#" + node.getObjectId());
     ImNodes.endNodeTitleBar();
