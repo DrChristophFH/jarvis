@@ -79,6 +79,8 @@ public class ObjectGraph extends View {
       }
       layouter.update(); // TODO only update if positions changed
     }
+
+    transformer.recalcWidthsIfNecessary();
   }
 
   private void drawGraph() {

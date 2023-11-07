@@ -12,6 +12,7 @@ public class LocalGVariable extends GVariable implements LayoutableNode {
   private int nodeId; // ID for imnodes
   private Vec2 position = new Vec2(0, 0);
   private Vec2 velocity = new Vec2(0, 0);
+  private int length = 0;
   private boolean frozen = false;
   private boolean layouted = true;
 
@@ -45,6 +46,16 @@ public class LocalGVariable extends GVariable implements LayoutableNode {
   }
 
   @Override
+  public int getLength() {
+    return length;
+  }
+
+  @Override
+  public void setLength(int length) {
+    this.length = length;
+  }
+
+  @Override
   public boolean isFrozen() {
     return frozen;
   }
@@ -70,7 +81,7 @@ public class LocalGVariable extends GVariable implements LayoutableNode {
   }
 
   @Override
-  public Iterable<LayoutableNode> getNeighbors() {
+  public Iterable<LayoutableNode> getOutNeighbors() {
     List<LayoutableNode> neighbors = new ArrayList<>();
 
     if (getNode() instanceof ObjectGNode objectGNode) {
@@ -78,5 +89,10 @@ public class LocalGVariable extends GVariable implements LayoutableNode {
     }
 
     return neighbors;
+  }
+
+  @Override
+  public Iterable<LayoutableNode> getInNeighbors() {
+    return new ArrayList<>();
   }
 }

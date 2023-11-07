@@ -42,8 +42,8 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] Option to disable root spring force for manual positioning
 - [x] add toString representation to default object renderer
 - [x] move from strings for types to actual Type Objects
+- [x] Adjust spring length based on node size
 - [ ] MethodParameter class link with Object Graph
-- [ ] Adjust spring length based on node size
 - [ ] Class List (see methods, fields (also static fields), inheritance, interfaces)
 - [ ] context menu in object/local var list to focus OG to node -> simple with ImNodes
 - [ ] object filtering in object list

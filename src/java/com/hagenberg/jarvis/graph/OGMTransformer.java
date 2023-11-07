@@ -8,10 +8,13 @@ import com.hagenberg.jarvis.models.entities.graph.ArrayGNode;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 import com.hagenberg.jarvis.util.Observer;
 
+import imgui.extension.imnodes.ImNodes;
+
 public class OGMTransformer implements Observer {
   private Set<LayoutableNode> nodesToLayout = new HashSet<>();
   private Set<LayoutableNode> rootsToLayout = new HashSet<>();
   private ObjectGraphModel ogm;
+  private boolean recalcWidths = false;
 
   public OGMTransformer(ObjectGraphModel ogm) {
     this.ogm = ogm;
@@ -21,6 +24,25 @@ public class OGMTransformer implements Observer {
   @Override
   public void update() {
     transform();
+    recalcWidths = true;
+  }
+
+  /**
+   * Recalculates the widths of the nodes if the recalcWidths flag is set.
+   * This method can only run AFTER the nodes have been drawn at least once!
+   */
+  public void recalcWidthsIfNecessary() {
+    if (recalcWidths) {
+      System.out.println("Recalculating widths");
+      recalcWidths = false;
+      for (LayoutableNode node : nodesToLayout) {
+        node.setLength((int)ImNodes.getNodeDimensionsX(node.getNodeId()));
+      }
+
+      for (LayoutableNode node : rootsToLayout) {
+        node.setLength((int)ImNodes.getNodeDimensionsX(node.getNodeId()));
+      }
+    }
   }
 
   /**

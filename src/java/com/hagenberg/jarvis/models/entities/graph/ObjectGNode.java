@@ -15,6 +15,7 @@ public class ObjectGNode extends GNode implements LayoutableNode {
   private int nodeId; // ID for imnodes
   private Vec2 position = new Vec2(0, 0);
   private Vec2 velocity = new Vec2(0, 0);
+  private int length = 0;
   private boolean frozen = false;
   private boolean layouted = true;
 
@@ -76,6 +77,16 @@ public class ObjectGNode extends GNode implements LayoutableNode {
   }
 
   @Override
+  public int getLength() {
+    return length;
+  }
+
+  @Override
+  public void setLength(int length) {
+    this.length = length;
+  }
+
+  @Override
   public boolean isFrozen() {
     return frozen;
   }
@@ -101,20 +112,27 @@ public class ObjectGNode extends GNode implements LayoutableNode {
   }
 
   @Override
-  public Iterable<LayoutableNode> getNeighbors() {
+  public Iterable<LayoutableNode> getInNeighbors() {
     List<LayoutableNode> neighbors = new ArrayList<>();
-
-    for (MemberGVariable member : members) {
-      if (member.getNode() instanceof ObjectGNode obj) {
-        neighbors.add(obj);
-      }
-    }
 
     for (GVariable referenceHolder : referenceHolders) {
       if (referenceHolder instanceof LocalGVariable lgv) {
         neighbors.add(lgv);
       } else if (referenceHolder instanceof MemberGVariable mgv) {
         neighbors.add(mgv.getContainingObject());
+      }
+    }
+
+    return neighbors;
+  }
+
+  @Override
+  public Iterable<LayoutableNode> getOutNeighbors() {
+    List<LayoutableNode> neighbors = new ArrayList<>();
+
+    for (MemberGVariable member : members) {
+      if (member.getNode() instanceof ObjectGNode obj) {
+        neighbors.add(obj);
       }
     }
 

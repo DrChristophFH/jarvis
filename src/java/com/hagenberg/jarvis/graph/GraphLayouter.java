@@ -8,10 +8,10 @@ import com.hagenberg.jarvis.util.Observer;
 public class GraphLayouter implements Observer {
   private float springForce = 4.5f;
   private float springForceRoot = 1.8f;
-  private int idealSpringLength = 450;
-  private int idealSpringLengthRoot = 100;
-  private float gravityForce = 0.05f;
-  private int repulsionForce = 100;
+  private int idealSpringLength = 140;
+  private int idealSpringLengthRoot = 230;
+  private float gravityForce = 0.15f;
+  private int repulsionForce = 345;
   private float dampingFactor = 0.95f;
   private float threshold = 0.1f;
   private int maxVelocity = 100;
@@ -80,8 +80,12 @@ public class GraphLayouter implements Observer {
       }
 
       // Spring forces from neighbors
-      for (LayoutableNode neighbor : node.getNeighbors()) {
-        netForce.add(calcSpringForce(node, neighbor, springForce, idealSpringLength));
+      for (LayoutableNode neighbor : node.getInNeighbors()) {
+        netForce.add(calcSpringForce(node, neighbor, springForce, idealSpringLength + neighbor.getLength()));
+      }
+
+      for (LayoutableNode neighbor : node.getOutNeighbors()) {
+        netForce.add(calcSpringForce(node, neighbor, springForce, idealSpringLength + node.getLength()));
       }
 
       // Gravity force (to the right)
