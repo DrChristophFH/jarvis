@@ -1,13 +1,19 @@
 package com.hagenberg.jarvis.models.entities.graph;
 
-public abstract class GNode {
-  protected String type;
+import com.sun.jdi.Type;
 
-  public GNode(String type) {
+public abstract class GNode {
+  protected Type type;
+
+  public GNode(Type type) {
     this.type = type;
   }
 
-  public String getType() {
+  public Type getType() {
     return type;
+  }
+
+  public String getSimpleType () {
+    return type.name().substring(type.name().lastIndexOf(".") + 1);
   }
 }

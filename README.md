@@ -37,18 +37,19 @@ This thesis aims to push the boundaries of current program runtime visualization
 ### Med Prio
 
 - [x] object tree list -> toString() for objects
+- [x] object graph settings in own dock
+- [x] Adjust root spring force
+- [x] Option to disable root spring force for manual positioning
+- [x] add toString representation to default object renderer
+- [x] move from strings for types to actual Type Objects
+- [ ] MethodParameter class link with Object Graph
 - [ ] Adjust spring length based on node size
-- [ ] Adjust root spring force
-- [ ] Option to disable root spring force for manual positioning
-- [ ] add toString representation to default object renderer
 - [ ] Class List (see methods, fields (also static fields), inheritance, interfaces)
-- [ ] move from strings for types to actual Type Objects
 - [ ] context menu in object/local var list to focus OG to node -> simple with ImNodes
 - [ ] object filtering in object list
 - [ ] node based settings, the easiest with shortcuts or button context menu
 - [ ] current line preview
 - [ ] better breakpoint selection and adding with line display
-- [x] object graph settings in own dock
 - [ ] object tree list indentation fucked
 
 ### Low Prio

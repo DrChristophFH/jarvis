@@ -141,7 +141,17 @@ public class ObjectGraphModel implements Observable {
   }
 
   private void addLocalVariable(LocalVariable lvar, Value varValue, StackFrameInformation sfInfo) {
-    LocalGVariable newVar = new LocalGVariable(lvar.name(), lvar.typeName(), sfInfo);
+
+    Type staticType = null;
+
+     try {
+      staticType = lvar.type();
+    } catch (ClassNotLoadedException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+
+    LocalGVariable newVar = new LocalGVariable(lvar.name(), staticType, sfInfo);
 
     if (varValue instanceof ObjectReference objRef) {
       newVar.setNode(lookUpObjectNode(objRef, newVar));
@@ -172,13 +182,20 @@ public class ObjectGraphModel implements Observable {
   }
 
   private ObjectGNode createObjectNode(ObjectReference objRef) {
-    ObjectGNode newNode = new ObjectGNode(objRef.uniqueID(), objRef.referenceType().name());
+    ObjectGNode newNode = new ObjectGNode(objRef.uniqueID(), objRef.referenceType());
     newNode.setToString(resolveToString(objRef));
     for (Field field : objRef.referenceType().fields()) {
       if (field.isStatic()) continue; // skip static fields
 
       Value fieldValue = objRef.getValue(field);
-      MemberGVariable member = createMemberGVariable(field, newNode, field.name(), field.typeName(), fieldValue, field.modifiers());
+      Type fieldType = null;
+      try {
+        fieldType = field.type();
+      } catch (ClassNotLoadedException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+      MemberGVariable member = createMemberGVariable(field, newNode, field.name(), fieldType, fieldValue, field.modifiers());
       newNode.addMember(member);
     }
     return newNode;
@@ -197,7 +214,7 @@ public class ObjectGraphModel implements Observable {
   }
 
   private ObjectGNode createArrayNode(ArrayReference arrayRef) {
-    ArrayGNode newNode = new ArrayGNode(arrayRef.uniqueID(), arrayRef.referenceType().name());
+    ArrayGNode newNode = new ArrayGNode(arrayRef.uniqueID(), arrayRef.referenceType());
     List<Value> values = arrayRef.getValues();
     for (int i = 0; i < values.size(); i++) {
       Value value = values.get(i);
@@ -208,10 +225,10 @@ public class ObjectGraphModel implements Observable {
   }
 
   private GNode createPrimitiveNode(PrimitiveValue primValue) {
-    return new PrimitiveGNode(primValue.type().toString(), primValue.toString());
+    return new PrimitiveGNode(primValue.type(), primValue.toString());
   }
 
-  private MemberGVariable createMemberGVariable(Field field, ObjectGNode parent, String name, String staticType, Value value, int accessModifier) {
+  private MemberGVariable createMemberGVariable(Field field, ObjectGNode parent, String name, Type staticType, Value value, int accessModifier) {
     MemberGVariable member = new MemberGVariable(field, name, staticType, parent, accessModifier);
 
     if (value instanceof ObjectReference objRef) {
@@ -223,7 +240,7 @@ public class ObjectGraphModel implements Observable {
     return member;
   }
 
-  private ContentGVariable createContentGVariable(ObjectGNode parent, String name, String staticType, Value value, int index) {
+  private ContentGVariable createContentGVariable(ObjectGNode parent, String name, Type staticType, Value value, int index) {
     ContentGVariable member = new ContentGVariable(name, staticType, parent, index);
 
     if (value instanceof ObjectReference objRef) {

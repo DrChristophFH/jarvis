@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.hagenberg.imgui.Vec2;
 import com.hagenberg.jarvis.graph.LayoutableNode;
+import com.sun.jdi.Type;
 
 public class LocalGVariable extends GVariable implements LayoutableNode {
   private final StackFrameInformation stackFrameInformation; // A class to store stack frame information
@@ -14,7 +15,7 @@ public class LocalGVariable extends GVariable implements LayoutableNode {
   private boolean frozen = false;
   private boolean layouted = true;
 
-  public LocalGVariable(String name, String staticType, StackFrameInformation stackFrameInformation) {
+  public LocalGVariable(String name, Type staticType, StackFrameInformation stackFrameInformation) {
     super(name, staticType);
     this.stackFrameInformation = stackFrameInformation;
   }

@@ -62,7 +62,7 @@ public class CallStack extends View {
       ImGui.tableNextColumn();
       ImGui.text(parameter.getName());
       ImGui.tableNextColumn();
-      ImGui.text(parameter.getStaticType()); 
+      ImGui.text(parameter.getStaticType().name()); 
       ImGui.tableNextColumn();
       GNode gNode = parameter.getNode();
 

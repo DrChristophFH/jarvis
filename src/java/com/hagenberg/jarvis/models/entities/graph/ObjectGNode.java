@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.hagenberg.imgui.Vec2;
 import com.hagenberg.jarvis.graph.LayoutableNode;
+import com.sun.jdi.Type;
 
 public class ObjectGNode extends GNode implements LayoutableNode {
   private final long objectId; // ID from JDI
@@ -17,7 +18,7 @@ public class ObjectGNode extends GNode implements LayoutableNode {
   private boolean frozen = false;
   private boolean layouted = true;
 
-  public ObjectGNode(long id, String type) {
+  public ObjectGNode(long id, Type type) {
     super(type);
     this.objectId = id;
   }

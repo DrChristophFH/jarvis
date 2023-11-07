@@ -28,8 +28,6 @@ public class GraphLayouter implements Observer {
 
     isLayoutStable = true;
 
-    System.out.println("Layouting");
-
     if (!layoutRootsManually) {
       layoutRoots(roots);
     }
@@ -58,6 +56,7 @@ public class GraphLayouter implements Observer {
       }
 
       root.getPosition().add(root.getVelocity());
+      root.getPosition().x = 0; // fixed x position
     }
   }
 
@@ -109,13 +108,10 @@ public class GraphLayouter implements Observer {
     double dy = neighbor.getPosition().y - node.getPosition().y;
     double distance = Math.sqrt(dx * dx + dy * dy);
 
-    System.out.println("Distance: " + distance);
-
+    // Repulsion force (subtracted as springs already model repulsion for neighbours)
     double rf = repulsionForce / (distance * distance);
     // Spring force
     double sf = springForce * Math.log(distance / idealSpringLength);
-
-    System.out.println("Spring force: " + sf);
 
     result.x += sf * dx / distance - rf * dx / distance;
     result.y += sf * dy / distance - rf * dy / distance;

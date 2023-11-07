@@ -20,17 +20,24 @@ public class ObjectNodeRenderer {
     ImNodes.setNodeGridSpacePos(nodeId, node.getPosition().x, node.getPosition().y);
 
     ImNodes.beginNodeTitleBar();
-    ImGui.textColored(Colors.Type, node.getType());
+    ImGui.textColored(Colors.Type, node.getSimpleType());
     ImGui.sameLine();
     ImGui.text("Object#" + node.getObjectId());
     ImNodes.endNodeTitleBar();
 
     int attId = nodeId;
 
+    
     // Reference attribute has node id
     ImNodes.beginInputAttribute(attId++);
     ImGui.text(node.getReferenceHolders().size() + " references");
     ImNodes.endInputAttribute();
+    
+    ImGui.textColored(Colors.Type, "toString():");
+    ImGui.sameLine();
+    ImGui.pushTextWrapPos(ImGui.getCursorPosX() + ImNodes.getNodeDimensionsX(nodeId)); // TODO: make word wrap configurable
+    ImGui.text(node.getToString());
+    ImGui.popTextWrapPos();
 
     for (MemberGVariable member : node.getMembers()) {
       RendererRegistry.getInstance().getMemberVariableRenderer(member).render(member, attId++, links);

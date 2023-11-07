@@ -24,7 +24,7 @@ public class MemberVariableRenderer {
     ImNodes.beginOutputAttribute(attId);
     ImGui.textColored(Colors.AccessModifier, var.getAccessModifier().toString());
     ImGui.sameLine();
-    ImGui.textColored(Colors.Type, var.getNode().getType());
+    ImGui.textColored(Colors.Type, var.getNode().getSimpleType());
     ImGui.sameLine();
     ImGui.text(var.getName());
     

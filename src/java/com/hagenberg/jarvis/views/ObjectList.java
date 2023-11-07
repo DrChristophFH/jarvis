@@ -78,7 +78,7 @@ public class ObjectList extends View {
     boolean open = ImGui.treeNodeEx("Object#" + object.getObjectId(), treeFlags);
 
     ImGui.tableNextColumn();
-    ImGui.text(object.getType());
+    ImGui.text(object.getType().name());
     ImGui.tableNextColumn();
     ImGui.text(object.getToString());
     if (open) {
@@ -98,7 +98,7 @@ public class ObjectList extends View {
     ImGui.tableNextColumn();
     ImGui.text(name);
     ImGui.tableNextColumn();
-    ImGui.text(memberPrimitive.getType());
+    ImGui.text(memberPrimitive.getType().name());
     ImGui.tableNextColumn();
     ImGui.text(memberPrimitive.getPrimitiveValue().toString());
   }

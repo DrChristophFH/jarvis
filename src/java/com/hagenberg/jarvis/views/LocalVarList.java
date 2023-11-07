@@ -60,9 +60,9 @@ public class LocalVarList extends View {
       ImGui.tableNextColumn();
       ImGui.text(localVar.getName());
       ImGui.tableNextColumn();
-      ImGui.text(localVar.getStaticType());
+      ImGui.text(localVar.getStaticType().name());
       ImGui.tableNextColumn();
-      ImGui.text(localVar.getNode().getType());
+      ImGui.text(localVar.getNode().getType().name());
       ImGui.tableNextColumn();
       if (localVar.getNode() instanceof ObjectGNode object) {
         String name = "Object#%s = %s".formatted(object.getObjectId(), object.getToString());

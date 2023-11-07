@@ -23,7 +23,7 @@ public class LocalVariableRenderer {
 
 
     ImNodes.beginNodeTitleBar();
-    ImGui.textColored(Colors.Type, var.getStaticType());
+    ImGui.textColored(Colors.Type, var.getStaticSimpleType());
     ImGui.sameLine();
     ImGui.text(var.getName());
     ImNodes.endNodeTitleBar();
