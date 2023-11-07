@@ -28,6 +28,9 @@ public class LayouterControl extends View {
     if (this.sliderInt("Ideal Spring Length", layouter.getIdealSpringLength(), 1, 5000)) {
       layouter.setIdealSpringLength(iContainer[0]);
     }
+    if (this.sliderInt("Ideal Spring Length Roots", layouter.getIdealSpringLengthRoot(), 1, 5000)) {
+      layouter.setIdealSpringLengthRoot(iContainer[0]);
+    }
     if (this.sliderFloat("Damping Factor", layouter.getDampingFactor(), 0.01f, 1.0f, "%.2f")) {
       layouter.setDampingFactor(flContainer[0]);
     }

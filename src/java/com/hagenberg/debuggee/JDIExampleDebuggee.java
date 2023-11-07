@@ -29,6 +29,7 @@ public class JDIExampleDebuggee {
     Robot robot2 = new UberRobot();
     int x = 1;
     x = x + 1;
+    robot2 = robot;
     robot.whereAreYou();
     robot.move(1, 2, 3);
     robot.howAreYou();

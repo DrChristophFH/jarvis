@@ -9,6 +9,7 @@ public class GraphLayouter implements Observer {
   private float springForce = 4.5f;
   private float springForceRoot = 1.8f;
   private int idealSpringLength = 450;
+  private int idealSpringLengthRoot = 100;
   private float gravityForce = 0.05f;
   private int repulsionForce = 100;
   private float dampingFactor = 0.95f;
@@ -40,7 +41,7 @@ public class GraphLayouter implements Observer {
       Vec2 netForce = new Vec2(0, 0);
       for (LayoutableNode otherRoot : roots) {
         if (root == otherRoot) continue;
-        netForce.add(calcSpringForce(root, otherRoot, springForceRoot));
+        netForce.add(calcSpringForce(root, otherRoot, springForceRoot, idealSpringLengthRoot));
       }
 
       netForce.x = 0; // no horizontal force
@@ -80,7 +81,7 @@ public class GraphLayouter implements Observer {
 
       // Spring forces from neighbors
       for (LayoutableNode neighbor : node.getNeighbors()) {
-        netForce.add(calcSpringForce(node, neighbor, springForce));
+        netForce.add(calcSpringForce(node, neighbor, springForce, idealSpringLength));
       }
 
       // Gravity force (to the right)
@@ -102,7 +103,7 @@ public class GraphLayouter implements Observer {
     }
   }
 
-  private Vec2 calcSpringForce(LayoutableNode node, LayoutableNode neighbor, float springForce) {
+  private Vec2 calcSpringForce(LayoutableNode node, LayoutableNode neighbor, float springForce, int idealSpringLength) {
     Vec2 result = new Vec2(0, 0);
     double dx = neighbor.getPosition().x - node.getPosition().x;
     double dy = neighbor.getPosition().y - node.getPosition().y;
@@ -180,6 +181,15 @@ public class GraphLayouter implements Observer {
 
   public void setIdealSpringLength(int repulsionForceRoot) {
     this.idealSpringLength = repulsionForceRoot;
+    isLayoutStable = false;
+  }
+
+  public int getIdealSpringLengthRoot() {
+    return idealSpringLengthRoot;
+  }
+
+  public void setIdealSpringLengthRoot(int idealSpringLengthRoot) {
+    this.idealSpringLengthRoot = idealSpringLengthRoot;
     isLayoutStable = false;
   }
 
