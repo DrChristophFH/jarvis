@@ -30,22 +30,26 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] parameters in stack frames should be local vars...
 - [x] incremental model updates
 - [x] add shutdown button
-- [x] ? fix concurrent modification exception with models
 - [x] object graph rendering
+- [ ] ? fix concurrent modification exception with models
 - [ ] specific renderers
 
 ### Med Prio
 
-- [ ] object tree list indentation fucked
 - [x] object tree list -> toString() for objects
-- [ ] object graph settings in own dock
-- [ ] class list
+- [ ] Adjust spring length based on node size
+- [ ] Adjust root spring force
+- [ ] Option to disable root spring force for manual positioning
+- [ ] add toString representation to default object renderer
+- [ ] Class List (see methods, fields (also static fields), inheritance, interfaces)
 - [ ] move from strings for types to actual Type Objects
-- [ ] object filtering in object list
 - [ ] context menu in object/local var list to focus OG to node -> simple with ImNodes
-- [ ] better breakpoint selection and adding with line display
+- [ ] object filtering in object list
+- [ ] node based settings, the easiest with shortcuts or button context menu
 - [ ] current line preview
-- [ ] node based settings the easies with shortcuts or button context menu
+- [ ] better breakpoint selection and adding with line display
+- [ ] object graph settings in own dock
+- [ ] object tree list indentation fucked
 
 ### Low Prio
 
@@ -53,8 +57,3 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [ ] logging with coloring
 - [ ] fuzzy search known classes
 - [ ] add directory selector
-
-
-## Layouting
-
-Adjust spring length based on node size
