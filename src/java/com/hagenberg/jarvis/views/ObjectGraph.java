@@ -50,14 +50,18 @@ public class ObjectGraph extends View {
   @Override
   protected void renderWindow() {
     Set<LayoutableNode> nodes = transformer.getNodes();
+    Set<LayoutableNode> roots = transformer.getRoots();
 
-    layouter.layoutRunner(nodes);
+    layouter.layoutRunner(nodes, roots);
 
     if (this.sliderFloat("Spring Force", layouter.getSpringForce(), 0.001f, 1.0f, "%.3f")) {
       layouter.setSpringForce(flContainer[0]);
     }
     if (this.sliderInt("Repulsion Force", layouter.getRepulsionForce(), 1, 100000)) {
       layouter.setRepulsionForce(iContainer[0]);
+    }
+    if (this.sliderInt("Repulsion Force Root", layouter.getRepulsionForceRoot(), 1, 100000)) {
+      layouter.setRepulsionForceRoot(iContainer[0]);
     }
     if (this.sliderFloat("Damping Factor", layouter.getDampingFactor(), 0.01f, 1.0f, "%.2f")) {
       layouter.setDampingFactor(flContainer[0]);
@@ -67,6 +71,9 @@ public class ObjectGraph extends View {
     }
     if (this.sliderInt("Max Velocity", layouter.getMaxVelocity(), 1, 100)) {
       layouter.setMaxVelocity(iContainer[0]);
+    }
+    if (this.sliderFloat("Gravity Force", layouter.getGravityForce(), 0.1f, 10.0f, "%.1f")) {
+      layouter.setGravityForce(flContainer[0]);
     }
 
     ImGui.checkbox("Stable", layouter.isLayoutStable());

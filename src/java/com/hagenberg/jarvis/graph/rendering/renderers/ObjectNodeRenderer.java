@@ -3,7 +3,6 @@ package com.hagenberg.jarvis.graph.rendering.renderers;
 import java.util.List;
 
 import com.hagenberg.imgui.Colors;
-import com.hagenberg.imgui.Vec2;
 import com.hagenberg.jarvis.graph.rendering.Link;
 import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;

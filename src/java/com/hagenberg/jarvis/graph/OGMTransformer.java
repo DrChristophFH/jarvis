@@ -1,7 +1,6 @@
 package com.hagenberg.jarvis.graph;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import com.hagenberg.jarvis.models.ObjectGraphModel;
@@ -11,6 +10,7 @@ import com.hagenberg.jarvis.util.Observer;
 
 public class OGMTransformer implements Observer {
   private Set<LayoutableNode> nodesToLayout = new HashSet<>();
+  private Set<LayoutableNode> rootsToLayout = new HashSet<>();
   private ObjectGraphModel ogm;
 
   public OGMTransformer(ObjectGraphModel ogm) {
@@ -31,6 +31,7 @@ public class OGMTransformer implements Observer {
    */
   public void transform() {
     nodesToLayout.clear();
+    rootsToLayout.clear();
 
     int nodeId = 0;
 
@@ -49,7 +50,7 @@ public class OGMTransformer implements Observer {
 
     for (LayoutableNode layoutableNode : ogm.getLocalVariables()) {
       if (layoutableNode.isLayouted()) {
-        nodesToLayout.add(layoutableNode);
+        rootsToLayout.add(layoutableNode);
         layoutableNode.setNodeId(nodeId++);
       }
     }
@@ -57,5 +58,9 @@ public class OGMTransformer implements Observer {
 
   public Set<LayoutableNode> getNodes() {
     return nodesToLayout;
+  }
+
+  public Set<LayoutableNode> getRoots() {
+    return rootsToLayout;
   }
 }
