@@ -23,6 +23,7 @@ public class Jarvis {
   private Log eventLog = new Log("Event Log");
   private Console console = new Console();
   private ObjectGraph objectGraph = new ObjectGraph();
+  private LayouterControl layouterControl = new LayouterControl(objectGraph.getLayouter());
   private DebugStepControl debugStepControl = new DebugStepControl();
   private BreakPointControl breakPointControl = new BreakPointControl();
   private LocalVarList localVarList = new LocalVarList(interactionState);
@@ -44,6 +45,7 @@ public class Jarvis {
     ImGui.end();
 
     if (objectGraph.getShowWindow()) objectGraph.render();
+    if (layouterControl.getShowWindow()) layouterControl.render();
     if (debugStepControl.getShowWindow()) debugStepControl.render();
     if (breakPointControl.getShowWindow()) breakPointControl.render();
     if (objectList.getShowWindow()) objectList.render();

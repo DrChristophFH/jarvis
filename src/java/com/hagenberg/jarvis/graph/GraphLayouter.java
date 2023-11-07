@@ -17,6 +17,7 @@ public class GraphLayouter implements Observer {
   private Random random = new Random();
 
   private boolean isLayoutStable = false;
+  private boolean layoutRootsManually = false;
 
   public void update() {
     isLayoutStable = false;
@@ -29,7 +30,9 @@ public class GraphLayouter implements Observer {
 
     System.out.println("Layouting");
 
-    layoutRoots(roots);
+    if (!layoutRootsManually) {
+      layoutRoots(roots);
+    }
     layoutNodes(nodes, roots);
   }
 
@@ -39,7 +42,7 @@ public class GraphLayouter implements Observer {
       Vec2 netForce = new Vec2(0, 0);
       for (LayoutableNode otherRoot : roots) {
         if (root == otherRoot) continue;
-        netForce.add(calcSpringForce(root, otherRoot));
+        netForce.add(calcSpringForce(root, otherRoot, springForceRoot));
       }
 
       netForce.x = 0; // no horizontal force
@@ -78,7 +81,7 @@ public class GraphLayouter implements Observer {
 
       // Spring forces from neighbors
       for (LayoutableNode neighbor : node.getNeighbors()) {
-        netForce.add(calcSpringForce(node, neighbor));
+        netForce.add(calcSpringForce(node, neighbor, springForce));
       }
 
       // Gravity force (to the right)
@@ -100,7 +103,7 @@ public class GraphLayouter implements Observer {
     }
   }
 
-  private Vec2 calcSpringForce(LayoutableNode node, LayoutableNode neighbor) {
+  private Vec2 calcSpringForce(LayoutableNode node, LayoutableNode neighbor, float springForce) {
     Vec2 result = new Vec2(0, 0);
     double dx = neighbor.getPosition().x - node.getPosition().x;
     double dy = neighbor.getPosition().y - node.getPosition().y;
@@ -148,6 +151,15 @@ public class GraphLayouter implements Observer {
     isLayoutStable = false;
   }
 
+  public float getSpringForceRoot() {
+    return springForceRoot;
+  }
+
+  public void setSpringForceRoot(float springForceRoot) {
+    this.springForceRoot = springForceRoot;
+    isLayoutStable = false;
+  }
+
   public int getRepulsionForce() {
     return repulsionForce;
   }
@@ -166,11 +178,11 @@ public class GraphLayouter implements Observer {
     isLayoutStable = false;
   }
 
-  public int getRepulsionForceRoot() {
+  public int getIdealSpringLength() {
     return idealSpringLength;
   }
 
-  public void setRepulsionForceRoot(int repulsionForceRoot) {
+  public void setIdealSpringLength(int repulsionForceRoot) {
     this.idealSpringLength = repulsionForceRoot;
     isLayoutStable = false;
   }
@@ -200,5 +212,13 @@ public class GraphLayouter implements Observer {
   public void setMaxVelocity(int maxVelocity) {
     this.maxVelocity = maxVelocity;
     isLayoutStable = false;
+  }
+
+  public void setLayoutRootsManually(boolean layoutRootsManually) {
+    this.layoutRootsManually = layoutRootsManually;
+  }
+
+  public boolean getLayoutRootsManually() {
+    return layoutRootsManually;
   }
 }

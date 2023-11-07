@@ -37,15 +37,20 @@ public class ObjectGraph extends View {
     model.addObserver(layouter);
   }
 
+  public ObjectGraphModel getObjectGraphModel() {
+    return model;
+  }
+
+  public GraphLayouter getLayouter() {
+    return layouter;
+  }
+
   @Override
   public void render() {
     ImGui.setNextWindowSize(800, 800, ImGuiCond.FirstUseEver);
     super.render();
   }
 
-  public ObjectGraphModel getObjectGraphModel() {
-    return model;
-  }
 
   @Override
   protected void renderWindow() {
@@ -53,32 +58,6 @@ public class ObjectGraph extends View {
     Set<LayoutableNode> roots = transformer.getRoots();
 
     layouter.layoutRunner(nodes, roots);
-
-    if (this.sliderFloat("Spring Force", layouter.getSpringForce(), 0.001f, 5.0f, "%.3f")) {
-      layouter.setSpringForce(flContainer[0]);
-    }
-    if (this.sliderInt("Repulsion Force", layouter.getRepulsionForce(), 1, 1000)) {
-      layouter.setRepulsionForce(iContainer[0]);
-    }
-    if (this.sliderInt("Repulsion Force Root", layouter.getRepulsionForceRoot(), 1, 5000)) {
-      layouter.setRepulsionForceRoot(iContainer[0]);
-    }
-    if (this.sliderFloat("Damping Factor", layouter.getDampingFactor(), 0.01f, 1.0f, "%.2f")) {
-      layouter.setDampingFactor(flContainer[0]);
-    }
-    if (this.sliderFloat("Stability Threshold", layouter.getThreshold(), 0.1f, 10.0f, "%.1f")) {
-      layouter.setThreshold(flContainer[0]);
-    }
-    if (this.sliderInt("Max Velocity", layouter.getMaxVelocity(), 1, 100)) {
-      layouter.setMaxVelocity(iContainer[0]);
-    }
-    if (this.sliderFloat("Gravity Force", layouter.getGravityForce(), 0.1f, 1.0f, "%.3f")) {
-      layouter.setGravityForce(flContainer[0]);
-    }
-
-    ImGui.checkbox("Stable", layouter.isLayoutStable());
-
-    ImGui.separator();
 
     ImNodes.beginNodeEditor();
 
@@ -94,7 +73,11 @@ public class ObjectGraph extends View {
         ImNodes.getNodeGridSpacePos(node.getNodeId(), pos);
         node.setPosition(new Vec2(pos));
       }
-      layouter.update();
+      for (LayoutableNode node : roots) {
+        ImNodes.getNodeGridSpacePos(node.getNodeId(), pos);
+        node.setPosition(new Vec2(pos));
+      }
+      layouter.update(); // TODO only update if positions changed
     }
   }
 

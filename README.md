@@ -48,7 +48,7 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [ ] node based settings, the easiest with shortcuts or button context menu
 - [ ] current line preview
 - [ ] better breakpoint selection and adding with line display
-- [ ] object graph settings in own dock
+- [x] object graph settings in own dock
 - [ ] object tree list indentation fucked
 
 ### Low Prio

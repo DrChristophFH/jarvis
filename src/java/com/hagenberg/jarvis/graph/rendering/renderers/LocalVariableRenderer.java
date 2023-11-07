@@ -18,7 +18,7 @@ public class LocalVariableRenderer {
     ImNodes.pushColorStyle(ImNodesColorStyle.TitleBar, Colors.LocalVariable);
     ImNodes.beginNode(nodeId);
 
-    ImNodes.setNodeDraggable(nodeId, false);
+    ImNodes.setNodeDraggable(nodeId, true);
     ImNodes.setNodeGridSpacePos(nodeId, var.getPosition().x, var.getPosition().y);
 
 
