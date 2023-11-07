@@ -8,8 +8,7 @@ import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
-import com.hagenberg.jarvis.util.TypeFormatter;
-
+import com.hagenberg.jarvis.util.Snippets;
 import imgui.ImGui;
 import imgui.flag.ImGuiSelectableFlags;
 import imgui.flag.ImGuiTableColumnFlags;
@@ -36,8 +35,7 @@ public class LocalVarList extends View {
       return;
     }
 
-    int tableFlags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Resizable
-        | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable;
+    int tableFlags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Resizable | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable;
 
     if (ImGui.beginTable("localVarList", 4, tableFlags)) {
 
@@ -58,17 +56,23 @@ public class LocalVarList extends View {
   private void showLocalVarsTable(List<LocalGVariable> localVars) {
     for (LocalGVariable localVar : localVars) {
       ImGui.tableNextRow();
+
+      
       ImGui.tableNextColumn();
       ImGui.text(localVar.getName());
+      // Context menu for each row
+      if (ImGui.beginPopupContextItem("localVarContextMenu" + localVar.getNodeId())) {
+        Snippets.focusOnNode(localVar.getNodeId());
+        ImGui.endPopup();
+      }
       ImGui.tableNextColumn();
-      TypeFormatter.drawTypeWithTooltip(localVar.getStaticType());
+      Snippets.drawTypeWithTooltip(localVar.getStaticType());
       ImGui.tableNextColumn();
-      TypeFormatter.drawTypeWithTooltip(localVar.getNode().getType());
+      Snippets.drawTypeWithTooltip(localVar.getNode().getType());
       ImGui.tableNextColumn();
       if (localVar.getNode() instanceof ObjectGNode object) {
         String name = "Object#%s = %s".formatted(object.getObjectId(), object.getToString());
-        if (ImGui.selectable(name, iState.getSelectedObjectId() == object.getObjectId(),
-            ImGuiSelectableFlags.SpanAllColumns)) {
+        if (ImGui.selectable(name, iState.getSelectedObjectId() == object.getObjectId(), ImGuiSelectableFlags.SpanAllColumns)) {
           iState.setSelectedObjectId(object.getObjectId());
         }
       } else if (localVar.getNode() instanceof PrimitiveGNode primitive) {

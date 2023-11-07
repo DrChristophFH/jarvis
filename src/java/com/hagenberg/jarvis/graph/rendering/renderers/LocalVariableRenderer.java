@@ -7,7 +7,7 @@ import com.hagenberg.jarvis.graph.rendering.Link;
 import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
-import com.hagenberg.jarvis.util.TypeFormatter;
+import com.hagenberg.jarvis.util.Snippets;
 
 import imgui.ImGui;
 import imgui.extension.imnodes.ImNodes;
@@ -24,7 +24,7 @@ public class LocalVariableRenderer {
 
 
     ImNodes.beginNodeTitleBar();
-    TypeFormatter.drawTypeWithTooltip(var.getStaticType());
+    Snippets.drawTypeWithTooltip(var.getStaticType());
     ImGui.sameLine();
     ImGui.text(var.getName());
     ImNodes.endNodeTitleBar();

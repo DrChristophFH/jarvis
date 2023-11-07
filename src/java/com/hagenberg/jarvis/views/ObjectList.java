@@ -8,7 +8,7 @@ import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
-import com.hagenberg.jarvis.util.TypeFormatter;
+import com.hagenberg.jarvis.util.Snippets;
 
 import imgui.ImGui;
 import imgui.flag.ImGuiCol;
@@ -77,9 +77,13 @@ public class ObjectList extends View {
     }
 
     boolean open = ImGui.treeNodeEx("Object#" + object.getObjectId(), treeFlags);
+    if (ImGui.beginPopupContextItem()) {
+      Snippets.focusOnNode(object.getNodeId());
+      ImGui.endPopup();
+    }
 
     ImGui.tableNextColumn();
-    TypeFormatter.drawTypeWithTooltip(object.getType());
+    Snippets.drawTypeWithTooltip(object.getType());
     ImGui.tableNextColumn();
     ImGui.text(object.getToString());
     if (open) {
@@ -99,7 +103,7 @@ public class ObjectList extends View {
     ImGui.tableNextColumn();
     ImGui.text(name);
     ImGui.tableNextColumn();
-    TypeFormatter.drawTypeWithTooltip(memberPrimitive.getType());
+    Snippets.drawTypeWithTooltip(memberPrimitive.getType());
     ImGui.tableNextColumn();
     ImGui.text(memberPrimitive.getPrimitiveValue().toString());
   }
