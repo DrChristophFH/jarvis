@@ -1,9 +1,11 @@
-package com.hagenberg.jarvis.graph.rendering.renderers;
+package com.hagenberg.jarvis.graph.rendering.renderers.simple;
 
 import java.util.List;
 
 import com.hagenberg.imgui.Colors;
 import com.hagenberg.jarvis.graph.rendering.Link;
+import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
+import com.hagenberg.jarvis.graph.rendering.renderers.Renderer;
 import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
@@ -13,9 +15,14 @@ import imgui.ImGui;
 import imgui.extension.imnodes.ImNodes;
 import imgui.extension.imnodes.flag.ImNodesColorStyle;
 
-public class LocalVariableRenderer {
-  public void render(LocalGVariable var, List<Link> links) {
-    int nodeId = (int) var.getNodeId();
+public class SimpleLocalVariableRenderer extends Renderer<LocalGVariable> {
+
+  public SimpleLocalVariableRenderer(String name, RendererRegistry registry) {
+    super(LocalGVariable.class, name, registry);
+  }
+
+  @Override
+  public void render(LocalGVariable var, int nodeId, List<Link> links) {
     ImNodes.pushColorStyle(ImNodesColorStyle.TitleBar, Colors.LocalVariable);
     ImNodes.beginNode(nodeId);
 
@@ -24,9 +31,7 @@ public class LocalVariableRenderer {
 
 
     ImNodes.beginNodeTitleBar();
-    Snippets.drawTypeWithTooltip(var.getStaticType());
-    ImGui.sameLine();
-    ImGui.text(var.getName());
+    ImGui.text("Local Variable: " + var.getName());
     ImNodes.endNodeTitleBar();
 
     ImNodes.popColorStyle();
@@ -34,25 +39,25 @@ public class LocalVariableRenderer {
     boolean isPrimitive = var.getNode() instanceof PrimitiveGNode;
 
     if (isPrimitive) {
-      ImNodes.pushColorStyle(ImNodesColorStyle.Pin, Colors.Invisible);
-      ImNodes.pushColorStyle(ImNodesColorStyle.PinHovered, Colors.Invisible);
+      ImNodes.beginStaticAttribute(nodeId);
+    } else {
+      ImNodes.beginOutputAttribute(nodeId);
     }
 
-    ImNodes.beginOutputAttribute(nodeId);
+    Snippets.drawTypeWithTooltip(var.getStaticType());
+    ImGui.sameLine();
+    ImGui.text(var.getName());
 
     if (isPrimitive) {
       PrimitiveGNode prim = (PrimitiveGNode) var.getNode();
-
-      ImGui.text(prim.getPrimitiveValue().toString());
-
-      ImNodes.popColorStyle();
-      ImNodes.popColorStyle();
+      registry.getPrimitiveRenderer(var).render(prim, nodeId, links);
+      ImNodes.endStaticAttribute();
     } else if (var.getNode() instanceof ObjectGNode obj) {
+      ImGui.sameLine();
       ImGui.text("Reference to Object#" + obj.getObjectId());
       links.add(new Link(nodeId, obj.getNodeId()));
+      ImNodes.endOutputAttribute();
     }
-
-    ImNodes.endOutputAttribute();
 
     ImNodes.endNode();
   }

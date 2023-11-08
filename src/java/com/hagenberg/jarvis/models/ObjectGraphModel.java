@@ -163,7 +163,7 @@ public class ObjectGraphModel implements Observable {
       e.printStackTrace();
     }
 
-    LocalGVariable newVar = new LocalGVariable(lvar.name(), staticType, sfInfo);
+    LocalGVariable newVar = new LocalGVariable(lvar.name(), staticType, lvar, sfInfo);
 
     if (varValue instanceof ObjectReference objRef) {
       newVar.setNode(lookUpObjectNode(objRef, newVar));
@@ -237,7 +237,7 @@ public class ObjectGraphModel implements Observable {
   }
 
   private GNode createPrimitiveNode(PrimitiveValue primValue) {
-    return new PrimitiveGNode(primValue.type(), primValue.toString());
+    return new PrimitiveGNode(primValue.type(), primValue);
   }
 
   private MemberGVariable createMemberGVariable(Field field, ObjectGNode parent, String name, Type staticType, Value value, int accessModifier) {

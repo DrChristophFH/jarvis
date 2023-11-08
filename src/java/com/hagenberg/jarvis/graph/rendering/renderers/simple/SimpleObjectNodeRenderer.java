@@ -1,10 +1,11 @@
-package com.hagenberg.jarvis.graph.rendering.renderers;
+package com.hagenberg.jarvis.graph.rendering.renderers.simple;
 
 import java.util.List;
 
 import com.hagenberg.imgui.Colors;
 import com.hagenberg.jarvis.graph.rendering.Link;
 import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
+import com.hagenberg.jarvis.graph.rendering.renderers.Renderer;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 import com.hagenberg.jarvis.util.Snippets;
@@ -12,9 +13,14 @@ import com.hagenberg.jarvis.util.Snippets;
 import imgui.ImGui;
 import imgui.extension.imnodes.ImNodes;
 
-public class ObjectNodeRenderer {
-  public void render(ObjectGNode node, List<Link> links) {
-    int nodeId = node.getNodeId();
+public class SimpleObjectNodeRenderer extends Renderer<ObjectGNode> {
+  
+  public SimpleObjectNodeRenderer(String name, RendererRegistry registry) {
+    super(ObjectGNode.class, name, registry);
+  }
+
+  @Override
+  public void render(ObjectGNode node, int nodeId, List<Link> links) {
     ImNodes.beginNode(nodeId);
 
     ImNodes.setNodeDraggable(nodeId, true);
@@ -27,7 +33,6 @@ public class ObjectNodeRenderer {
     ImNodes.endNodeTitleBar();
 
     int attId = nodeId;
-
     
     // Reference attribute has node id
     ImNodes.beginInputAttribute(attId++);
@@ -41,7 +46,11 @@ public class ObjectNodeRenderer {
     ImGui.popTextWrapPos();
 
     for (MemberGVariable member : node.getMembers()) {
-      RendererRegistry.getInstance().getMemberVariableRenderer(member).render(member, attId++, links);
+      registry.getMemberRenderer(member).render(member, attId++, links);
+      if (ImGui.button("to Binary##" + attId)) {
+        System.out.println("Binary");
+        registry.setRenderer(member.getField());
+      }
     }
 
     ImNodes.endNode();

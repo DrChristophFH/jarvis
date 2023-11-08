@@ -5,10 +5,12 @@ import java.util.List;
 
 import com.hagenberg.imgui.Vec2;
 import com.hagenberg.jarvis.graph.LayoutableNode;
+import com.sun.jdi.LocalVariable;
 import com.sun.jdi.Type;
 
 public class LocalGVariable extends GVariable implements LayoutableNode {
   private final StackFrameInformation stackFrameInformation; // A class to store stack frame information
+  private LocalVariable localVariable; // The local variable this graph variable represents
   private int nodeId; // ID for imnodes
   private Vec2 position = new Vec2(0, 0);
   private Vec2 velocity = new Vec2(0, 0);
@@ -16,13 +18,18 @@ public class LocalGVariable extends GVariable implements LayoutableNode {
   private boolean frozen = false;
   private boolean layouted = true;
 
-  public LocalGVariable(String name, Type staticType, StackFrameInformation stackFrameInformation) {
+  public LocalGVariable(String name, Type staticType, LocalVariable localVariable, StackFrameInformation stackFrameInformation) {
     super(name, staticType);
+    this.localVariable = localVariable;
     this.stackFrameInformation = stackFrameInformation;
   }
 
   public StackFrameInformation getStackFrameInformation() {
     return stackFrameInformation;
+  }
+
+  public LocalVariable getLocalVariable() {
+    return localVariable;
   }
 
    @Override

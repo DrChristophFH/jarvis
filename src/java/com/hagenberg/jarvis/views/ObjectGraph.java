@@ -27,6 +27,7 @@ public class ObjectGraph extends View {
   private GraphLayouter layouter = new GraphLayouter();
   private ObjectGraphModel model = new ObjectGraphModel();
   private OGMTransformer transformer = new OGMTransformer(model);
+  private RendererRegistry rendererRegistry = new RendererRegistry();
 
   int[] position = new int[2];
   ImInt id = new ImInt();
@@ -87,11 +88,11 @@ public class ObjectGraph extends View {
     List<Link> links = new ArrayList<>();
 
     for (ObjectGNode node : model.getObjects()) {
-      RendererRegistry.getInstance().getObjectRenderer(node).render(node, links);
+      rendererRegistry.getObjecRenderer(node).render(node, node.getNodeId(), links);
     }
 
     for (LocalGVariable localVar : model.getLocalVariables()) {
-      RendererRegistry.getInstance().getLocalVariableRenderer(localVar).render(localVar, links);
+      rendererRegistry.getLocalRenderer(localVar).render(localVar, localVar.getNodeId(), links);
     }
 
     int linkId = 0;

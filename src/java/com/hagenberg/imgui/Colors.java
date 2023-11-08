@@ -9,5 +9,6 @@ public class Colors {
   public static final int Type = ImColor.rgb("#44C9B0");
   public static final int LocalVariable = ImColor.rgb("#0D1117");
   public static final int Text = ImGui.getColorU32(ImGuiCol.Text);
+  public static final int Attention = ImColor.rgb("#2666CB");
   public static final int Invisible = ImColor.rgba("#00000000");
 }
