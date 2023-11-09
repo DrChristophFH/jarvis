@@ -33,6 +33,8 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] object graph rendering
 - [ ] ? fix concurrent modification exception with models
 - [ ] specific renderers
+- [ ] base class fields not showing up?
+- [ ] root springs -> convert to simple fixed root layout (springs dumb idea)
 
 ### Med Prio
 
