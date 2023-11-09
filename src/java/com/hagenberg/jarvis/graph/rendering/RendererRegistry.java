@@ -109,7 +109,7 @@ public class RendererRegistry {
     return applicableRenderers;
   }
 
-  public void setRenderer(Field field) {
-    memVarRenderers.put(field, new BinaryRenderer("Binary Renderer", this));
+  public void setFieldRenderer(Field field, Renderer<PrimitiveGNode> renderer) {
+    memVarRenderers.put(field, renderer);
   }
 }
