@@ -12,9 +12,11 @@ import com.hagenberg.jarvis.util.Snippets;
 
 import imgui.ImGui;
 import imgui.extension.imnodes.ImNodes;
+import imgui.flag.ImGuiMouseButton;
+import imgui.flag.ImGuiStyleVar;
 
 public class SimpleObjectNodeRenderer extends Renderer<ObjectGNode> {
-  
+
   public SimpleObjectNodeRenderer(String name, RendererRegistry registry) {
     super(ObjectGNode.class, name, registry);
   }
@@ -33,12 +35,12 @@ public class SimpleObjectNodeRenderer extends Renderer<ObjectGNode> {
     ImNodes.endNodeTitleBar();
 
     int attId = nodeId;
-    
+
     // Reference attribute has node id
     ImNodes.beginInputAttribute(attId++);
     ImGui.text(node.getReferenceHolders().size() + " references");
     ImNodes.endInputAttribute();
-    
+
     ImGui.textColored(Colors.Type, "toString():");
     ImGui.sameLine();
     ImGui.pushTextWrapPos(ImGui.getCursorPosX() + ImNodes.getNodeDimensionsX(nodeId)); // TODO: make word wrap configurable
@@ -46,11 +48,22 @@ public class SimpleObjectNodeRenderer extends Renderer<ObjectGNode> {
     ImGui.popTextWrapPos();
 
     for (MemberGVariable member : node.getMembers()) {
-      registry.getMemberRenderer(member).render(member, attId++, links);
-      if (ImGui.button("to Binary##" + attId)) {
-        System.out.println("Binary");
-        registry.setRenderer(member.getField());
+      registry.getMemberRenderer(member).render(member, attId, links);
+
+      if (ImGui.isItemHovered() && ImGui.isMouseReleased(ImGuiMouseButton.Right)) {
+        ImGui.openPopup("MemCtx##" + attId);
       }
+
+      ImGui.pushStyleVar(ImGuiStyleVar.WindowPadding, 5, 5); // NodeEditor somehow overrides this so we have to set it here
+      if (ImGui.beginPopup("MemCtx##" + attId)) {
+        if (ImGui.menuItem("Binary")) {
+          registry.setRenderer(member.getField()); // set member for popup
+        }
+        ImGui.endPopup();
+      }
+      ImGui.popStyleVar();
+
+      attId++;
     }
 
     ImNodes.endNode();
