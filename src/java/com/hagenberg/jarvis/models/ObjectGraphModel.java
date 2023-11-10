@@ -196,7 +196,7 @@ public class ObjectGraphModel implements Observable {
   private ObjectGNode createObjectNode(ObjectReference objRef) {
     ObjectGNode newNode = new ObjectGNode(objRef.uniqueID(), objRef.referenceType());
     newNode.setToString(resolveToString(objRef));
-    for (Field field : objRef.referenceType().fields()) {
+    for (Field field : objRef.referenceType().allFields()) {
       if (field.isStatic()) continue; // skip static fields
 
       Value fieldValue = objRef.getValue(field);
