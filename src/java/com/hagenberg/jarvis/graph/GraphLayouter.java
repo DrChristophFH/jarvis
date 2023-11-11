@@ -37,26 +37,10 @@ public class GraphLayouter implements Observer {
 
   private void layoutRoots(Iterable<LayoutableNode> roots) {
     // Root forces
+    int yOffset = 0;
     for (LayoutableNode root : roots) {
-      Vec2 netForce = new Vec2(0, 0);
-      for (LayoutableNode otherRoot : roots) {
-        if (root == otherRoot) continue;
-        netForce.add(calcSpringForce(root, otherRoot, springForceRoot, idealSpringLengthRoot));
-      }
-
-      netForce.x = 0; // no horizontal force
-
-      if (Double.isNaN(netForce.y)) {
-        netForce.y = random.nextFloat() * 10;
-      }
-
-      root.getVelocity().add(netForce).scale(dampingFactor).clampAbs(maxVelocity);
-
-      if (isLayoutStable && Math.abs(root.getVelocity().y) > threshold) {
-        isLayoutStable = false;
-      }
-
-      root.getPosition().add(root.getVelocity());
+      root.getPosition().y = yOffset;
+      yOffset += idealSpringLengthRoot;
       root.getPosition().x = 0; // fixed x position
     }
   }
