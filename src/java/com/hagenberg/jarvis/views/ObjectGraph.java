@@ -49,7 +49,12 @@ public class ObjectGraph extends View {
   @Override
   public void render() {
     ImGui.setNextWindowSize(800, 800, ImGuiCond.FirstUseEver);
-    super.render();
+    model.lockModel();
+    try {
+      super.render();
+    } finally {
+      model.unlockModel();
+    }
   }
 
 
@@ -90,11 +95,9 @@ public class ObjectGraph extends View {
     for (ObjectGNode node : model.getObjects()) {
       rendererRegistry.getObjecRenderer(node).render(node, node.getNodeId(), links);
     }
-
     for (LocalGVariable localVar : model.getLocalVariables()) {
       rendererRegistry.getLocalRenderer(localVar).render(localVar, localVar.getNodeId(), links);
     }
-
     int linkId = 0;
     for (Link link : links) {
       ImNodes.link(linkId++, link.startNodeId(), link.endNodeId());

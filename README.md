@@ -31,9 +31,9 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] incremental model updates
 - [x] add shutdown button
 - [x] object graph rendering
-- [ ] ? fix concurrent modification exception with models
+- [x] ? fix concurrent modification exception with models
+- [x] base class fields not showing up?
 - [ ] specific renderers
-- [ ] base class fields not showing up?
 - [ ] root springs -> convert to simple fixed root layout (springs dumb idea)
 
 ### Med Prio

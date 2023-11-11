@@ -8,9 +8,11 @@ import com.sun.jdi.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.List;
 
 public class ObjectGraphModel implements Observable {
+  private final ReentrantLock lock = new ReentrantLock();
   private final List<Observer> observers = new ArrayList<>();
 
   private final Map<LocalVariable, LocalGVariable> localVars = new HashMap<>(); // The roots are the local variables visible
@@ -18,39 +20,50 @@ public class ObjectGraphModel implements Observable {
 
   private ThreadReference currentThread;
 
+  public void lockModel() {
+    lock.lock();
+  }
+
+  public void unlockModel() {
+    lock.unlock();
+  }
+
   public void syncWith(List<StackFrame> frames, ThreadReference currentThread) {
-    this.currentThread = currentThread;
-    List<LocalVariable> localVarsToRemove = new ArrayList<>(localVars.keySet());
+    lockModel();
+    try {
+      this.currentThread = currentThread;
+      List<LocalVariable> localVarsToRemove = new ArrayList<>(localVars.keySet());
 
-    for (StackFrame frame : frames) {
-      try {
-        for (LocalVariable variable : frame.visibleVariables()) {
-          Value varValue = frame.getValue(variable);
-          StackFrameInformation sfInfo = new StackFrameInformation();
-          if (localVars.containsKey(variable)) {
-            updateVariable(localVars.get(variable), varValue);
-          } else {
-            addLocalVariable(variable, varValue, sfInfo);
+      for (StackFrame frame : frames) {
+        try {
+          for (LocalVariable variable : frame.visibleVariables()) {
+            Value varValue = frame.getValue(variable);
+            StackFrameInformation sfInfo = new StackFrameInformation();
+            if (localVars.containsKey(variable)) {
+              updateVariable(localVars.get(variable), varValue);
+            } else {
+              addLocalVariable(variable, varValue, sfInfo);
+            }
+            localVarsToRemove.remove(variable);
           }
-          localVarsToRemove.remove(variable);
+        } catch (AbsentInformationException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
         }
-      } catch (AbsentInformationException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
       }
-    }
 
-    for (LocalVariable lvar : localVarsToRemove) {
-      localVars.remove(lvar);
-    }
+      for (LocalVariable lvar : localVarsToRemove) {
+        localVars.remove(lvar);
+      }
 
-    notifyObservers();
+      notifyObservers();
+    } finally {
+      unlockModel();
+    }
   }
 
   public List<ObjectGNode> getObjects() {
-    synchronized (objectMap) {
-      return new ArrayList<>(objectMap.values());
-    }
+    return new ArrayList<>(objectMap.values());
   }
 
   public LocalGVariable getLocalVariable(LocalVariable lvar) {
@@ -70,13 +83,14 @@ public class ObjectGraphModel implements Observable {
   }
 
   public void clear() {
-    synchronized (localVars) {
+    lockModel();
+    try {
       localVars.clear();
-    }
-    synchronized (objectMap) {
       objectMap.clear();
+      notifyObservers();
+    } finally {
+      unlockModel();
     }
-    notifyObservers();
   }
 
   @Override
@@ -156,7 +170,7 @@ public class ObjectGraphModel implements Observable {
 
     Type staticType = null;
 
-     try {
+    try {
       staticType = lvar.type();
     } catch (ClassNotLoadedException e) {
       // TODO Auto-generated catch block
