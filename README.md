@@ -33,8 +33,8 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] object graph rendering
 - [x] ? fix concurrent modification exception with models
 - [x] base class fields not showing up?
+- [x] root springs -> convert to simple fixed root layout (springs dumb idea)
 - [ ] specific renderers
-- [ ] root springs -> convert to simple fixed root layout (springs dumb idea)
 
 ### Med Prio
 
@@ -47,9 +47,10 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] Adjust spring length based on node size
 - [x] context menu in object/local var list to focus OG to node -> simple with ImNodes
 - [x] MethodParameter class link with Object Graph (already got deleted is now done via LocalVar)
-- [ ] Class List (see methods, fields (also static fields), inheritance, interfaces)
+- [x] node based settings, the easiest with shortcuts or button context menu
+- [x] Class List (see methods, fields (also static fields), inheritance, interfaces)
+- [ ] sort methods in class list based on declaring Type
 - [ ] object filtering in object list
-- [ ] node based settings, the easiest with shortcuts or button context menu
 - [ ] current line preview
 - [ ] better breakpoint selection and adding with line display
 - [ ] object tree list indentation fucked

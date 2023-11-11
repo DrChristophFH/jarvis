@@ -1,6 +1,7 @@
 package com.hagenberg.jarvis.debugger;
 
 import com.hagenberg.jarvis.models.CallStackModel;
+import com.hagenberg.jarvis.models.ClassModel;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.views.Log;
 import com.sun.jdi.*;
@@ -25,11 +26,11 @@ public class JarvisDebugger {
   private String mainClass;
   private VirtualMachine vm;
 
-
   private CompletableFuture<StepCommand> stepCommand;
 
   private CallStackModel callStackModel;
   private ObjectGraphModel objectGraphModel;
+  private ClassModel classModel;
 
   private final Log eventLog;
   private final DebugeeConsole debuggeeConsole;
@@ -83,6 +84,10 @@ public class JarvisDebugger {
     this.callStackModel = callStackModel;
   }
 
+  public void setClassModel(ClassModel classModel) {
+    this.classModel = classModel;
+  }
+
   public void shutdown() {
     vm.exit(0);
   }
@@ -114,6 +119,7 @@ public class JarvisDebugger {
         eventLog.log(event.toString());
         if (event instanceof ClassPrepareEvent e) {
           eventLog.log("Class prepared: " + e.referenceType().name());
+          classModel.addFromRefType(e.referenceType());
           this.setBreakPoints(e);
         } else if (event instanceof BreakpointEvent || event instanceof StepEvent) {
           ThreadReference currentThread = ((LocatableEvent) event).thread();
@@ -147,7 +153,6 @@ public class JarvisDebugger {
 
   private void handleInput(String input) {
     try (OutputStream os = vm.process().getOutputStream(); BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os))) {
-
       writer.write(input);
       writer.newLine();
       writer.flush();

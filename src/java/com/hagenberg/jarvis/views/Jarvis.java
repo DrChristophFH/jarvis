@@ -29,6 +29,7 @@ public class Jarvis {
   private LocalVarList localVarList = new LocalVarList(interactionState);
   private ObjectList objectList = new ObjectList(interactionState);
   private CallStack callStack = new CallStack();
+  private ClassList classList = new ClassList(interactionState);
 
   private JarvisDebugger jarvisDebugger = new JarvisDebugger(eventLog, breakPointControl, console);
 
@@ -50,6 +51,7 @@ public class Jarvis {
     if (breakPointControl.getShowWindow()) breakPointControl.render();
     if (objectList.getShowWindow()) objectList.render();
     if (localVarList.getShowWindow()) localVarList.render();
+    if (classList.getShowWindow()) classList.render();
     if (callStack.getShowWindow()) callStack.render();
     if (eventLog.getShowWindow()) eventLog.render();
     if (console.getShowWindow()) console.render();
@@ -67,6 +69,7 @@ public class Jarvis {
       jarvisDebugger.setMainClass("com.hagenberg.debuggee.JDIExampleDebuggee");
       jarvisDebugger.setObjectGraphModel(objectGraph.getObjectGraphModel());
       jarvisDebugger.setCallStackModel(callStack.getCallStackModel());
+      jarvisDebugger.setClassModel(classList.getModel());
       objectList.setObjectGraphModel(objectGraph.getObjectGraphModel());
       localVarList.setObjectGraphModel(objectGraph.getObjectGraphModel());
       jarvisDebugger.launch();
