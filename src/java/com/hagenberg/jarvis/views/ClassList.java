@@ -17,6 +17,7 @@ import com.sun.jdi.InterfaceType;
 import com.sun.jdi.ReferenceType;
 
 import imgui.ImGui;
+import imgui.flag.ImGuiTreeNodeFlags;
 
 public class ClassList extends View {
   
@@ -61,13 +62,15 @@ public class ClassList extends View {
       if (ImGui.treeNode(pkg.getName())) {
         buildPackageTree(pkg.getSubPackages());
         for (ClassType clazz : pkg.getClasses()) {
-          if (ImGui.selectable(TypeFormatter.getSimpleType(clazz.name()))) {
+          if (ImGui.treeNodeEx(TypeFormatter.getSimpleType(clazz.name()), ImGuiTreeNodeFlags.Leaf)) {
             selectedClass = clazz;
+            ImGui.treePop();
           }
         }
         for (InterfaceType interfaze : pkg.getInterfaces()) {
-          if (ImGui.selectable(interfaze.name())) {
+          if (ImGui.treeNodeEx(interfaze.name(), ImGuiTreeNodeFlags.Leaf)) {
             selectedClass = interfaze;
+            ImGui.treePop();
           }
         }
         ImGui.treePop();

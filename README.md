@@ -49,15 +49,16 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] MethodParameter class link with Object Graph (already got deleted is now done via LocalVar)
 - [x] node based settings, the easiest with shortcuts or button context menu
 - [x] Class List (see methods, fields (also static fields), inheritance, interfaces)
+- [x] object tree list indentation fucked
 - [ ] sort methods in class list based on declaring Type
 - [ ] object filtering in object list
 - [ ] current line preview
 - [ ] better breakpoint selection and adding with line display
-- [ ] object tree list indentation fucked
 
 ### Low Prio
 
-- [ ] better event logging (class prepare event)
+- [x] better event logging (class prepare event)
+- [ ] seems like constantly querying into JDI is not performant at all (cache everything for classList into own data structures)
 - [ ] logging with coloring
 - [ ] fuzzy search known classes
 - [ ] add directory selector

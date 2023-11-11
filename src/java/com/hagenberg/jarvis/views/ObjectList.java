@@ -77,6 +77,7 @@ public class ObjectList extends View {
     }
 
     boolean open = ImGui.treeNodeEx("Object#" + object.getObjectId(), treeFlags);
+
     if (ImGui.beginPopupContextItem()) {
       Snippets.focusOnNode(object.getNodeId());
       ImGui.endPopup();
@@ -101,7 +102,10 @@ public class ObjectList extends View {
   private void displayPrimitive(String name, PrimitiveGNode memberPrimitive) {
     ImGui.tableNextRow();
     ImGui.tableNextColumn();
-    ImGui.text(name);
+    int treeFlags = ImGuiTreeNodeFlags.SpanFullWidth | ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.Leaf;
+    if (ImGui.treeNodeEx(name, treeFlags)) {
+      ImGui.treePop();
+    }
     ImGui.tableNextColumn();
     Snippets.drawTypeWithTooltip(memberPrimitive.getType());
     ImGui.tableNextColumn();
