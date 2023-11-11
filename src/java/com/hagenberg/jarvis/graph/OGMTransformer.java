@@ -11,10 +11,13 @@ import com.hagenberg.jarvis.util.Observer;
 import imgui.extension.imnodes.ImNodes;
 
 public class OGMTransformer implements Observer {
+  private static final int RECALC_RUNS = 3;
+
   private Set<LayoutableNode> nodesToLayout = new HashSet<>();
   private Set<LayoutableNode> rootsToLayout = new HashSet<>();
   private ObjectGraphModel ogm;
-  private boolean recalcWidths = false;
+
+  private int recalcRuns = 0;
 
   public OGMTransformer(ObjectGraphModel ogm) {
     this.ogm = ogm;
@@ -24,7 +27,7 @@ public class OGMTransformer implements Observer {
   @Override
   public void update() {
     transform();
-    recalcWidths = true;
+    recalcRuns = 0;
   }
 
   /**
@@ -32,8 +35,7 @@ public class OGMTransformer implements Observer {
    * This method can only run AFTER the nodes have been drawn at least once!
    */
   public void recalcWidthsIfNecessary() {
-    if (recalcWidths) {
-      recalcWidths = false;
+    if (recalcRuns++ < RECALC_RUNS) {
       for (LayoutableNode node : nodesToLayout) {
         node.setLength((int)ImNodes.getNodeDimensionsX(node.getNodeId()));
       }
