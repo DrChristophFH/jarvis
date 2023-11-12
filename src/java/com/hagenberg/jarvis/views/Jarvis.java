@@ -5,6 +5,7 @@ import org.lwjgl.glfw.GLFW;
 import com.hagenberg.imgui.Application;
 import com.hagenberg.jarvis.debugger.JarvisDebugger;
 import com.hagenberg.jarvis.models.InteractionState;
+import com.hagenberg.jarvis.util.Profiler;
 
 import imgui.ImGui;
 import imgui.flag.ImGuiCond;
@@ -45,16 +46,38 @@ public class Jarvis {
     HelpSection();
     ImGui.end();
 
+    Profiler.show();
+
+    Profiler.start("objectGraph");
     if (objectGraph.getShowWindow()) objectGraph.render();
+    Profiler.stop("objectGraph");
+    Profiler.start("layouterControl");
     if (layouterControl.getShowWindow()) layouterControl.render();
+    Profiler.stop("layouterControl");
+    Profiler.start("debugStepControl");
     if (debugStepControl.getShowWindow()) debugStepControl.render();
+    Profiler.stop("debugStepControl");
+    Profiler.start("breakPointControl");
     if (breakPointControl.getShowWindow()) breakPointControl.render();
+    Profiler.stop("breakPointControl");
+    Profiler.start("objectList");
     if (objectList.getShowWindow()) objectList.render();
+    Profiler.stop("objectList");
+    Profiler.start("localVarList");
     if (localVarList.getShowWindow()) localVarList.render();
+    Profiler.stop("localVarList");
+    Profiler.start("classList");
     if (classList.getShowWindow()) classList.render();
+    Profiler.stop("classList");
+    Profiler.start("callStack");
     if (callStack.getShowWindow()) callStack.render();
+    Profiler.stop("callStack");
+    Profiler.start("eventLog");
     if (eventLog.getShowWindow()) eventLog.render();
+    Profiler.stop("eventLog");
+    Profiler.start("console");
     if (console.getShowWindow()) console.render();
+    Profiler.stop("console");
   }
 
   private void JarvisConfig() {
