@@ -41,12 +41,12 @@ public class ClassModel {
         searchPackages = currentPackage.getSubPackages();
       }
 
-      if (refType instanceof ClassType) {
-        currentPackage.addClass((ClassType) refType);
-      } else if (refType instanceof InterfaceType) {
-        currentPackage.addInterface((InterfaceType) refType);
-      } else if (refType instanceof ArrayType) {
-        currentPackage.addArray((ArrayType) refType);
+      if (refType instanceof ClassType classType) {
+        currentPackage.addClass(classType);
+      } else if (refType instanceof InterfaceType ifaceType) {
+        currentPackage.addInterface(ifaceType);
+      } else if (refType instanceof ArrayType arrayType) {
+        currentPackage.addArray(arrayType);
       }
     } finally {
       unlockModel();

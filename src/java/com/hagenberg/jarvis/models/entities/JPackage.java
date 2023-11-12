@@ -1,30 +1,20 @@
 package com.hagenberg.jarvis.models.entities;
 
-import com.sun.jdi.ReferenceType;
 import com.sun.jdi.ArrayType;
 import com.sun.jdi.ClassType;
 import com.sun.jdi.InterfaceType;
 
-import java.util.Comparator;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
 public class JPackage {
-  private class ReferenceTypeComparator implements Comparator<ReferenceType> {
-    @Override
-    public int compare(ReferenceType o1, ReferenceType o2) {
-      // lexicographical order
-      return o1.name().compareTo(o2.name());
-    }
-  }
-
   private final String name;
   private final SortedMap<String, JPackage> subPackages = new TreeMap<>();
-  private final SortedSet<ClassType> classes = new TreeSet<>(new ReferenceTypeComparator());
-  private final SortedSet<InterfaceType> interfaces = new TreeSet<>(new ReferenceTypeComparator());
-  private final SortedSet<ArrayType> arrays = new TreeSet<>(new ReferenceTypeComparator());
+  private final SortedSet<JClass> classes = new TreeSet<>();
+  private final SortedSet<JInterface> interfaces = new TreeSet<>();
+  private final SortedSet<JArray> arrays = new TreeSet<>();
 
   public JPackage(String name) {
     this.name = name;
@@ -42,27 +32,27 @@ public class JPackage {
     subPackages.put(subPackage.name, subPackage);
   }
   
-  public Iterable<ClassType> getClasses() {
+  public Iterable<JClass> getClasses() {
     return classes;
   }
 
   public void addClass(ClassType clazz) {
-    classes.add(clazz);
+    classes.add(new JClass(clazz));
   }
 
-  public Iterable<InterfaceType> getInterfaces() {
+  public Iterable<JInterface> getInterfaces() {
     return interfaces;
   }
 
   public void addInterface(InterfaceType iface) {
-    interfaces.add(iface);
+    interfaces.add(new JInterface(iface));
   }
 
-  public Iterable<ArrayType> getArrays() {
+  public Iterable<JArray> getArrays() {
     return arrays;
   }
 
   public void addArray(ArrayType array) {
-    arrays.add(array);
+    arrays.add(new JArray(array));
   }
 }

@@ -7,14 +7,15 @@ import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.models.ClassModel;
 import com.hagenberg.jarvis.models.InteractionState;
 import com.hagenberg.jarvis.models.entities.AccessModifier;
+import com.hagenberg.jarvis.models.entities.JClass;
+import com.hagenberg.jarvis.models.entities.JInterface;
 import com.hagenberg.jarvis.models.entities.JPackage;
+import com.hagenberg.jarvis.models.entities.JReferenceType;
 import com.hagenberg.jarvis.util.Snippets;
 import com.hagenberg.jarvis.util.TypeFormatter;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ClassNotLoadedException;
-import com.sun.jdi.ClassType;
 import com.sun.jdi.InterfaceType;
-import com.sun.jdi.ReferenceType;
 
 import imgui.ImGui;
 import imgui.flag.ImGuiTreeNodeFlags;
@@ -22,7 +23,7 @@ import imgui.flag.ImGuiTreeNodeFlags;
 public class ClassList extends View {
   
   private ClassModel model = new ClassModel();
-  private ReferenceType selectedClass;
+  private JReferenceType selectedClass;
   private int[] width = { 200 };
 
   public ClassList(InteractionState interactionState) {
@@ -61,16 +62,16 @@ public class ClassList extends View {
       JPackage pkg = entry.getValue();
       if (ImGui.treeNode(pkg.getName())) {
         buildPackageTree(pkg.getSubPackages());
-        for (ClassType clazz : pkg.getClasses()) {
-          if (ImGui.treeNodeEx(TypeFormatter.getSimpleType(clazz.name()), ImGuiTreeNodeFlags.Leaf)) {
+        for (JClass clazz : pkg.getClasses()) {
+          ImGui.treeNodeEx(TypeFormatter.getSimpleType(clazz.name()), ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen);
+          if (ImGui.isItemClicked() && !ImGui.isItemToggledOpen()) {
             selectedClass = clazz;
-            ImGui.treePop();
           }
         }
-        for (InterfaceType interfaze : pkg.getInterfaces()) {
-          if (ImGui.treeNodeEx(interfaze.name(), ImGuiTreeNodeFlags.Leaf)) {
+        for (JInterface interfaze : pkg.getInterfaces()) {
+          ImGui.treeNodeEx("I " + TypeFormatter.getSimpleType(interfaze.name()), ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen);
+          if (ImGui.isItemClicked() && !ImGui.isItemToggledOpen()) {
             selectedClass = interfaze;
-            ImGui.treePop();
           }
         }
         ImGui.treePop();
@@ -78,15 +79,15 @@ public class ClassList extends View {
     }
   }
 
-  private void displayRefType(ReferenceType referenceType) {
-    if (referenceType instanceof ClassType clazz) {
+  private void displayRefType(JReferenceType referenceType) {
+    if (referenceType instanceof JClass clazz) {
       displayClass(clazz);
-    } else if (referenceType instanceof InterfaceType interfaze) {
+    } else if (referenceType instanceof JInterface interfaze) {
       displayInterface(interfaze);
     }
   }
 
-  private void displayInterface(InterfaceType interfaze) {
+  private void displayInterface(JInterface interfaze) {
     ImGui.text("Interface: " + interfaze.name());
     ImGui.separator();
     ImGui.text("Superinterfaces: ");
@@ -100,7 +101,7 @@ public class ClassList extends View {
     }
   }
 
-  private void displayClass(ClassType clazz) {
+  private void displayClass(JClass clazz) {
     ImGui.text("Class:");
     ImGui.sameLine();
     ImGui.textColored(Colors.Type, clazz.name());
