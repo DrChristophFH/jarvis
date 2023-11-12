@@ -1,6 +1,6 @@
 package com.hagenberg.jarvis.models;
 
-import com.hagenberg.jarvis.models.entities.JPackage;
+import com.hagenberg.jarvis.models.entities.classList.JPackage;
 import com.sun.jdi.ArrayType;
 import com.sun.jdi.ClassType;
 import com.sun.jdi.InterfaceType;

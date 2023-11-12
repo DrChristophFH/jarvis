@@ -1,4 +1,4 @@
-package com.hagenberg.jarvis.models.entities;
+package com.hagenberg.jarvis.models.entities.classList;
 
 import com.sun.jdi.ArrayType;
 

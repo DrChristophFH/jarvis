@@ -7,15 +7,17 @@ import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.models.ClassModel;
 import com.hagenberg.jarvis.models.InteractionState;
 import com.hagenberg.jarvis.models.entities.AccessModifier;
-import com.hagenberg.jarvis.models.entities.JClass;
-import com.hagenberg.jarvis.models.entities.JInterface;
-import com.hagenberg.jarvis.models.entities.JPackage;
-import com.hagenberg.jarvis.models.entities.JReferenceType;
+import com.hagenberg.jarvis.models.entities.classList.JClass;
+import com.hagenberg.jarvis.models.entities.classList.JInterface;
+import com.hagenberg.jarvis.models.entities.classList.JPackage;
+import com.hagenberg.jarvis.models.entities.classList.JReferenceType;
+import com.hagenberg.jarvis.util.Profiler;
 import com.hagenberg.jarvis.util.Snippets;
 import com.hagenberg.jarvis.util.TypeFormatter;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.InterfaceType;
+import com.sun.jdi.Type;
 
 import imgui.ImGui;
 import imgui.flag.ImGuiTreeNodeFlags;
@@ -119,6 +121,7 @@ public class ClassList extends View {
     ImGui.checkbox("Is final", clazz.isFinal());
     ImGui.checkbox("Is static", clazz.isStatic());
     ImGui.separator();
+    Profiler.start("cl.fields");
     if (ImGui.collapsingHeader("Fields")) {
       for (var field : clazz.allFields()) {
         ImGui.textColored(Colors.AccessModifier, AccessModifier.toString(field.modifiers()));
@@ -133,12 +136,20 @@ public class ClassList extends View {
         ImGui.text(field.name());
       }
     }
+    Profiler.stop("cl.fields");
+    Profiler.start("cl.methods");
     if (ImGui.collapsingHeader("Methods")) {
       for (var method : clazz.allMethods()) {
-        ImGui.textColored(Colors.AccessModifier, AccessModifier.toString(method.modifiers()));
+        Profiler.start("cl.methods.modifiers");
+        int modifiers = method.modifiers();
+        Profiler.stop("cl.methods.modifiers");
+        ImGui.textColored(Colors.AccessModifier, AccessModifier.toString(modifiers));
         ImGui.sameLine();
         try {
-          Snippets.drawTypeWithTooltip(method.returnType());
+          Profiler.start("cl.methods.returnType");
+          Type returnType = method.returnType();
+          Profiler.stop("cl.methods.returnType");
+          Snippets.drawTypeWithTooltip(returnType);
         } catch (ClassNotLoadedException e) {
           ImGui.sameLine();
           ImGui.text("<unknown>");
@@ -146,6 +157,7 @@ public class ClassList extends View {
         ImGui.sameLine();
         ImGui.text(method.name() + "(");
         try {
+          Profiler.start("cl.methods.params");
           int params = method.arguments().size();
           for (var param : method.arguments()) {
             ImGui.sameLine();
@@ -158,6 +170,7 @@ public class ClassList extends View {
             }
             params--;
           }
+          Profiler.stop("cl.methods.params");
         } catch (AbsentInformationException | ClassNotLoadedException e) {
           ImGui.sameLine();
           ImGui.text("<unknown>");
@@ -166,5 +179,6 @@ public class ClassList extends View {
         ImGui.text(")");
       }
     }
+    Profiler.stop("cl.methods");
   }
 }

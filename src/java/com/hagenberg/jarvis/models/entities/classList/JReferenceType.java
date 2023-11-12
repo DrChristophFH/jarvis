@@ -1,4 +1,4 @@
-package com.hagenberg.jarvis.models.entities;
+package com.hagenberg.jarvis.models.entities.classList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,11 +7,11 @@ import com.sun.jdi.Field;
 import com.sun.jdi.Method;
 import com.sun.jdi.ReferenceType;
 
-public abstract class JReferenceType {
+public abstract class JReferenceType implements Refreshable {
   private final ReferenceType referenceType;
 
-  private final List<Field> fields = new ArrayList<>();
-  private final List<Method> methods = new ArrayList<>();
+  private final List<JField> fields = new ArrayList<>();
+  private final List<JMethod> methods = new ArrayList<>();
   private String name;
 
   public JReferenceType(ReferenceType referenceType) {
@@ -22,11 +22,11 @@ public abstract class JReferenceType {
     return referenceType;
   }
 
-  public List<Field> allFields() {
+  public List<JField> allFields() {
     return fields;
   }
 
-  public List<Method> allMethods() {
+  public List<JMethod> allMethods() {
     return methods;
   }
 
@@ -55,9 +55,9 @@ public abstract class JReferenceType {
    */
   public void refresh() {
     fields.clear();
-    fields.addAll(referenceType.allFields());
+    fields.addAll(JField.from(referenceType.allFields()));
     methods.clear();
-    methods.addAll(referenceType.allMethods());
+    methods.addAll(JMethod.from(referenceType.allMethods()));
     name = referenceType.name();
   }
 }

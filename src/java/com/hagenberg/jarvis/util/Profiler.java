@@ -2,12 +2,14 @@ package com.hagenberg.jarvis.util;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import imgui.ImGui;
 
 public class Profiler {
   private static Map<String, Long> startTimes = new HashMap<>();
-  private static Map<String, Long> nanoAcc = new HashMap<>(); 
+  private static SortedMap<String, Long> nanoAcc = new TreeMap<>(); 
 
   public static void show() {
     ImGui.begin("Profiler");
