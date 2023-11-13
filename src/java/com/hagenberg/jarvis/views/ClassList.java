@@ -17,6 +17,7 @@ import com.hagenberg.jarvis.util.Snippets;
 import com.hagenberg.jarvis.util.TypeFormatter;
 import com.sun.jdi.InterfaceType;
 import imgui.ImGui;
+import imgui.flag.ImGuiMouseCursor;
 import imgui.flag.ImGuiTreeNodeFlags;
 
 public class ClassList extends View {
@@ -39,7 +40,12 @@ public class ClassList extends View {
       ImGui.text("No clazz class model available");
       return;
     }
-    ImGui.sliderInt("width", width, 0, 1000);
+    float availableWidth = ImGui.getContentRegionAvailX();
+    ImGui.setNextItemWidth(availableWidth);
+    ImGui.sliderInt("width", width, 0, (int)availableWidth);
+    if (ImGui.isItemHovered()) {
+      ImGui.setMouseCursor(ImGuiMouseCursor.ResizeEW);
+    }
     ImGui.beginChild("left pane", width[0], 0, true);
     Profiler.start("cl.buildTree");
     if (model.tryLock(1, TimeUnit.MILLISECONDS)) {
@@ -48,8 +54,6 @@ public class ClassList extends View {
       } finally {
         model.unlockModel();
       }
-    } else {
-      ImGui.text("Could not lock class model");
     }
     ImGui.endChild();
     Profiler.stop("cl.buildTree");
