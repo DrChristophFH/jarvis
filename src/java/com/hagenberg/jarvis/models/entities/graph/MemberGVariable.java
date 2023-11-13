@@ -5,7 +5,7 @@ import com.sun.jdi.Field;
 import com.sun.jdi.Type;
 
 public class MemberGVariable extends GVariable {
-  private final Field field;
+  private final Field field; // the field this variable represents (for render mapping)
   private final ObjectGNode containingObject;
   // from JVM specification see
   // https://docs.oracle.com/javase/specs/jvms/se17/html/jvms-4.html#jvms-4.5

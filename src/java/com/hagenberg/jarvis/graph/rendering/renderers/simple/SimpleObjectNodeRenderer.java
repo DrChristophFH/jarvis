@@ -6,6 +6,8 @@ import com.hagenberg.imgui.Colors;
 import com.hagenberg.jarvis.graph.rendering.Link;
 import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
 import com.hagenberg.jarvis.graph.rendering.renderers.Renderer;
+import com.hagenberg.jarvis.models.entities.graph.ArrayGNode;
+import com.hagenberg.jarvis.models.entities.graph.ContentGVariable;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 import com.hagenberg.jarvis.util.Snippets;
@@ -51,6 +53,19 @@ public class SimpleObjectNodeRenderer extends Renderer<ObjectGNode> {
       Snippets.memberContextMenu(attId, member, registry);
 
       attId++;
+    }
+
+    if (node instanceof ArrayGNode array) {
+      ImGui.textColored(Colors.Type, "Array:");
+      ImGui.sameLine();
+      ImGui.text("length: " + array.getLength());
+      for (ContentGVariable content : array.getContentGVariables()) {
+        if (content.getNode() == null) {
+          continue;
+        }
+        registry.getContentRenderer(content).render(content, attId, links);
+        attId++;
+      }
     }
 
     ImNodes.endNode();

@@ -6,7 +6,7 @@ import com.hagenberg.imgui.Colors;
 import com.hagenberg.jarvis.graph.rendering.Link;
 import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
 import com.hagenberg.jarvis.graph.rendering.renderers.Renderer;
-import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
+import com.hagenberg.jarvis.models.entities.graph.ContentGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
 import com.hagenberg.jarvis.util.Snippets;
@@ -14,14 +14,14 @@ import com.hagenberg.jarvis.util.Snippets;
 import imgui.ImGui;
 import imgui.extension.imnodes.ImNodes;
 
-public class SimpleFieldRenderer extends Renderer<MemberGVariable> {
+public class SimpleContentRenderer extends Renderer<ContentGVariable> {
 
-  public SimpleFieldRenderer(String name, RendererRegistry registry) {
-    super(MemberGVariable.class, name, registry);
+  public SimpleContentRenderer(String name, RendererRegistry registry) {
+    super(ContentGVariable.class, name, registry);
   }
 
   @Override
-  public void render(MemberGVariable var, int attId, List<Link> links) {
+  public void render(ContentGVariable var, int attId, List<Link> links) {
     boolean isPrimitive = var.getNode() instanceof PrimitiveGNode;
     
     if (isPrimitive) {
@@ -30,10 +30,6 @@ public class SimpleFieldRenderer extends Renderer<MemberGVariable> {
       ImNodes.beginOutputAttribute(attId);
     }
 
-    ImGui.textColored(Colors.AccessModifier, var.getAccessModifier().toString());
-    ImGui.sameLine();
-    Snippets.drawTypeWithTooltip(var.getStaticTypeName());
-    ImGui.sameLine();
     ImGui.text(var.getName());
     
     if (isPrimitive) {

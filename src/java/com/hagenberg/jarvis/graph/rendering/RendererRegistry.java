@@ -6,12 +6,15 @@ import java.util.List;
 import java.util.Map;
 
 import com.hagenberg.jarvis.graph.rendering.renderers.Renderer;
+import com.hagenberg.jarvis.graph.rendering.renderers.simple.SimpleContentRenderer;
 import com.hagenberg.jarvis.graph.rendering.renderers.simple.SimpleFieldRenderer;
 import com.hagenberg.jarvis.graph.rendering.renderers.simple.SimpleLocalVariableRenderer;
 import com.hagenberg.jarvis.graph.rendering.renderers.simple.SimpleObjectNodeRenderer;
 import com.hagenberg.jarvis.graph.rendering.renderers.simple.SimplePrimitiveRenderer;
 import com.hagenberg.jarvis.graph.rendering.renderers.specific.BinaryRenderer;
+import com.hagenberg.jarvis.models.entities.graph.ContentGVariable;
 import com.hagenberg.jarvis.models.entities.graph.GNode;
+import com.hagenberg.jarvis.models.entities.graph.GVariable;
 import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
@@ -34,6 +37,7 @@ public class RendererRegistry {
   // default renderers
   private Renderer<LocalGVariable> defaultLocalVarRenderer = new SimpleLocalVariableRenderer("Default Local Variable Renderer", this);
   private Renderer<MemberGVariable> defaultMemVarRenderer = new SimpleFieldRenderer("Default Member Variable Renderer", this);
+  private Renderer<ContentGVariable> defaultContentRenderer = new SimpleContentRenderer("Default Content Renderer", this);
   private Renderer<PrimitiveGNode> defaultPrimRenderer = new SimplePrimitiveRenderer("Default Primitive Renderer", this);
   private Renderer<ObjectGNode> defaultObjRenderer = new SimpleObjectNodeRenderer("Default Object Renderer", this);
 
@@ -41,6 +45,7 @@ public class RendererRegistry {
     // add default renderers
     renderers.add(defaultLocalVarRenderer);
     renderers.add(defaultMemVarRenderer);
+    renderers.add(defaultContentRenderer);
     renderers.add(defaultPrimRenderer);
     renderers.add(defaultObjRenderer);
 
@@ -56,6 +61,10 @@ public class RendererRegistry {
     return defaultMemVarRenderer;
   }
 
+  public Renderer<ContentGVariable> getContentRenderer(ContentGVariable content) {
+    return defaultContentRenderer;
+  }
+
   public Renderer<ObjectGNode> getObjecRenderer(ObjectGNode obj) {
     Renderer<ObjectGNode> renderer = objRenderers.get(obj.getObjectId()); // object specific
 
@@ -69,7 +78,16 @@ public class RendererRegistry {
     return renderer;
   }
 
-  public Renderer<PrimitiveGNode> getPrimitiveRender(MemberGVariable member) {
+  public Renderer<PrimitiveGNode> getPrimitiveRenderer(GVariable variable) {
+    Renderer<PrimitiveGNode> renderer = null;
+    // renderer = typeRenderers.get(member.getStaticType()); // dynamic type
+    if (renderer == null) {
+      renderer = defaultPrimRenderer; // default
+    }
+    return renderer;
+  }
+
+  public Renderer<PrimitiveGNode> getPrimitiveRenderer(MemberGVariable member) {
     Renderer<PrimitiveGNode> renderer = memVarRenderers.get(member.getField()); // field specific
 
     if (renderer == null) {
@@ -100,7 +118,7 @@ public class RendererRegistry {
     for (Renderer<?> renderer : renderers) {
       if (renderer.canHandle(node)) {
         @SuppressWarnings("unchecked")
-        Renderer<T> castedRenderer = (Renderer<T>) renderer; 
+        Renderer<T> castedRenderer = (Renderer<T>) renderer;
         if (castedRenderer.isApplicable(node)) {
           applicableRenderers.add(castedRenderer);
         }

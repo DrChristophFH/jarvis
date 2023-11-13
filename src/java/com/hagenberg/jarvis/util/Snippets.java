@@ -52,7 +52,7 @@ public class Snippets {
       if (member.getNode() instanceof PrimitiveGNode prim) {
         if (ImGui.beginMenu("Renderer")) {
           List<Renderer<PrimitiveGNode>> renderers = registry.getApplicableRenderers(prim);
-          Renderer<PrimitiveGNode> currentRenderer = registry.getPrimitiveRender(member);
+          Renderer<PrimitiveGNode> currentRenderer = registry.getPrimitiveRenderer(member);
           for (Renderer<PrimitiveGNode> renderer : renderers) {
             if (ImGui.menuItem(renderer.getName(), "", renderer == currentRenderer)) {
               registry.setFieldRenderer(member.getField(), renderer);
