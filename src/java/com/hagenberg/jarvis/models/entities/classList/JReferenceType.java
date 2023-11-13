@@ -3,8 +3,6 @@ package com.hagenberg.jarvis.models.entities.classList;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.jdi.Field;
-import com.sun.jdi.Method;
 import com.sun.jdi.ReferenceType;
 
 public abstract class JReferenceType implements Refreshable {

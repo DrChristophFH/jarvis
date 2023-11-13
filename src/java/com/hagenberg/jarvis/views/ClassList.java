@@ -14,16 +14,12 @@ import com.hagenberg.jarvis.models.entities.classList.JReferenceType;
 import com.hagenberg.jarvis.util.Profiler;
 import com.hagenberg.jarvis.util.Snippets;
 import com.hagenberg.jarvis.util.TypeFormatter;
-import com.sun.jdi.AbsentInformationException;
-import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.InterfaceType;
-import com.sun.jdi.Type;
-
 import imgui.ImGui;
 import imgui.flag.ImGuiTreeNodeFlags;
 
 public class ClassList extends View {
-  
+
   private ClassModel model = new ClassModel();
   private JReferenceType selectedClass;
   private int[] width = { 200 };
@@ -126,12 +122,7 @@ public class ClassList extends View {
       for (var field : clazz.allFields()) {
         ImGui.textColored(Colors.AccessModifier, AccessModifier.toString(field.modifiers()));
         ImGui.sameLine();
-        try {
-          Snippets.drawTypeWithTooltip(field.type());
-        } catch (ClassNotLoadedException e) {
-          ImGui.sameLine();
-          ImGui.text("<unknown>");
-        }
+        Snippets.drawTypeWithTooltip(field.typeName());
         ImGui.sameLine();
         ImGui.text(field.name());
       }
@@ -145,36 +136,25 @@ public class ClassList extends View {
         Profiler.stop("cl.methods.modifiers");
         ImGui.textColored(Colors.AccessModifier, AccessModifier.toString(modifiers));
         ImGui.sameLine();
-        try {
-          Profiler.start("cl.methods.returnType");
-          Type returnType = method.returnType();
-          Profiler.stop("cl.methods.returnType");
-          Snippets.drawTypeWithTooltip(returnType);
-        } catch (ClassNotLoadedException e) {
-          ImGui.sameLine();
-          ImGui.text("<unknown>");
-        }
+        Profiler.start("cl.methods.returnType");
+        Snippets.drawTypeWithTooltip(method.returnTypeName());
+        Profiler.stop("cl.methods.returnType");
         ImGui.sameLine();
         ImGui.text(method.name() + "(");
-        try {
-          Profiler.start("cl.methods.params");
-          int params = method.arguments().size();
-          for (var param : method.arguments()) {
-            ImGui.sameLine();
-            Snippets.drawTypeWithTooltip(param.type());
-            ImGui.sameLine();
-            ImGui.text(param.name());
-            if (params > 1) {
-              ImGui.sameLine();
-              ImGui.text(",");
-            }
-            params--;
-          }
-          Profiler.stop("cl.methods.params");
-        } catch (AbsentInformationException | ClassNotLoadedException e) {
+        Profiler.start("cl.methods.params");
+        int params = method.arguments().size();
+        for (var param : method.arguments()) {
           ImGui.sameLine();
-          ImGui.text("<unknown>");
+          Snippets.drawTypeWithTooltip(param.typeName());
+          ImGui.sameLine();
+          ImGui.text(param.name());
+          if (params > 1) {
+            ImGui.sameLine();
+            ImGui.text(",");
+          }
+          params--;
         }
+        Profiler.stop("cl.methods.params");
         ImGui.sameLine();
         ImGui.text(")");
       }
