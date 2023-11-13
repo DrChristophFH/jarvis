@@ -18,6 +18,7 @@ public class Profiler {
   // individual duration counters
   private static Map<String, Long> startTimes = new HashMap<>();
   private static SortedMap<String, Long> nanoAcc = new TreeMap<>();
+  private static SortedMap<String, Long> nanoMax = new TreeMap<>();
 
   public static void show() {
     long frameEnd = System.nanoTime();
@@ -31,9 +32,10 @@ public class Profiler {
 
     int tableFlags = ImGuiTableFlags.RowBg | ImGuiTableFlags.Resizable | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable;
 
-    if (ImGui.beginTable("table", 2, tableFlags)) {
+    if (ImGui.beginTable("table", 3, tableFlags)) {
       ImGui.tableSetupColumn("Name");
       ImGui.tableSetupColumn("Acc Time");
+      ImGui.tableSetupColumn("Max Acc Time");
 
       for (String key : nanoAcc.keySet()) {
         ImGui.tableNextRow();
@@ -41,6 +43,8 @@ public class Profiler {
         ImGui.text(key);
         ImGui.tableNextColumn();
         ImGui.text("%7.4f ms".formatted(nanoAcc.get(key) / 1000000.0));
+        ImGui.tableNextColumn();
+        ImGui.text("%7.4f ms".formatted(nanoMax.get(key) / 1000000.0));
         nanoAcc.put(key, 0L);
       }
 
@@ -63,6 +67,11 @@ public class Profiler {
       nanoAcc.put(name, nanoAcc.get(name) + duration);
     } else {
       nanoAcc.put(name, duration);
+    }
+    if (nanoMax.containsKey(name)) {
+      nanoMax.put(name, Math.max(nanoMax.get(name), duration));
+    } else {
+      nanoMax.put(name, duration);
     }
   }
 
