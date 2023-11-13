@@ -3,6 +3,7 @@ package com.hagenberg.jarvis.models;
 import com.hagenberg.jarvis.models.entities.graph.*;
 import com.hagenberg.jarvis.util.Observable;
 import com.hagenberg.jarvis.util.Observer;
+import com.hagenberg.jarvis.util.Pair;
 import com.sun.jdi.*;
 
 import java.util.ArrayList;
@@ -17,6 +18,8 @@ public class ObjectGraphModel implements Observable {
 
   private final Map<LocalVariable, LocalGVariable> localVars = new HashMap<>(); // The roots are the local variables visible
   private final Map<Long, ObjectGNode> objectMap = new HashMap<>(); // maps object ids to graph objects
+
+  private final List<Pair<ObjectGNode, ObjectReference>> deferredToString = new ArrayList<>();
 
   private ThreadReference currentThread;
 
@@ -58,6 +61,8 @@ public class ObjectGraphModel implements Observable {
         }
       }
 
+      resolveToString();
+
       for (LocalVariable lvar : localVarsToRemove) {
         localVars.remove(lvar);
       }
@@ -82,8 +87,13 @@ public class ObjectGraphModel implements Observable {
 
   public List<LocalGVariable> getLocalVariables(List<LocalVariable> lvars) {
     List<LocalGVariable> result = new ArrayList<>();
-    for (LocalVariable lvar : lvars) {
-      result.add(getLocalVariable(lvar));
+    lockModel();
+    try {
+      for (LocalVariable lvar : lvars) {
+        result.add(getLocalVariable(lvar));
+      }
+    } finally {
+      unlockModel();
     }
     return result;
   }
@@ -213,7 +223,7 @@ public class ObjectGraphModel implements Observable {
 
   private ObjectGNode createObjectNode(ObjectReference objRef) {
     ObjectGNode newNode = new ObjectGNode(objRef.uniqueID(), objRef.referenceType());
-    newNode.setToString(resolveToString(objRef));
+    deferToString(newNode, objRef);
     for (Field field : objRef.referenceType().allFields()) {
       if (field.isStatic()) continue; // skip static fields
 
@@ -231,16 +241,32 @@ public class ObjectGraphModel implements Observable {
     return newNode;
   }
 
-  private String resolveToString(ObjectReference objRef) {
+  private void deferToString(ObjectGNode node, ObjectReference objRef) {
+    deferredToString.add(new Pair<>(node, objRef));
+  }
+
+  /**
+   * <b>NOTE:</b> This method will <b>RESUME</b> the current thread, therefore invalidating all stack frames!
+   */
+  private void resolveToString() {
     String result;
-
-    try {
-      result = objRef.invokeMethod(currentThread, objRef.referenceType().methodsByName("toString").get(0), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED).toString();
-    } catch (InvalidTypeException | ClassNotLoadedException | IncompatibleThreadStateException | InvocationException e) {
-      result = "toString() not available";
+    for (Pair<ObjectGNode, ObjectReference> pair : deferredToString) {
+      ObjectGNode node = pair.first();
+      ObjectReference objRef = pair.second();
+      try {
+        List<Method> methods = objRef.referenceType().methodsByName("toString", "()Ljava/lang/String;");
+        if (methods.isEmpty()) {
+          result = "toString() not available";
+        } else {
+          Method toStringMethod = methods.get(0);
+          int flags = ObjectReference.INVOKE_SINGLE_THREADED;
+          result = objRef.invokeMethod(currentThread, toStringMethod, new ArrayList<>(), flags).toString();
+        }
+      } catch (IllegalArgumentException | InvalidTypeException | ClassNotLoadedException | IncompatibleThreadStateException | InvocationException e) {
+        result = "toString() not available";
+      }
+      node.setToString(result);
     }
-
-    return result;
   }
 
   private ObjectGNode createArrayNode(ArrayReference arrayRef) {
