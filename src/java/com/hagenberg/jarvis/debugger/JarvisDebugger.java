@@ -123,7 +123,7 @@ public class JarvisDebugger {
           this.setBreakPoints(e);
         } else if (event instanceof BreakpointEvent || event instanceof StepEvent) {
           ThreadReference currentThread = ((LocatableEvent) event).thread();
-          objectGraphModel.syncWith(new ArrayList<>(currentThread.frames()), currentThread);
+          objectGraphModel.syncWith(currentThread);
           callStackModel.syncWith(new ArrayList<>(currentThread.frames()), objectGraphModel);
           processUserCommand(currentThread, this.waitForUserCommand());
         } else if (event instanceof ExceptionEvent exceptionEvent) {
@@ -225,7 +225,7 @@ public class JarvisDebugger {
       return;
     }
     for (int lineNumber : lines) {
-      Location location = refType.locationsOfLine(lineNumber).get(0);
+      Location location = refType.locationsOfLine(lineNumber).get(0); // todo check if there are locations
       BreakpointRequest bpReq = vm.eventRequestManager().createBreakpointRequest(location);
       bpReq.enable();
     }

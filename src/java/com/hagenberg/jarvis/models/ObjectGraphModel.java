@@ -28,20 +28,26 @@ public class ObjectGraphModel implements Observable {
     lock.unlock();
   }
 
-  public void syncWith(List<StackFrame> frames, ThreadReference currentThread) {
+  public void syncWith(ThreadReference currentThread) {
     lockModel();
     try {
       this.currentThread = currentThread;
+      List<StackFrame> frames = new ArrayList<>();
+      try {
+        frames = currentThread.frames();
+      } catch (IncompatibleThreadStateException e) {
+        System.out.println("Thread is not suspended");
+      }
       List<LocalVariable> localVarsToRemove = new ArrayList<>(localVars.keySet());
 
       for (StackFrame frame : frames) {
         try {
           for (LocalVariable variable : frame.visibleVariables()) {
             Value varValue = frame.getValue(variable);
-            StackFrameInformation sfInfo = new StackFrameInformation();
             if (localVars.containsKey(variable)) {
               updateVariable(localVars.get(variable), varValue);
             } else {
+              StackFrameInformation sfInfo = new StackFrameInformation();
               addLocalVariable(variable, varValue, sfInfo);
             }
             localVarsToRemove.remove(variable);
@@ -185,9 +191,7 @@ public class ObjectGraphModel implements Observable {
       newVar.setNode(createPrimitiveNode(primValue));
     }
 
-    synchronized (localVars) {
-      localVars.put(lvar, newVar);
-    }
+    localVars.put(lvar, newVar);
   }
 
   private ObjectGNode lookUpObjectNode(ObjectReference objRef, GVariable referenceHolder) {
