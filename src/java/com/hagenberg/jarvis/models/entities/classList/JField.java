@@ -17,6 +17,7 @@ public class JField implements Refreshable {
 
   public JField(Field field) {
     this.field = field;
+    refresh();
   }
 
   public String name() {

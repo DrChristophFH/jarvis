@@ -1,6 +1,7 @@
 package com.hagenberg.jarvis.views;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import com.hagenberg.imgui.Colors;
 import com.hagenberg.imgui.View;
@@ -40,13 +41,18 @@ public class ClassList extends View {
     }
     ImGui.sliderInt("width", width, 0, 1000);
     ImGui.beginChild("left pane", width[0], 0, true);
-    model.lockModel();
-    try {
-      buildPackageTree(model.getRootPackages());
-    } finally {
-      model.unlockModel();
+    Profiler.start("cl.buildTree");
+    if (model.tryLock(1, TimeUnit.MILLISECONDS)) {
+      try {
+        buildPackageTree(model.getRootPackages());
+      } finally {
+        model.unlockModel();
+      }
+    } else {
+      ImGui.text("Could not lock class model");
     }
     ImGui.endChild();
+    Profiler.stop("cl.buildTree");
     ImGui.sameLine();
     ImGui.beginChild("right pane", 0, 0, true);
     if (selectedClass != null) {

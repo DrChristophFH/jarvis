@@ -25,17 +25,17 @@ public class Snippets {
     }
   }
 
-  public static String getSimpleType(String type) {
-    return type.substring(type.lastIndexOf(".") + 1);
+  public static String getSimpleType(String typeName) {
+    return typeName.substring(typeName.lastIndexOf(".") + 1);
   }
 
-  public static void drawTypeWithTooltip(String type) {
-    String simpleType = getSimpleType(type);
-    ImGui.textColored(Colors.Type, simpleType);
+  public static void drawTypeWithTooltip(String typeName) {
+    String simpleTypeName = getSimpleType(typeName);
+    ImGui.textColored(Colors.Type, simpleTypeName);
     ImGui.pushStyleVar(ImGuiStyleVar.WindowPadding, 5, 5); // NodeEditor somehow overrides this so we have to set it here
     if (ImGui.isItemHovered()) {
       ImGui.beginTooltip();
-      ImGui.text(type);
+      ImGui.text(typeName);
       ImGui.endTooltip();
     }
     ImGui.popStyleVar();

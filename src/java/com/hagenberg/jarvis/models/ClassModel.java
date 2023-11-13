@@ -8,6 +8,7 @@ import com.sun.jdi.ReferenceType;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ClassModel {
@@ -21,6 +22,15 @@ public class ClassModel {
 
   public void unlockModel() {
     lock.unlock();
+  }
+
+  public boolean tryLock(long timeout, TimeUnit unit) {
+    try {
+      return lock.tryLock(timeout, unit);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt(); // set the interrupt flag
+      return false;
+    }
   }
 
   public void addFromRefType(ReferenceType refType) {
