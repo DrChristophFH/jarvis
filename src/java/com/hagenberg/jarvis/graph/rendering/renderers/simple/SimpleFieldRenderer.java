@@ -45,6 +45,10 @@ public class SimpleFieldRenderer extends Renderer<MemberGVariable> {
       ImGui.text("Reference to Object#" + obj.getObjectId());
       links.add(new Link(attId, obj.getNodeId()));
       ImNodes.endOutputAttribute();
+    } else {
+      ImGui.sameLine();
+      ImGui.text("null");
+      ImNodes.endOutputAttribute();
     }
   }
 }
