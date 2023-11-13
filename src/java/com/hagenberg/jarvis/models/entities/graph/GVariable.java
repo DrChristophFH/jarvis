@@ -35,8 +35,8 @@ public class GVariable {
     return staticType;
   }
 
-  public String getStaticSimpleType () {
-    return staticType.name().substring(staticType.name().lastIndexOf(".") + 1);
+  public String getStaticTypeName () {
+    return staticType.name();
   }
 
   @Override

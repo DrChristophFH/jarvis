@@ -64,9 +64,9 @@ public class LocalVarList extends View {
         ImGui.endPopup();
       }
       ImGui.tableNextColumn();
-      Snippets.drawTypeWithTooltip(localVar.getStaticType());
+      Snippets.drawTypeWithTooltip(localVar.getStaticTypeName());
       ImGui.tableNextColumn();
-      Snippets.drawTypeWithTooltip(localVar.getNode().getType());
+      Snippets.drawTypeWithTooltip(localVar.getNode().getTypeName());
       ImGui.tableNextColumn();
       if (localVar.getNode() instanceof ObjectGNode object) {
         String name = "Object#%s = %s".formatted(object.getObjectId(), object.getToString());

@@ -84,7 +84,7 @@ public class ObjectList extends View {
     }
 
     ImGui.tableNextColumn();
-    Snippets.drawTypeWithTooltip(object.getType());
+    Snippets.drawTypeWithTooltip(object.getTypeName());
     ImGui.tableNextColumn();
     ImGui.text(object.getToString());
     if (open) {
@@ -107,7 +107,7 @@ public class ObjectList extends View {
       ImGui.treePop();
     }
     ImGui.tableNextColumn();
-    Snippets.drawTypeWithTooltip(memberPrimitive.getType());
+    Snippets.drawTypeWithTooltip(memberPrimitive.getTypeName());
     ImGui.tableNextColumn();
     ImGui.text(memberPrimitive.getPrimitiveValue().toString());
   }

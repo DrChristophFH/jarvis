@@ -27,7 +27,7 @@ public class SimpleObjectNodeRenderer extends Renderer<ObjectGNode> {
     ImNodes.setNodeGridSpacePos(nodeId, node.getPosition().x, node.getPosition().y);
 
     ImNodes.beginNodeTitleBar();
-    Snippets.drawTypeWithTooltip(node.getType());
+    Snippets.drawTypeWithTooltip(node.getTypeName());
     ImGui.sameLine();
     ImGui.text("Object#" + node.getObjectId());
     ImNodes.endNodeTitleBar();

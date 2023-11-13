@@ -13,7 +13,7 @@ public abstract class GNode {
     return type;
   }
 
-  public String getSimpleType () {
-    return type.name().substring(type.name().lastIndexOf(".") + 1);
+  public String getTypeName () {
+    return type.name();
   }
 }

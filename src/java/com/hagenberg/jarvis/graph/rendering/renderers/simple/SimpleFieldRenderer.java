@@ -32,7 +32,7 @@ public class SimpleFieldRenderer extends Renderer<MemberGVariable> {
 
     ImGui.textColored(Colors.AccessModifier, var.getAccessModifier().toString());
     ImGui.sameLine();
-    Snippets.drawTypeWithTooltip(var.getStaticType());
+    Snippets.drawTypeWithTooltip(var.getStaticTypeName());
     ImGui.sameLine();
     ImGui.text(var.getName());
     

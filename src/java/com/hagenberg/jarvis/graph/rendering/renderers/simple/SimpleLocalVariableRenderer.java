@@ -44,7 +44,7 @@ public class SimpleLocalVariableRenderer extends Renderer<LocalGVariable> {
       ImNodes.beginOutputAttribute(nodeId);
     }
 
-    Snippets.drawTypeWithTooltip(var.getStaticType());
+    Snippets.drawTypeWithTooltip(var.getStaticTypeName());
     ImGui.sameLine();
     ImGui.text(var.getName());
 
