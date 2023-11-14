@@ -128,40 +128,58 @@ public class ObjectGraphModel implements Observable {
 
   private void updateVariable(GVariable variable, Value varValue) {
     if (varValue instanceof ObjectReference objRef) {
-      ObjectGNode newNode = objectMap.get(objRef.uniqueID());
-      // new object in general
-      if (newNode == null) {
+      ObjectGNode existingNode = objectMap.get(objRef.uniqueID());
+
+      if (existingNode == null) { // object has no corresponding node yet
+        // create new node
         if (objRef instanceof ArrayReference arrayRef) {
-          newNode = createArrayNode(arrayRef);
+          existingNode = createArrayNode(arrayRef);
         } else {
-          newNode = createObjectNode(objRef);
+          existingNode = createObjectNode(objRef);
         }
-        variable.setNode(newNode);
-        newNode.addReferenceHolder(variable);
-        objectMap.put(objRef.uniqueID(), newNode);
-      } else { // existing object
-        ObjectGNode currentNode = (ObjectGNode) variable.getNode();
-        currentNode.removeReferenceHolder(variable);
-        newNode.addReferenceHolder(variable);
-        variable.setNode(newNode);
-
+        // put node into map to track it
+        objectMap.put(objRef.uniqueID(), existingNode);
+      } else { // object already has a corresponding node
         // update members
-        updateMembers(newNode, objRef);
+        updateMembers(existingNode, objRef);
 
-        if (newNode instanceof ArrayGNode newArrayNode) {
+        // update contents
+        if (existingNode instanceof ArrayGNode newArrayNode) {
           updateContents(newArrayNode, (ArrayReference) objRef);
         }
-
-        if (currentNode.getReferenceHolders().isEmpty()) {
-          removeObject(currentNode);
-        }
       }
+      // get last held node
+      ObjectGNode lastHeldNode = (ObjectGNode) variable.getNode();
+
+      if (lastHeldNode != existingNode) {
+        // add the variable as a reference holder to the new node
+        existingNode.addReferenceHolder(variable);
+        variable.setNode(existingNode);
+        
+        // no more references to this node -> remove it
+        if (lastHeldNode != null) {
+          lastHeldNode.removeReferenceHolder(variable);
+          if (lastHeldNode.getReferenceHolders().isEmpty()) {
+            removeObject(lastHeldNode);
+          }
+        }
+      } 
     } else if (varValue instanceof PrimitiveValue primValue) {
       variable.setNode(createPrimitiveNode(primValue));
     }
   }
 
   private void removeObject(ObjectGNode currentNode) {
+    if (currentNode instanceof ArrayGNode arrayNode) {
+      for (ContentGVariable content : arrayNode.getContentGVariables()) {
+        if (content.getNode() instanceof ObjectGNode contentNode) {
+          contentNode.removeReferenceHolder(content);
+          if (contentNode.getReferenceHolders().isEmpty()) {
+            removeObject(contentNode);
+          }
+        }
+      }
+    }
     for (MemberGVariable member : currentNode.getMembers()) {
       if (member.getNode() instanceof ObjectGNode memberNode) {
         memberNode.removeReferenceHolder(member);
@@ -274,6 +292,7 @@ public class ObjectGraphModel implements Observable {
       }
       node.setToString(result);
     }
+    deferredToString.clear();
   }
 
   private ObjectGNode createArrayNode(ArrayReference arrayRef) {
