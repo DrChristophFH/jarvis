@@ -2,14 +2,12 @@ package com.hagenberg.jarvis.graph.rendering.renderers.simple;
 
 import java.util.List;
 
-import com.hagenberg.imgui.Colors;
 import com.hagenberg.jarvis.graph.rendering.Link;
 import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
 import com.hagenberg.jarvis.graph.rendering.renderers.Renderer;
 import com.hagenberg.jarvis.models.entities.graph.ContentGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
-import com.hagenberg.jarvis.util.Snippets;
 
 import imgui.ImGui;
 import imgui.extension.imnodes.ImNodes;

@@ -132,10 +132,13 @@ public class ObjectGraphModel implements Observable {
       // new object in general
       if (newNode == null) {
         if (objRef instanceof ArrayReference arrayRef) {
-          variable.setNode(createArrayNode(arrayRef));
+          newNode = createArrayNode(arrayRef);
         } else {
-          variable.setNode(createObjectNode(objRef));
+          newNode = createObjectNode(objRef);
         }
+        variable.setNode(newNode);
+        newNode.addReferenceHolder(variable);
+        objectMap.put(objRef.uniqueID(), newNode);
       } else { // existing object
         ObjectGNode currentNode = (ObjectGNode) variable.getNode();
         currentNode.removeReferenceHolder(variable);
@@ -177,8 +180,12 @@ public class ObjectGraphModel implements Observable {
   }
 
   private void updateContents(ArrayGNode node, ArrayReference arrayRef) {
-    for (ContentGVariable member : node.getContentGVariables()) {
-      updateVariable(member, arrayRef.getValue(member.getIndex()));
+    // update content list based on array reference since size can change
+    List<Value> values = arrayRef.getValues();
+    for (int i = 0; i < values.size(); i++) {
+      Value value = values.get(i);
+      ContentGVariable arrayMember = node.getContentGVariables().get(i);
+      updateVariable(arrayMember, value);
     }
   }
 

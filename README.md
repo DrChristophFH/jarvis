@@ -34,6 +34,7 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] ? fix concurrent modification exception with models
 - [x] base class fields not showing up?
 - [x] root springs -> convert to simple fixed root layout (springs dumb idea)
+- [ ] fix arrays? see hasmap demo with hasmap entry not getting links?
 - [ ] specific renderers
 
 ### Med Prio
