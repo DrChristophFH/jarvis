@@ -1,5 +1,7 @@
 package com.hagenberg.jarvis.graph;
 
+import java.util.List;
+
 import com.hagenberg.imgui.Vec2;
 
 public interface LayoutableNode {
@@ -20,6 +22,6 @@ public interface LayoutableNode {
   public int getNodeId();
   public void setNodeId(int nodeId);
 
-  public Iterable<LayoutableNode> getInNeighbors();
-  public Iterable<LayoutableNode> getOutNeighbors();
+  public List<LayoutableNode> getInNeighbors();
+  public List<LayoutableNode> getOutNeighbors();
 }

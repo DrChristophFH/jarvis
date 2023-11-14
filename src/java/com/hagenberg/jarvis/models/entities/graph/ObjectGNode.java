@@ -112,7 +112,7 @@ public class ObjectGNode extends GNode implements LayoutableNode {
   }
 
   @Override
-  public Iterable<LayoutableNode> getInNeighbors() {
+  public List<LayoutableNode> getInNeighbors() {
     List<LayoutableNode> neighbors = new ArrayList<>();
 
     for (GVariable referenceHolder : referenceHolders) {
@@ -120,6 +120,8 @@ public class ObjectGNode extends GNode implements LayoutableNode {
         neighbors.add(lgv);
       } else if (referenceHolder instanceof MemberGVariable mgv) {
         neighbors.add(mgv.getContainingObject());
+      } else if (referenceHolder instanceof ContentGVariable cgv) {
+        neighbors.add(cgv.getContainingObject());
       }
     }
 
@@ -127,7 +129,7 @@ public class ObjectGNode extends GNode implements LayoutableNode {
   }
 
   @Override
-  public Iterable<LayoutableNode> getOutNeighbors() {
+  public List<LayoutableNode> getOutNeighbors() {
     List<LayoutableNode> neighbors = new ArrayList<>();
 
     for (MemberGVariable member : members) {
