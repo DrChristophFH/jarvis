@@ -27,7 +27,6 @@ public class ArrayGNode extends ObjectGNode {
 
     for (ContentGVariable content : contents) {
       if (content.getNode() instanceof ObjectGNode obj) {
-        System.out.println("Adding " + obj + " as neighbor of " + this);
         neighbors.add(obj);
       }
     }

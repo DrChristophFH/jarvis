@@ -88,7 +88,7 @@ public class LocalGVariable extends GVariable implements LayoutableNode {
   }
 
   @Override
-  public Iterable<LayoutableNode> getOutNeighbors() {
+  public List<LayoutableNode> getOutNeighbors() {
     List<LayoutableNode> neighbors = new ArrayList<>();
 
     if (getNode() instanceof ObjectGNode objectGNode) {
@@ -99,7 +99,7 @@ public class LocalGVariable extends GVariable implements LayoutableNode {
   }
 
   @Override
-  public Iterable<LayoutableNode> getInNeighbors() {
+  public List<LayoutableNode> getInNeighbors() {
     return new ArrayList<>();
   }
 }

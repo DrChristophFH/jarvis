@@ -58,7 +58,7 @@ public class SimpleObjectNodeRenderer extends Renderer<ObjectGNode> {
     if (node instanceof ArrayGNode array) {
       ImGui.textColored(Colors.Type, "Array:");
       ImGui.sameLine();
-      ImGui.text("length: " + array.getLength());
+      ImGui.text("length: " + array.getContentGVariables().size());
       for (ContentGVariable content : array.getContentGVariables()) {
         if (content.getNode() == null) {
           continue;
