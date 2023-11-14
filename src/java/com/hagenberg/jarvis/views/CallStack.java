@@ -2,13 +2,13 @@ package com.hagenberg.jarvis.views;
 
 import java.util.List;
 
+import com.hagenberg.imgui.Snippets;
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.models.CallStackModel;
 import com.hagenberg.jarvis.models.entities.CallStackFrame;
 import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
-import com.hagenberg.jarvis.util.Snippets;
 
 import imgui.ImGui;
 import imgui.flag.ImGuiTableColumnFlags;
@@ -67,9 +67,9 @@ public class CallStack extends View {
         ImGui.endPopup();
       }
       ImGui.tableNextColumn();
-      Snippets.drawTypeWithTooltip(parameter.getStaticTypeName());
+      Snippets.drawTypeWithTooltip(parameter.getStaticTypeName(), tooltip);
       ImGui.tableNextColumn();
-      Snippets.drawTypeWithTooltip(parameter.getNode().getTypeName());
+      Snippets.drawTypeWithTooltip(parameter.getNode().getTypeName(), tooltip);
       ImGui.tableNextColumn();
       if (parameter.getNode() instanceof ObjectGNode object) {
         ImGui.text("Object#%s = %s".formatted(object.getObjectId(), object.getToString()));

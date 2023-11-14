@@ -2,13 +2,14 @@ package com.hagenberg.jarvis.views;
 
 import java.util.List;
 
+import com.hagenberg.imgui.Snippets;
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.models.InteractionState;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
-import com.hagenberg.jarvis.util.Snippets;
+
 import imgui.ImGui;
 import imgui.flag.ImGuiSelectableFlags;
 import imgui.flag.ImGuiTableColumnFlags;
@@ -64,9 +65,9 @@ public class LocalVarList extends View {
         ImGui.endPopup();
       }
       ImGui.tableNextColumn();
-      Snippets.drawTypeWithTooltip(localVar.getStaticTypeName());
+      Snippets.drawTypeWithTooltip(localVar.getStaticTypeName(), tooltip);
       ImGui.tableNextColumn();
-      Snippets.drawTypeWithTooltip(localVar.getNode().getTypeName());
+      Snippets.drawTypeWithTooltip(localVar.getNode().getTypeName(), tooltip);
       ImGui.tableNextColumn();
       if (localVar.getNode() instanceof ObjectGNode object) {
         String name = "Object#%s = %s".formatted(object.getObjectId(), object.getToString());

@@ -1,8 +1,8 @@
-package com.hagenberg.jarvis.util;
+package com.hagenberg.imgui;
 
 import java.util.List;
 
-import com.hagenberg.imgui.Colors;
+import com.hagenberg.imgui.components.Tooltip;
 import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
 import com.hagenberg.jarvis.graph.rendering.renderers.Renderer;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
@@ -29,16 +29,11 @@ public class Snippets {
     return typeName.substring(typeName.lastIndexOf(".") + 1);
   }
 
-  public static void drawTypeWithTooltip(String typeName) {
-    String simpleTypeName = getSimpleType(typeName);
-    ImGui.textColored(Colors.Type, simpleTypeName);
-    ImGui.pushStyleVar(ImGuiStyleVar.WindowPadding, 5, 5); // NodeEditor somehow overrides this so we have to set it here
-    if (ImGui.isItemHovered()) {
-      ImGui.beginTooltip();
+  public static void drawTypeWithTooltip(String typeName, Tooltip tooltip) {
+    ImGui.textColored(Colors.Type, getSimpleType(typeName));
+    tooltip.show(() -> {
       ImGui.text(typeName);
-      ImGui.endTooltip();
-    }
-    ImGui.popStyleVar();
+    });
   }
 
   public static void memberContextMenu(int attId, MemberGVariable member, RendererRegistry registry) {

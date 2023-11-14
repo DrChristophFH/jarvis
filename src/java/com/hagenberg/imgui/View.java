@@ -1,5 +1,7 @@
 package com.hagenberg.imgui;
 
+import com.hagenberg.imgui.components.Tooltip;
+
 import imgui.ImGui;
 import imgui.type.ImBoolean;
 
@@ -10,6 +12,7 @@ public abstract class View {
 
   protected float[] flContainer = new float[1]; // used for sliders
   protected int[] iContainer = new int[1]; // used for sliders
+  protected Tooltip tooltip = new Tooltip();
 
   public void render() {
     if (!ImGui.begin(name, showWindow, flags)) {

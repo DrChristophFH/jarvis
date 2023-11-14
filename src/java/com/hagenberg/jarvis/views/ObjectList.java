@@ -2,13 +2,13 @@ package com.hagenberg.jarvis.views;
 
 import java.util.List;
 
+import com.hagenberg.imgui.Snippets;
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.models.InteractionState;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
-import com.hagenberg.jarvis.util.Snippets;
 
 import imgui.ImGui;
 import imgui.flag.ImGuiCol;
@@ -84,7 +84,7 @@ public class ObjectList extends View {
     }
 
     ImGui.tableNextColumn();
-    Snippets.drawTypeWithTooltip(object.getTypeName());
+    Snippets.drawTypeWithTooltip(object.getTypeName(), tooltip);
     ImGui.tableNextColumn();
     ImGui.text(object.getToString());
     if (open) {
@@ -107,7 +107,7 @@ public class ObjectList extends View {
       ImGui.treePop();
     }
     ImGui.tableNextColumn();
-    Snippets.drawTypeWithTooltip(memberPrimitive.getTypeName());
+    Snippets.drawTypeWithTooltip(memberPrimitive.getTypeName(), tooltip);
     ImGui.tableNextColumn();
     ImGui.text(memberPrimitive.getPrimitiveValue().toString());
   }

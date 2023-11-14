@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import com.hagenberg.imgui.Colors;
+import com.hagenberg.imgui.Snippets;
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.models.ClassModel;
 import com.hagenberg.jarvis.models.InteractionState;
@@ -13,7 +14,6 @@ import com.hagenberg.jarvis.models.entities.classList.JInterface;
 import com.hagenberg.jarvis.models.entities.classList.JPackage;
 import com.hagenberg.jarvis.models.entities.classList.JReferenceType;
 import com.hagenberg.jarvis.util.Profiler;
-import com.hagenberg.jarvis.util.Snippets;
 import com.hagenberg.jarvis.util.TypeFormatter;
 import com.sun.jdi.InterfaceType;
 import imgui.ImGui;
@@ -132,7 +132,7 @@ public class ClassList extends View {
       for (var field : clazz.allFields()) {
         ImGui.textColored(Colors.AccessModifier, AccessModifier.toString(field.modifiers()));
         ImGui.sameLine();
-        Snippets.drawTypeWithTooltip(field.typeName());
+        Snippets.drawTypeWithTooltip(field.typeName(), tooltip);
         ImGui.sameLine();
         ImGui.text(field.name());
       }
@@ -147,7 +147,7 @@ public class ClassList extends View {
         ImGui.textColored(Colors.AccessModifier, AccessModifier.toString(modifiers));
         ImGui.sameLine();
         Profiler.start("cl.methods.returnType");
-        Snippets.drawTypeWithTooltip(method.returnTypeName());
+        Snippets.drawTypeWithTooltip(method.returnTypeName(), tooltip);
         Profiler.stop("cl.methods.returnType");
         ImGui.sameLine();
         ImGui.text(method.name() + "(");
@@ -155,7 +155,7 @@ public class ClassList extends View {
         int params = method.arguments().size();
         for (var param : method.arguments()) {
           ImGui.sameLine();
-          Snippets.drawTypeWithTooltip(param.typeName());
+          Snippets.drawTypeWithTooltip(param.typeName(), tooltip);
           ImGui.sameLine();
           ImGui.text(param.name());
           if (params > 1) {
