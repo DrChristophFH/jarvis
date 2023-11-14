@@ -22,7 +22,7 @@ public class LayouterControl extends View {
     if (this.sliderFloat("Spring Force Roots", layouter.getSpringForceRoot(), 0.001f, 5.0f, "%.3f")) {
       layouter.setSpringForceRoot(flContainer[0]);
     }
-    if (this.sliderInt("Repulsion Force", layouter.getRepulsionForce(), 1, 1000)) {
+    if (this.sliderInt("Repulsion Force", layouter.getRepulsionForce(), 1, 100000)) {
       layouter.setRepulsionForce(iContainer[0]);
     }
     if (this.sliderInt("Ideal Spring Length", layouter.getIdealSpringLength(), 1, 5000)) {
