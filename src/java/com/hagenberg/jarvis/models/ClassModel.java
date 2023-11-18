@@ -1,5 +1,8 @@
 package com.hagenberg.jarvis.models;
 
+import com.hagenberg.jarvis.models.entities.classList.JArray;
+import com.hagenberg.jarvis.models.entities.classList.JClass;
+import com.hagenberg.jarvis.models.entities.classList.JInterface;
 import com.hagenberg.jarvis.models.entities.classList.JPackage;
 import com.sun.jdi.ArrayType;
 import com.sun.jdi.ClassType;
@@ -15,6 +18,9 @@ public class ClassModel {
   private final ReentrantLock lock = new ReentrantLock();
 
   private Map<String, JPackage> packages = new HashMap<>();
+  private HashMap<ClassType, JClass> classes = new HashMap<>();
+  private HashMap<InterfaceType, JInterface> interfaces = new HashMap<>();
+  private HashMap<ArrayType, JArray> arrays = new HashMap<>();
 
   public void lockModel() {
     lock.lock();
@@ -30,6 +36,51 @@ public class ClassModel {
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt(); // set the interrupt flag
       return false;
+    }
+  }
+
+  public JClass getOrCreate(ClassType classType) {
+    lockModel();
+    try {
+      JClass clazz = classes.get(classType);
+      if (clazz == null) {
+        clazz = new JClass(classType, this);
+        classes.put(classType, clazz);
+        clazz.refresh();
+      }
+      return clazz;
+    } finally {
+      unlockModel();
+    } 
+  }
+
+  public JInterface getOrCreate(InterfaceType iFaceType) {
+    lockModel();
+    try {
+      JInterface iface = interfaces.get(iFaceType);
+      if (iface == null) {
+        iface = new JInterface(iFaceType, this);
+        interfaces.put(iFaceType, iface);
+        iface.refresh();
+      }
+      return iface;
+    } finally {
+      unlockModel();
+    }
+  }
+
+  public JArray getOrCreate(ArrayType arrayType) {
+    lockModel();
+    try {
+      JArray array = arrays.get(arrayType);
+      if (array == null) {
+        array = new JArray(arrayType, this);
+        arrays.put(arrayType, array);
+        array.refresh();
+      }
+      return array;
+    } finally {
+      unlockModel();
     }
   }
 
@@ -67,11 +118,11 @@ public class ClassModel {
     JPackage currentPackage;
     for (int j = i; j < nameParts.length - 1; j++) {
       String namePart = nameParts[j];
-      currentPackage = new JPackage(namePart);
+      currentPackage = new JPackage(namePart, this);
       searchPackages.put(namePart, currentPackage);
       searchPackages = currentPackage.getSubPackages();
     }
-    currentPackage = new JPackage(nameParts[nameParts.length - 1]);
+    currentPackage = new JPackage(nameParts[nameParts.length - 1], this);
     searchPackages.put(nameParts[nameParts.length - 1], currentPackage);
     return currentPackage;
   }

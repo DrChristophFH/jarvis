@@ -5,18 +5,22 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.hagenberg.jarvis.models.ClassModel;
+import com.hagenberg.jarvis.util.IndexedList;
 import com.sun.jdi.ReferenceType;
 
 public abstract class JReferenceType implements Refreshable {
-  private final ReferenceType referenceType;
 
+  protected final ClassModel model;
+  private final ReferenceType referenceType;
   private final List<JField> fields = new ArrayList<>();
   private final List<JMethod> methods = new ArrayList<>();
   private final Pattern genericSignaturePattern = Pattern.compile("([\\w\\d]+):");
   private String name;
   private String genericTypeParameters;
 
-  public JReferenceType(ReferenceType referenceType) {
+  public JReferenceType(ReferenceType referenceType, ClassModel model) {
+    this.model = model;
     this.referenceType = referenceType;
   }
 
@@ -24,13 +28,17 @@ public abstract class JReferenceType implements Refreshable {
     return referenceType;
   }
 
-  public List<JField> allFields() {
+  public List<JField> fields() {
     return fields;
   }
 
-  public List<JMethod> allMethods() {
+  public List<JMethod> methods() {
     return methods;
   }
+
+  public abstract List<IndexedList<JReferenceType, JField>> allFields();
+
+  public abstract List<IndexedList<JReferenceType, JMethod>> allMethods();
 
   public String name() {
     return name;

@@ -3,26 +3,27 @@ package com.hagenberg.jarvis.models.entities.classList;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.hagenberg.jarvis.models.ClassModel;
+import com.hagenberg.jarvis.util.IndexedList;
 import com.sun.jdi.InterfaceType;
 
 public class JInterface extends JReferenceType implements Comparable<JInterface> {
 
   private final InterfaceType iface;
 
-  private final List<InterfaceType> superInterfaces = new ArrayList<>();
-  private final List<InterfaceType> subInterfaces = new ArrayList<>();
+  private final List<JInterface> superInterfaces = new ArrayList<>();
+  private final List<JInterface> subInterfaces = new ArrayList<>();
 
-  public JInterface(InterfaceType iface) {
-    super(iface);
+  public JInterface(InterfaceType iface, ClassModel model) {
+    super(iface, model);
     this.iface = iface;
-    refresh();
   }
 
-  public List<InterfaceType> superinterfaces() {
+  public List<JInterface> superinterfaces() {
     return superInterfaces;
   }
 
-  public List<InterfaceType> subinterfaces() {
+  public List<JInterface> subinterfaces() {
     return subInterfaces;
   }
 
@@ -30,9 +31,13 @@ public class JInterface extends JReferenceType implements Comparable<JInterface>
   public void refresh() {
     super.refresh();
     superInterfaces.clear();
-    superInterfaces.addAll(iface.superinterfaces());
+    for (InterfaceType superInterface : iface.superinterfaces()) {
+      superInterfaces.add(model.getOrCreate(superInterface));
+    }
     subInterfaces.clear();
-    subInterfaces.addAll(iface.subinterfaces());
+    for (InterfaceType subInterface : iface.subinterfaces()) {
+      subInterfaces.add(model.getOrCreate(subInterface));
+    }
   }
 
   @Override
@@ -50,5 +55,31 @@ public class JInterface extends JReferenceType implements Comparable<JInterface>
       if (other.iface != null) return false;
     } else if (!iface.equals(other.iface)) return false;
     return true;
+  }
+
+  @Override
+  public List<IndexedList<JReferenceType, JField>> allFields() {
+    List<IndexedList<JReferenceType, JField>> allFields = new ArrayList<>();
+
+    for (JInterface superInterface : superInterfaces) {
+      allFields.add(new IndexedList<>(superInterface, superInterface.fields()));
+    }
+
+    allFields.add(new IndexedList<>(this, fields()));
+
+    return allFields;
+  }
+
+  @Override
+  public List<IndexedList<JReferenceType, JMethod>> allMethods() {
+    List<IndexedList<JReferenceType, JMethod>> allMethods = new ArrayList<>();
+
+    for (JInterface superInterface : superInterfaces) {
+      allMethods.add(new IndexedList<>(superInterface, superInterface.methods()));
+    }
+
+    allMethods.add(new IndexedList<>(this, methods()));
+
+    return allMethods;
   }
 }
