@@ -34,7 +34,7 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] ? fix concurrent modification exception with models
 - [x] base class fields not showing up?
 - [x] root springs -> convert to simple fixed root layout (springs dumb idea)
-- [ ] fix arrays? see hasmap demo with hasmap entry not getting links?
+- [x] fix arrays? see hasmap demo with hasmap entry not getting links?
 - [ ] specific renderers
 
 ### Med Prio
@@ -51,7 +51,15 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] node based settings, the easiest with shortcuts or button context menu
 - [x] Class List (see methods, fields (also static fields), inheritance, interfaces)
 - [x] object tree list indentation fucked
-- [ ] sort methods in class list based on declaring Type
+- [x] window display controls 
+- [ ] call stack type to simple with hint
+- [ ] generic signature display and resolving
+- [ ] sort methods in class list based on declaring Type -> ordered list of JRefType and List<Method>
+- [ ] tie class model with object model
+- [ ] add context options (display in class list, filter in object list)
+- [ ] local var list to standard debugger tree list
+- [ ] manual layouting in object graph -> determines spring sizes to neighbours (do rendering first -> renderers populate links and add to layout queue -> used by layouter -> renderers determine layout)
+- [ ] refactor layouting stuff into own class
 - [ ] object filtering in object list
 - [ ] current line preview
 - [ ] better breakpoint selection and adding with line display
@@ -59,7 +67,7 @@ This thesis aims to push the boundaries of current program runtime visualization
 ### Low Prio
 
 - [x] better event logging (class prepare event)
-- [ ] seems like constantly querying into JDI is not performant at all (cache everything for classList into own data structures)
+- [x] seems like constantly querying into JDI is not performant at all (cache everything for classList into own data structures)
 - [ ] logging with coloring
 - [ ] fuzzy search known classes
 - [ ] add directory selector

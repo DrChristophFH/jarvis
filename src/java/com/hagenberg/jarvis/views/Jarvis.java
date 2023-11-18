@@ -9,6 +9,7 @@ import com.hagenberg.jarvis.util.Profiler;
 
 import imgui.ImGui;
 import imgui.flag.ImGuiCond;
+import imgui.flag.ImGuiWindowFlags;
 import imgui.type.ImString;
 
 public class Jarvis {
@@ -40,10 +41,11 @@ public class Jarvis {
 
   public void render() {
     ImGui.setNextWindowSize(0, 0, ImGuiCond.FirstUseEver);
-    ImGui.begin(name);
+    ImGui.begin(name, ImGuiWindowFlags.MenuBar);
     ImGui.text("Welcome to Jarvis!");
     JarvisConfig();
     HelpSection();
+    MenuBar();
     ImGui.end();
 
     Profiler.show();
@@ -78,6 +80,45 @@ public class Jarvis {
     Profiler.start("console");
     if (console.getShowWindow()) console.render();
     Profiler.stop("console");
+  }
+
+  private void MenuBar() {
+    if (ImGui.beginMenuBar()) {
+      if (ImGui.beginMenu("View")) {
+        if (ImGui.menuItem("Object Graph", "Ctrl+O", objectGraph.getShowWindow())) {
+          objectGraph.setShowWindow(!objectGraph.getShowWindow());
+        }
+        if (ImGui.menuItem("Layouter Control", "Ctrl+L", layouterControl.getShowWindow())) {
+          layouterControl.setShowWindow(!layouterControl.getShowWindow());
+        }
+        if (ImGui.menuItem("Debug Step Control", "Ctrl+D", debugStepControl.getShowWindow())) {
+          debugStepControl.setShowWindow(!debugStepControl.getShowWindow());
+        }
+        if (ImGui.menuItem("Break Point Control", "Ctrl+B", breakPointControl.getShowWindow())) {
+          breakPointControl.setShowWindow(!breakPointControl.getShowWindow());
+        }
+        if (ImGui.menuItem("Object List", "Ctrl+G", objectList.getShowWindow())) {
+          objectList.setShowWindow(!objectList.getShowWindow());
+        }
+        if (ImGui.menuItem("Local Variable List", "Ctrl+V", localVarList.getShowWindow())) {
+          localVarList.setShowWindow(!localVarList.getShowWindow());
+        }
+        if (ImGui.menuItem("Class List", "Ctrl+C", classList.getShowWindow())) {
+          classList.setShowWindow(!classList.getShowWindow());
+        }
+        if (ImGui.menuItem("Call Stack", "Ctrl+S", callStack.getShowWindow())) {
+          callStack.setShowWindow(!callStack.getShowWindow());
+        }
+        if (ImGui.menuItem("Event Log", "Ctrl+E", eventLog.getShowWindow())) {
+          eventLog.setShowWindow(!eventLog.getShowWindow());
+        }
+        if (ImGui.menuItem("Console", "Ctrl+O", console.getShowWindow())) {
+          console.setShowWindow(!console.getShowWindow());
+        }
+        ImGui.endMenu();
+      }
+      ImGui.endMenuBar();
+    }
   }
 
   private void JarvisConfig() {
