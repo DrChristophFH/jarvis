@@ -38,12 +38,14 @@ public class ObjectList extends View {
       return;
     }
 
-    int tableFlags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Resizable
-        | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable;
+    int tableFlags = 
+      ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit |
+      ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable | ImGuiTableFlags.ScrollX;
 
     if (ImGui.beginTable("table", 3, tableFlags)) {
 
       // Setup the table columns
+      ImGui.tableSetupScrollFreeze(1, 0);
       ImGui.tableSetupColumn("Name", ImGuiTableColumnFlags.NoHide);
       ImGui.tableSetupColumn("Type");
       ImGui.tableSetupColumn("Value");

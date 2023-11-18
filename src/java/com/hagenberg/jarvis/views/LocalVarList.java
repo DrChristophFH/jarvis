@@ -36,11 +36,15 @@ public class LocalVarList extends View {
       return;
     }
 
-    int tableFlags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Resizable | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable;
+    int tableFlags = 
+      ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | 
+      ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable | ImGuiTableFlags.ScrollX | 
+      ImGuiTableFlags.SizingFixedFit;
 
     if (ImGui.beginTable("localVarList", 4, tableFlags)) {
 
       // Setup the table columns
+      ImGui.tableSetupScrollFreeze(1, 0);
       ImGui.tableSetupColumn("Name", ImGuiTableColumnFlags.NoHide);
       ImGui.tableSetupColumn("Static Type");
       ImGui.tableSetupColumn("Dynamic Type");
