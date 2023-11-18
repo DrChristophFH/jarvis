@@ -52,7 +52,7 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] Class List (see methods, fields (also static fields), inheritance, interfaces)
 - [x] object tree list indentation fucked
 - [x] window display controls 
-- [ ] call stack type to simple with hint
+- [x] call stack type to simple with hint
 - [ ] generic signature display and resolving
 - [ ] sort methods in class list based on declaring Type -> ordered list of JRefType and List<Method>
 - [ ] tie class model with object model

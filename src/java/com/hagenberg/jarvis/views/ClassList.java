@@ -11,6 +11,8 @@ import com.hagenberg.jarvis.models.InteractionState;
 import com.hagenberg.jarvis.models.entities.AccessModifier;
 import com.hagenberg.jarvis.models.entities.classList.JClass;
 import com.hagenberg.jarvis.models.entities.classList.JInterface;
+import com.hagenberg.jarvis.models.entities.classList.JLocalVariable;
+import com.hagenberg.jarvis.models.entities.classList.JMethod;
 import com.hagenberg.jarvis.models.entities.classList.JPackage;
 import com.hagenberg.jarvis.models.entities.classList.JReferenceType;
 import com.hagenberg.jarvis.util.Profiler;
@@ -127,20 +129,37 @@ public class ClassList extends View {
     ImGui.checkbox("Is final", clazz.isFinal());
     ImGui.checkbox("Is static", clazz.isStatic());
     ImGui.separator();
+    ImGui.text("Generic signature: ");
+    ImGui.sameLine();
+    ImGui.textColored(Colors.Type, clazz.genericSignature());
+    ImGui.separator();
     Profiler.start("cl.fields");
+    fieldSection(clazz);
+    Profiler.stop("cl.fields");
+    Profiler.start("cl.methods");
+    methodSection(clazz);
+    Profiler.stop("cl.methods");
+  }
+
+  private void fieldSection(JClass clazz) {
     if (ImGui.collapsingHeader("Fields")) {
       for (var field : clazz.allFields()) {
         ImGui.textColored(Colors.AccessModifier, AccessModifier.toString(field.modifiers()));
         ImGui.sameLine();
+        if (field.typeIsGeneric()) {
+          ImGui.textColored(Colors.Type, field.genericSignature());
+          ImGui.sameLine();
+        }
         Snippets.drawTypeWithTooltip(field.typeName(), tooltip);
         ImGui.sameLine();
         ImGui.text(field.name());
       }
     }
-    Profiler.stop("cl.fields");
-    Profiler.start("cl.methods");
+  }
+
+  private void methodSection(JClass clazz) {
     if (ImGui.collapsingHeader("Methods")) {
-      for (var method : clazz.allMethods()) {
+      for (JMethod method : clazz.allMethods()) {
         Profiler.start("cl.methods.modifiers");
         int modifiers = method.modifiers();
         Profiler.stop("cl.methods.modifiers");
@@ -153,8 +172,12 @@ public class ClassList extends View {
         ImGui.text(method.name() + "(");
         Profiler.start("cl.methods.params");
         int params = method.arguments().size();
-        for (var param : method.arguments()) {
+        for (JLocalVariable param : method.arguments()) {
           ImGui.sameLine();
+          if (param.typeIsGeneric()) {
+            ImGui.textColored(Colors.Type, param.genericTypeName());
+            ImGui.sameLine();
+          }
           Snippets.drawTypeWithTooltip(param.typeName(), tooltip);
           ImGui.sameLine();
           ImGui.text(param.name());
@@ -169,6 +192,5 @@ public class ClassList extends View {
         ImGui.text(")");
       }
     }
-    Profiler.stop("cl.methods");
   }
 }

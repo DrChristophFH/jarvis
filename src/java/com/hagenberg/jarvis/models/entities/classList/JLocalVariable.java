@@ -6,30 +6,24 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.sun.jdi.ClassNotLoadedException;
-import com.sun.jdi.Field;
+import com.sun.jdi.LocalVariable;
 import com.sun.jdi.Type;
 
-public class JField implements Refreshable {
-
-  private final Field field;
+public class JLocalVariable implements Refreshable {
+  private final LocalVariable localVariable;
   private String name;
-  private int modifiers;
   private Type type;
   private String typeName;
   private String genericType;
   private Pattern genericTypePattern = Pattern.compile("T([\\w\\d]+);");
 
-  public JField(Field field) {
-    this.field = field;
+  public JLocalVariable(LocalVariable localVariable) {
+    this.localVariable = localVariable;
     refresh();
   }
 
   public String name() {
     return name;
-  }
-
-  public int modifiers() {
-    return modifiers;
   }
 
   public Type type() {
@@ -40,7 +34,7 @@ public class JField implements Refreshable {
     return typeName;
   }
 
-  public String genericSignature() {
+  public String genericTypeName() {
     return genericType;
   }
 
@@ -50,21 +44,20 @@ public class JField implements Refreshable {
 
   @Override
   public void refresh() {
-    name = field.name();
-    modifiers = field.modifiers();
+    name = localVariable.name();
     try {
-      type = field.type();
+      type = localVariable.type();
     } catch (ClassNotLoadedException e) {
       type = null;
     }
-    typeName = field.typeName();
-    genericType = getGenericType(field.genericSignature());
+    typeName = localVariable.typeName();
+    genericType = getGenericType(localVariable.genericSignature());
   }
 
-  public static List<JField> from(List<Field> allFields) {
-    List<JField> fields = new ArrayList<>();
-    for (Field field : allFields) {
-      fields.add(new JField(field));
+  public static List<JLocalVariable> from(List<LocalVariable> allFields) {
+    List<JLocalVariable> fields = new ArrayList<>();
+    for (LocalVariable field : allFields) {
+      fields.add(new JLocalVariable(field));
     }
     return fields;
   }

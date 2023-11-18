@@ -5,14 +5,13 @@ import java.util.List;
 
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ClassNotLoadedException;
-import com.sun.jdi.LocalVariable;
 import com.sun.jdi.Method;
 import com.sun.jdi.Type;
 
 public class JMethod implements Refreshable {
   
   private final Method method;
-  private List<LocalVariable> arguments;
+  private List<JLocalVariable> arguments;
   private String name;
   private Type returnType;
   private String returnTypeName;
@@ -39,7 +38,7 @@ public class JMethod implements Refreshable {
     return returnTypeName;
   }
 
-  public List<LocalVariable> arguments() {
+  public List<JLocalVariable> arguments() {
     return arguments;
   }
 
@@ -54,7 +53,7 @@ public class JMethod implements Refreshable {
     modifiers = method.modifiers();
     returnTypeName = method.returnTypeName();
     try {
-      arguments = method.arguments();
+      arguments = JLocalVariable.from(method.arguments());
     } catch (AbsentInformationException e) {
       arguments = new ArrayList<>();
     }
