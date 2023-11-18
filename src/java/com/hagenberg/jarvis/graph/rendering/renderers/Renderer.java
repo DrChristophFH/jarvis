@@ -1,10 +1,8 @@
 package com.hagenberg.jarvis.graph.rendering.renderers;
 
-import java.util.List;
-
 import com.hagenberg.imgui.components.Tooltip;
-import com.hagenberg.jarvis.graph.rendering.Link;
 import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
+import com.hagenberg.jarvis.views.ObjectGraph;
 
 public abstract class Renderer<T> {
   private final Class<T> supportedClass;
@@ -26,7 +24,7 @@ public abstract class Renderer<T> {
     return supportedClass.isInstance(node);
   }
   
-  public abstract void render(T node, int id, List<Link> links);
+  public abstract void render(T node, int id, ObjectGraph graph);
 
   public boolean isApplicable(T node) {
     return true;

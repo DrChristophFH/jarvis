@@ -1,16 +1,15 @@
 package com.hagenberg.jarvis.graph.rendering.renderers.simple;
 
-import java.util.List;
-
 import com.hagenberg.imgui.Colors;
 import com.hagenberg.imgui.Snippets;
-import com.hagenberg.jarvis.graph.rendering.Link;
+import com.hagenberg.imgui.Vec2;
 import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
 import com.hagenberg.jarvis.graph.rendering.renderers.Renderer;
 import com.hagenberg.jarvis.models.entities.graph.ArrayGNode;
 import com.hagenberg.jarvis.models.entities.graph.ContentGVariable;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
+import com.hagenberg.jarvis.views.ObjectGraph;
 
 import imgui.ImGui;
 import imgui.extension.imnodes.ImNodes;
@@ -22,11 +21,15 @@ public class SimpleObjectNodeRenderer extends Renderer<ObjectGNode> {
   }
 
   @Override
-  public void render(ObjectGNode node, int nodeId, List<Link> links) {
+  public void render(ObjectGNode node, int nodeId, ObjectGraph graph) {
     ImNodes.beginNode(nodeId);
 
+    graph.registerNodeForLayout(node.getLayoutNode());
+
     ImNodes.setNodeDraggable(nodeId, true);
-    ImNodes.setNodeGridSpacePos(nodeId, node.getPosition().x, node.getPosition().y);
+    Vec2 position = node.getLayoutNode().getPosition();
+    ImNodes.setNodeGridSpacePos(nodeId, position.x, position.y);
+    node.getLayoutNode().setLength((int) ImNodes.getNodeDimensionsX(nodeId));
 
     ImNodes.beginNodeTitleBar();
     Snippets.drawTypeWithTooltip(node.getTypeName(), tooltip);
@@ -53,7 +56,7 @@ public class SimpleObjectNodeRenderer extends Renderer<ObjectGNode> {
     ImGui.popTextWrapPos();
 
     for (MemberGVariable member : node.getMembers()) {
-      registry.getMemberRenderer(member).render(member, attId, links);
+      registry.getMemberRenderer(member).render(member, attId, graph);
 
       Snippets.memberContextMenu(attId, member, registry);
 
@@ -68,7 +71,7 @@ public class SimpleObjectNodeRenderer extends Renderer<ObjectGNode> {
         if (content.getNode() == null) {
           continue;
         }
-        registry.getContentRenderer(content).render(content, attId, links);
+        registry.getContentRenderer(content).render(content, attId, graph);
         attId++;
       }
     }

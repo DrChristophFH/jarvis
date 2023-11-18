@@ -65,7 +65,7 @@ public class RendererRegistry {
     return defaultContentRenderer;
   }
 
-  public Renderer<ObjectGNode> getObjecRenderer(ObjectGNode obj) {
+  public Renderer<ObjectGNode> getObjectRenderer(ObjectGNode obj) {
     Renderer<ObjectGNode> renderer = objRenderers.get(obj.getObjectId()); // object specific
 
     if (renderer == null) {

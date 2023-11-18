@@ -55,14 +55,16 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] call stack type to simple with hint
 - [x] generic signature display and resolving
 - [x] sort methods in class list based on declaring Type -> ordered list of JRefType and List<Method>
-- [ ] tie class model with object model
-- [ ] add context options (display in class list, filter in object list)
+- [x] refactor layouting stuff into own class
+- [x] object graph transformation only enumerate whole graph with unique ids
+- [x] renderers populate links and add to layout queue for layouter -> renderers determine layout
 - [ ] local var list to standard debugger tree list
-- [ ] manual layouting in object graph -> determines spring sizes to neighbours (do rendering first -> renderers populate links and add to layout queue -> used by layouter -> renderers determine layout)
-- [ ] refactor layouting stuff into own class
+- [ ] manual layouting in object graph -> determines spring sizes to neighbours
+- [ ] add context options (display in class list, filter in object list)
 - [ ] object filtering in object list
 - [ ] current line preview
 - [ ] better breakpoint selection and adding with line display
+- [ ] tie class model with object model
 
 ### Low Prio
 

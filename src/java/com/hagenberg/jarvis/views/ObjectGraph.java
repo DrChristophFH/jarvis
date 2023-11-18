@@ -1,20 +1,19 @@
 package com.hagenberg.jarvis.views;
 
 import imgui.ImGui;
-import imgui.ImVec2;
 import imgui.extension.imnodes.ImNodes;
 import imgui.extension.imnodes.flag.ImNodesMiniMapLocation;
 import imgui.flag.ImGuiCond;
-import imgui.type.ImInt;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 
-import com.hagenberg.imgui.Vec2;
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.graph.GraphLayouter;
-import com.hagenberg.jarvis.graph.LayoutableNode;
+import com.hagenberg.jarvis.graph.LayoutNode;
 import com.hagenberg.jarvis.graph.OGMTransformer;
 import com.hagenberg.jarvis.graph.rendering.Link;
 import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
@@ -24,14 +23,17 @@ import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 
 public class ObjectGraph extends View {
 
-  private GraphLayouter layouter = new GraphLayouter();
-  private ObjectGraphModel model = new ObjectGraphModel();
-  private OGMTransformer transformer = new OGMTransformer(model);
-  private RendererRegistry rendererRegistry = new RendererRegistry();
+  private final List<Link> links = new ArrayList<>();
+  private final Set<ObjectGNode> renderedObjects = new HashSet<>();
+  private final Stack<ObjectGNode> objectsToRender = new Stack<>();
 
-  int[] position = new int[2];
-  ImInt id = new ImInt();
-  int[] edge = new int[2];
+  private final List<LayoutNode> nodesToLayout = new ArrayList<>();
+  private final List<LayoutNode> rootsToLayout = new ArrayList<>();
+
+  private final GraphLayouter layouter = new GraphLayouter();
+  private final ObjectGraphModel model = new ObjectGraphModel();
+  private final OGMTransformer transformer = new OGMTransformer(model);
+  private final RendererRegistry rendererRegistry = new RendererRegistry();
 
   public ObjectGraph() {
     setName("Object Graph");
@@ -57,13 +59,37 @@ public class ObjectGraph extends View {
     }
   }
 
+  /**
+   * Renderers use this method to add a link to the graph and the target node to the
+   * rendering queue if it has not been rendered yet. Renderers therefore decide the layout.
+   * @param startNodeId
+   * @param target
+   * @return
+   */
+  public Link addLink(int startNodeId, ObjectGNode target) {
+    if (!renderedObjects.contains(target)) {
+      objectsToRender.push(target);
+      renderedObjects.add(target); // prevent adding the same object multiple times
+    }
+    Link link = new Link(startNodeId, target.getLayoutNode().getNodeId());
+    links.add(link);
+    return link;
+  }
+
+  public void registerNodeForLayout(LayoutNode node) {
+    nodesToLayout.add(node);
+  }
+
+  public void registerRootForLayout(LayoutNode node) {
+    rootsToLayout.add(node);
+  }
 
   @Override
   protected void renderWindow() {
-    Set<LayoutableNode> nodes = transformer.getNodes();
-    Set<LayoutableNode> roots = transformer.getRoots();
-
-    layouter.layoutRunner(nodes, roots);
+    nodesToLayout.clear();
+    rootsToLayout.clear();
+    renderedObjects.clear();
+    links.clear();
 
     ImNodes.beginNodeEditor();
 
@@ -72,32 +98,22 @@ public class ObjectGraph extends View {
     ImNodes.miniMap(0.2f, ImNodesMiniMapLocation.BottomLeft);
     ImNodes.endNodeEditor();
 
-    // update positions from dragging
-    if (ImNodes.numSelectedNodes() > 0) {
-      ImVec2 pos = new ImVec2();
-      for (LayoutableNode node : nodes) {
-        ImNodes.getNodeGridSpacePos(node.getNodeId(), pos);
-        node.setPosition(new Vec2(pos));
-      }
-      for (LayoutableNode node : roots) {
-        ImNodes.getNodeGridSpacePos(node.getNodeId(), pos);
-        node.setPosition(new Vec2(pos));
-      }
-      layouter.update(); // TODO only update if positions changed
-    }
-
-    transformer.recalcWidthsIfNecessary();
+    layouter.layoutRunner(nodesToLayout, rootsToLayout);
   }
 
   private void drawGraph() {
-    List<Link> links = new ArrayList<>();
-
-    for (ObjectGNode node : model.getObjects()) {
-      rendererRegistry.getObjecRenderer(node).render(node, node.getNodeId(), links);
-    }
+    // start from roots
     for (LocalGVariable localVar : model.getLocalVariables()) {
-      rendererRegistry.getLocalRenderer(localVar).render(localVar, localVar.getNodeId(), links);
+      rendererRegistry.getLocalRenderer(localVar).render(localVar, localVar.getLayoutNode().getNodeId(), this);
     }
+
+    // process render queue
+    while (!objectsToRender.isEmpty()) {
+      ObjectGNode object = objectsToRender.pop();
+      renderedObjects.add(object);
+      rendererRegistry.getObjectRenderer(object).render(object, object.getLayoutNode().getNodeId(), this);
+    }
+
     int linkId = 0;
     for (Link link : links) {
       ImNodes.link(linkId++, link.startNodeId(), link.endNodeId());

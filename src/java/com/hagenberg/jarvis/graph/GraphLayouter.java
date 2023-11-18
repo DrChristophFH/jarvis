@@ -24,7 +24,7 @@ public class GraphLayouter implements Observer {
     isLayoutStable = false;
   }
 
-  public void layoutRunner(Iterable<LayoutableNode> nodes, Iterable<LayoutableNode> roots) {
+  public void layoutRunner(Iterable<LayoutNode> nodes, Iterable<LayoutNode> roots) {
     if (isLayoutStable()) return;
 
     isLayoutStable = true;
@@ -35,40 +35,40 @@ public class GraphLayouter implements Observer {
     layoutNodes(nodes, roots);
   }
 
-  private void layoutRoots(Iterable<LayoutableNode> roots) {
+  private void layoutRoots(Iterable<LayoutNode> roots) {
     // Root forces
     int yOffset = 0;
-    for (LayoutableNode root : roots) {
+    for (LayoutNode root : roots) {
       root.getPosition().y = yOffset;
       yOffset += idealSpringLengthRoot;
       root.getPosition().x = 0; // fixed x position
     }
   }
 
-  private void layoutNodes(Iterable<LayoutableNode> nodes, Iterable<LayoutableNode> roots) {
-    for (LayoutableNode node : nodes) {
+  private void layoutNodes(Iterable<LayoutNode> nodes, Iterable<LayoutNode> roots) {
+    for (LayoutNode node : nodes) {
       if (node.isFrozen()) continue;
 
       Vec2 netForce = new Vec2(0, 0);
 
       // Repulsion forces from roots
-      for (LayoutableNode root : roots) {
+      for (LayoutNode root : roots) {
         netForce.add(calcRepulsionForce(node, root));
       }
 
       // Repulsion forces from other nodes
-      for (LayoutableNode other : nodes) {
+      for (LayoutNode other : nodes) {
         if (node == other) continue;
 
         netForce.add(calcRepulsionForce(node, other));
       }
 
       // Spring forces from neighbors
-      for (LayoutableNode neighbor : node.getInNeighbors()) {
+      for (LayoutNode neighbor : node.getInNeighbors()) {
         netForce.add(calcSpringForce(node, neighbor, springForce, idealSpringLength + neighbor.getLength()));
       }
 
-      for (LayoutableNode neighbor : node.getOutNeighbors()) {
+      for (LayoutNode neighbor : node.getOutNeighbors()) {
         netForce.add(calcSpringForce(node, neighbor, springForce, idealSpringLength + node.getLength()));
       }
 
@@ -91,7 +91,7 @@ public class GraphLayouter implements Observer {
     }
   }
 
-  private Vec2 calcSpringForce(LayoutableNode node, LayoutableNode neighbor, float springForce, int idealSpringLength) {
+  private Vec2 calcSpringForce(LayoutNode node, LayoutNode neighbor, float springForce, int idealSpringLength) {
     Vec2 result = new Vec2(0, 0);
     double dx = neighbor.getPosition().x - node.getPosition().x;
     double dy = neighbor.getPosition().y - node.getPosition().y;
@@ -108,7 +108,7 @@ public class GraphLayouter implements Observer {
     return result;
   }
 
-  private Vec2 calcRepulsionForce(LayoutableNode node, LayoutableNode localVariable) {
+  private Vec2 calcRepulsionForce(LayoutNode node, LayoutNode localVariable) {
     Vec2 result = new Vec2(0, 0);
     double dx = localVariable.getPosition().x - node.getPosition().x;
     double dy = localVariable.getPosition().y - node.getPosition().y;

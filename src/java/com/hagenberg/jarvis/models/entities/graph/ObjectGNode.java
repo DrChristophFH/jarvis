@@ -3,21 +3,15 @@ package com.hagenberg.jarvis.models.entities.graph;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.hagenberg.imgui.Vec2;
-import com.hagenberg.jarvis.graph.LayoutableNode;
+import com.hagenberg.jarvis.graph.LayoutNode;
 import com.sun.jdi.Type;
 
-public class ObjectGNode extends GNode implements LayoutableNode {
+public class ObjectGNode extends GNode {
   private final long objectId; // ID from JDI
   private final List<MemberGVariable> members = new ArrayList<>();
   private final List<GVariable> referenceHolders = new ArrayList<>();
   private String toStringRepresentation = "";
-  private int nodeId; // ID for imnodes
-  private Vec2 position = new Vec2(0, 0);
-  private Vec2 velocity = new Vec2(0, 0);
-  private int length = 0;
-  private boolean frozen = false;
-  private boolean layouted = true;
+  private LayoutNode layoutNode = new LayoutNode(-1);
 
   public ObjectGNode(long id, Type type) {
     super(type);
@@ -56,88 +50,22 @@ public class ObjectGNode extends GNode implements LayoutableNode {
     return objectId;
   }
 
-  @Override
-  public Vec2 getPosition() {
-    return position;
+  public LayoutNode getLayoutNode() {
+    return layoutNode;
   }
 
   @Override
-  public void setPosition(Vec2 position) {
-    this.position = position;
+  public int hashCode() {
+    return Long.hashCode(objectId);
   }
 
   @Override
-  public Vec2 getVelocity() {
-    return velocity;
-  }
-
-  @Override
-  public void setVelocity(Vec2 velocity) {
-    this.velocity = velocity;
-  }
-
-  @Override
-  public int getLength() {
-    return length;
-  }
-
-  @Override
-  public void setLength(int length) {
-    this.length = length;
-  }
-
-  @Override
-  public boolean isFrozen() {
-    return frozen;
-  }
-
-  @Override
-  public void setFrozen(boolean frozen) {
-    this.frozen = frozen;
-  }
-
-  @Override
-  public boolean isLayouted() {
-    return layouted;
-  }
-
-  @Override
-  public void setNodeId(int nodeId) {
-    this.nodeId = nodeId;
-  }
-
-  @Override
-  public int getNodeId() {
-    return nodeId;
-  }
-
-  @Override
-  public List<LayoutableNode> getInNeighbors() {
-    List<LayoutableNode> neighbors = new ArrayList<>();
-
-    for (GVariable referenceHolder : referenceHolders) {
-      if (referenceHolder instanceof LocalGVariable lgv) {
-        neighbors.add(lgv);
-      } else if (referenceHolder instanceof MemberGVariable mgv) {
-        neighbors.add(mgv.getContainingObject());
-      } else if (referenceHolder instanceof ContentGVariable cgv) {
-        neighbors.add(cgv.getContainingObject());
-      }
-    }
-
-    return neighbors;
-  }
-
-  @Override
-  public List<LayoutableNode> getOutNeighbors() {
-    List<LayoutableNode> neighbors = new ArrayList<>();
-
-    for (MemberGVariable member : members) {
-      if (member.getNode() instanceof ObjectGNode obj) {
-        neighbors.add(obj);
-      }
-    }
-
-    return neighbors;
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
+    ObjectGNode other = (ObjectGNode) obj;
+    if (objectId != other.objectId) return false;
+    return true;
   }
 }

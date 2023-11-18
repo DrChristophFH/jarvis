@@ -1,12 +1,10 @@
 package com.hagenberg.jarvis.graph.rendering.renderers.specific;
 
-import java.util.List;
-
 import com.hagenberg.imgui.Colors;
-import com.hagenberg.jarvis.graph.rendering.Link;
 import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
 import com.hagenberg.jarvis.graph.rendering.renderers.Renderer;
 import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
+import com.hagenberg.jarvis.views.ObjectGraph;
 import com.sun.jdi.BooleanValue;
 import com.sun.jdi.ByteValue;
 import com.sun.jdi.CharValue;
@@ -25,7 +23,7 @@ public class BinaryRenderer extends Renderer<PrimitiveGNode> {
   }
 
   @Override
-  public void render(PrimitiveGNode node, int id, List<Link> links) {
+  public void render(PrimitiveGNode node, int id, ObjectGraph graph) {
     ImGui.sameLine();
 
     PrimitiveValue value = node.getPrimitiveValue();

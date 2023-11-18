@@ -80,8 +80,9 @@ public class CallStack extends View {
       ImGui.tableNextColumn();
       ImGui.text(parameter.getName());
       // Context menu for each row
-      if (ImGui.beginPopupContextItem("parameterContextMenu" + parameter.getNodeId())) {
-        Snippets.focusOnNode(parameter.getNodeId());
+      int nodeId = parameter.getLayoutNode().getNodeId();
+      if (ImGui.beginPopupContextItem("parameterContextMenu" + nodeId)) {
+        Snippets.focusOnNode(nodeId);
         ImGui.endPopup();
       }
       ImGui.tableNextColumn();

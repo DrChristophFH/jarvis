@@ -1,13 +1,11 @@
 package com.hagenberg.jarvis.graph.rendering.renderers.simple;
 
-import java.util.List;
-
-import com.hagenberg.jarvis.graph.rendering.Link;
 import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
 import com.hagenberg.jarvis.graph.rendering.renderers.Renderer;
 import com.hagenberg.jarvis.models.entities.graph.ContentGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
+import com.hagenberg.jarvis.views.ObjectGraph;
 
 import imgui.ImGui;
 import imgui.extension.imnodes.ImNodes;
@@ -19,7 +17,7 @@ public class SimpleContentRenderer extends Renderer<ContentGVariable> {
   }
 
   @Override
-  public void render(ContentGVariable var, int attId, List<Link> links) {
+  public void render(ContentGVariable var, int attId, ObjectGraph graph) {
     boolean isPrimitive = var.getNode() instanceof PrimitiveGNode;
     
     if (isPrimitive) {
@@ -32,12 +30,13 @@ public class SimpleContentRenderer extends Renderer<ContentGVariable> {
     
     if (isPrimitive) {
       PrimitiveGNode prim = (PrimitiveGNode) var.getNode();
-      registry.getPrimitiveRenderer(var).render(prim, attId, links);
+      registry.getPrimitiveRenderer(var).render(prim, attId, graph);
       ImNodes.endStaticAttribute();
     } else if (var.getNode() instanceof ObjectGNode obj) {
       ImGui.sameLine();
       ImGui.text("Reference to Object#" + obj.getObjectId());
-      links.add(new Link(attId, obj.getNodeId()));
+      graph.addLink(attId, obj);
+      var.getContainingObject().getLayoutNode().link(obj.getLayoutNode());
       ImNodes.endOutputAttribute();
     } else {
       ImGui.sameLine();

@@ -1,23 +1,13 @@
 package com.hagenberg.jarvis.graph;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.models.entities.graph.ArrayGNode;
+import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 import com.hagenberg.jarvis.util.Observer;
 
-import imgui.extension.imnodes.ImNodes;
-
 public class OGMTransformer implements Observer {
-  private static final int RECALC_RUNS = 3;
-
-  private Set<LayoutableNode> nodesToLayout = new HashSet<>();
-  private Set<LayoutableNode> rootsToLayout = new HashSet<>();
   private ObjectGraphModel ogm;
-
-  private int recalcRuns = 0;
 
   public OGMTransformer(ObjectGraphModel ogm) {
     this.ogm = ogm;
@@ -27,63 +17,26 @@ public class OGMTransformer implements Observer {
   @Override
   public void update() {
     transform();
-    recalcRuns = 0;
   }
 
   /**
-   * Recalculates the widths of the nodes if the recalcWidths flag is set.
-   * This method can only run AFTER the nodes have been drawn at least once!
-   */
-  public void recalcWidthsIfNecessary() {
-    if (recalcRuns++ < RECALC_RUNS) {
-      for (LayoutableNode node : nodesToLayout) {
-        node.setLength((int)ImNodes.getNodeDimensionsX(node.getNodeId()));
-      }
-
-      for (LayoutableNode node : rootsToLayout) {
-        node.setLength((int)ImNodes.getNodeDimensionsX(node.getNodeId()));
-      }
-    }
-  }
-
-  /**
-   * Transforms the given ObjectGraphModel by adding all layouted nodes from the objects and local variables to the nodesToLayout
-   * list.
-   *
-   * @param ogm the ObjectGraphModel to transform
+   * Assigns all nodes a unique id, reserving enough space for member attributes.
    */
   public void transform() {
-    nodesToLayout.clear();
-    rootsToLayout.clear();
-
     int nodeId = 0;
 
-    for (LayoutableNode layoutableNode : ogm.getObjects()) {
-      if (layoutableNode.isLayouted()) {
-        nodesToLayout.add(layoutableNode);
-        layoutableNode.setNodeId(nodeId++);
-        // make space for member attribute ids
-        if (layoutableNode instanceof ArrayGNode arr) {
-          nodeId += arr.getContentGVariables().size();
-        } else if (layoutableNode instanceof ObjectGNode obj) {
-          nodeId += obj.getMembers().size();
-        }
+    for (ObjectGNode object : ogm.getObjects()) {
+      object.getLayoutNode().setNodeId(nodeId++);
+      // make space for member attribute ids
+      if (object instanceof ArrayGNode arr) {
+        nodeId += arr.getContentGVariables().size();
+      } else if (object instanceof ObjectGNode obj) {
+        nodeId += obj.getMembers().size();
       }
     }
 
-    for (LayoutableNode layoutableNode : ogm.getLocalVariables()) {
-      if (layoutableNode.isLayouted()) {
-        rootsToLayout.add(layoutableNode);
-        layoutableNode.setNodeId(nodeId++);
-      }
+    for (LocalGVariable localGVariable : ogm.getLocalVariables()) {
+      localGVariable.getLayoutNode().setNodeId(nodeId++);
     }
-  }
-
-  public Set<LayoutableNode> getNodes() {
-    return nodesToLayout;
-  }
-
-  public Set<LayoutableNode> getRoots() {
-    return rootsToLayout;
   }
 }

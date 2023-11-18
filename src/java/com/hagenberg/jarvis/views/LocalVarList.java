@@ -64,8 +64,9 @@ public class LocalVarList extends View {
       ImGui.tableNextColumn();
       ImGui.text(localVar.getName());
       // Context menu for each row
-      if (ImGui.beginPopupContextItem("localVarContextMenu" + localVar.getNodeId())) {
-        Snippets.focusOnNode(localVar.getNodeId());
+      int nodeId = localVar.getLayoutNode().getNodeId();
+      if (ImGui.beginPopupContextItem("localVarContextMenu" + nodeId)) {
+        Snippets.focusOnNode(nodeId);
         ImGui.endPopup();
       }
       ImGui.tableNextColumn();
