@@ -11,7 +11,6 @@ import com.hagenberg.jarvis.models.entities.graph.ArrayGNode;
 import com.hagenberg.jarvis.models.entities.graph.ContentGVariable;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
-import com.hagenberg.jarvis.util.TypeFormatter;
 
 import imgui.ImGui;
 import imgui.extension.imnodes.ImNodes;

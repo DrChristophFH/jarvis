@@ -73,14 +73,25 @@ public class ClassList extends View {
       JPackage pkg = entry.getValue();
       if (ImGui.treeNode(pkg.getName())) {
         buildPackageTree(pkg.getSubPackages());
+        int treeNodeFlags = ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen;
+
         for (JClass clazz : pkg.getClasses()) {
-          ImGui.treeNodeEx(TypeFormatter.getSimpleType(clazz.name()), ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen);
+          if (clazz == selectedClass) {
+            ImGui.treeNodeEx(TypeFormatter.getSimpleType(clazz.name()), treeNodeFlags | ImGuiTreeNodeFlags.Selected);
+          } else {
+            ImGui.treeNodeEx(TypeFormatter.getSimpleType(clazz.name()), treeNodeFlags);
+          }
           if (ImGui.isItemClicked() && !ImGui.isItemToggledOpen()) {
             selectedClass = clazz;
           }
         }
+
         for (JInterface interfaze : pkg.getInterfaces()) {
-          ImGui.treeNodeEx("I " + TypeFormatter.getSimpleType(interfaze.name()), ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen);
+          if (interfaze == selectedClass) {
+            ImGui.treeNodeEx("I " + TypeFormatter.getSimpleType(interfaze.name()), treeNodeFlags | ImGuiTreeNodeFlags.Selected);
+          } else {
+            ImGui.treeNodeEx("I " + TypeFormatter.getSimpleType(interfaze.name()), treeNodeFlags);
+          }
           if (ImGui.isItemClicked() && !ImGui.isItemToggledOpen()) {
             selectedClass = interfaze;
           }
@@ -145,7 +156,7 @@ public class ClassList extends View {
   private void fieldSection(JClass clazz) {
     if (ImGui.collapsingHeader("Fields")) {
       for (IndexedList<JReferenceType, JField> fieldList : clazz.allFields()) {
-        if (ImGui.treeNode("Fields of %s".formatted(fieldList.getIndex().name()))) {
+        if (!fieldList.isEmpty() && ImGui.treeNode("Fields of %s".formatted(fieldList.getIndex().name()))) {
           for (JField field : fieldList) {
             showField(field);
           }
@@ -170,7 +181,7 @@ public class ClassList extends View {
   private void methodSection(JClass clazz) {
     if (ImGui.collapsingHeader("Methods")) {
       for (IndexedList<JReferenceType, JMethod> methodList : clazz.allMethods()) {
-        if (ImGui.treeNode("Methods of %s".formatted(methodList.getIndex().name()))) {
+        if (!methodList.isEmpty() && ImGui.treeNode("Methods of %s".formatted(methodList.getIndex().name()))) {
           for (JMethod method : methodList) {
             showMethod(method);
           }

@@ -53,8 +53,8 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] object tree list indentation fucked
 - [x] window display controls 
 - [x] call stack type to simple with hint
-- [ ] generic signature display and resolving
-- [ ] sort methods in class list based on declaring Type -> ordered list of JRefType and List<Method>
+- [x] generic signature display and resolving
+- [x] sort methods in class list based on declaring Type -> ordered list of JRefType and List<Method>
 - [ ] tie class model with object model
 - [ ] add context options (display in class list, filter in object list)
 - [ ] local var list to standard debugger tree list

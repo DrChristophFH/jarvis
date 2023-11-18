@@ -69,9 +69,9 @@ public abstract class JReferenceType implements Refreshable {
    */
   public void refresh() {
     fields.clear();
-    fields.addAll(JField.from(referenceType.allFields()));
+    fields.addAll(JField.from(referenceType.fields()));
     methods.clear();
-    methods.addAll(JMethod.from(referenceType.allMethods()));
+    methods.addAll(JMethod.from(referenceType.methods()));
     name = referenceType.name();
     genericTypeParameters = getGenericTypeParameters(referenceType.genericSignature());
   }
