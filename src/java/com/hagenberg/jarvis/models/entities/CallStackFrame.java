@@ -3,6 +3,7 @@ package com.hagenberg.jarvis.models.entities;
 import java.util.List;
 
 import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
+import com.hagenberg.jarvis.util.TypeFormatter;
 import com.sun.jdi.Method;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.Type;
@@ -32,6 +33,26 @@ public class CallStackFrame {
 
   public Method getMethod() {
     return method;
+  }
+
+  public String getSimpleMethodHeader() {
+    StringBuilder builder = new StringBuilder();
+
+    builder.append(TypeFormatter.getSimpleType(classType.name()));
+    builder.append(".");
+    builder.append(method.name());
+    builder.append("(");
+    for (int i = 0; i < parameters.size(); i++) {
+      builder.append(parameters.get(i).getStaticTypeName());
+      builder.append(" ");
+      builder.append(parameters.get(i).getName());
+      if (i < parameters.size() - 1) {
+        builder.append(", ");
+      }
+    }
+    builder.append(")");
+
+    return builder.toString();
   }
 
   public String getFullMethodHeader() {

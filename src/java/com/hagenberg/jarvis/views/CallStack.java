@@ -13,13 +13,16 @@ import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
 import imgui.ImGui;
 import imgui.flag.ImGuiTableColumnFlags;
 import imgui.flag.ImGuiTableFlags;
+import imgui.flag.ImGuiWindowFlags;
 
 public class CallStack extends View {
 
   private CallStackModel model = new CallStackModel();
+  private boolean fullClassName = false;
 
   public CallStack() {
     setName("Call Stack");
+    setFlags(ImGuiWindowFlags.HorizontalScrollbar | ImGuiWindowFlags.MenuBar);
   }
 
   public CallStackModel getCallStackModel() {
@@ -33,8 +36,11 @@ public class CallStack extends View {
       return;
     }
 
+    MenuBar();
+
     for (CallStackFrame frame : model.getCallStack()) {
-      String call = "%s : %s".formatted(frame.getFullMethodHeader(), frame.getLineNumber());
+      String method = fullClassName ? frame.getFullMethodHeader() : frame.getSimpleMethodHeader();
+      String call = "%s : %s".formatted(method, frame.getLineNumber());
       if (ImGui.collapsingHeader(call)) {
         int tableFlags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Resizable | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable;
 
@@ -53,6 +59,18 @@ public class CallStack extends View {
           ImGui.endTable();
         }
       }
+    }
+  }
+
+  private void MenuBar() {
+    if (ImGui.beginMenuBar()) {
+      if (ImGui.beginMenu("Options")) {
+        if (ImGui.checkbox("Full Class Name", fullClassName)) {
+          fullClassName = !fullClassName;
+        }
+        ImGui.endMenu();
+      }
+      ImGui.endMenuBar();
     }
   }
 
