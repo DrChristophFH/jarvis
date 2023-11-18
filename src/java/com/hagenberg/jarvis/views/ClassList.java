@@ -166,6 +166,10 @@ public class ClassList extends View {
         ImGui.textColored(Colors.AccessModifier, AccessModifier.toString(modifiers));
         ImGui.sameLine();
         Profiler.start("cl.methods.returnType");
+        if (method.typeIsGeneric()) {
+          ImGui.textColored(Colors.Type, method.genericSignature());
+          ImGui.sameLine();
+        }
         Snippets.drawTypeWithTooltip(method.returnTypeName(), tooltip);
         Profiler.stop("cl.methods.returnType");
         ImGui.sameLine();

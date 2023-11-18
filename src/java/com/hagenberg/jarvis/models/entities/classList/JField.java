@@ -9,27 +9,17 @@ import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.Field;
 import com.sun.jdi.Type;
 
-public class JField implements Refreshable {
+public class JField extends JTypeComponent {
 
   private final Field field;
-  private String name;
-  private int modifiers;
   private Type type;
   private String typeName;
-  private String genericType;
   private Pattern genericTypePattern = Pattern.compile("T([\\w\\d]+);");
 
   public JField(Field field) {
+    super(field);
     this.field = field;
     refresh();
-  }
-
-  public String name() {
-    return name;
-  }
-
-  public int modifiers() {
-    return modifiers;
   }
 
   public Type type() {
@@ -40,25 +30,15 @@ public class JField implements Refreshable {
     return typeName;
   }
 
-  public String genericSignature() {
-    return genericType;
-  }
-
-  public boolean typeIsGeneric() {
-    return !genericType.isEmpty();
-  }
-
   @Override
   public void refresh() {
-    name = field.name();
-    modifiers = field.modifiers();
+    super.refresh();
     try {
       type = field.type();
     } catch (ClassNotLoadedException e) {
       type = null;
     }
     typeName = field.typeName();
-    genericType = getGenericType(field.genericSignature());
   }
 
   public static List<JField> from(List<Field> allFields) {
@@ -69,7 +49,8 @@ public class JField implements Refreshable {
     return fields;
   }
 
-  private String getGenericType(String genericSignature) {
+  @Override
+  protected String getGenericType(String genericSignature) {
     if (genericSignature == null) { // no generic signature
       return "";
     }
@@ -79,7 +60,7 @@ public class JField implements Refreshable {
     if (matcher.matches()) {
       return matcher.group(1);
     }
-    
+
     return "";
   }
 }

@@ -2,36 +2,30 @@ package com.hagenberg.jarvis.models.entities.classList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.Method;
 import com.sun.jdi.Type;
 
-public class JMethod implements Refreshable {
-  
+public class JMethod extends JTypeComponent {
+
   private final Method method;
   private List<JLocalVariable> arguments;
-  private String name;
   private Type returnType;
   private String returnTypeName;
-  private int modifiers;
+  private Pattern genericTypePattern = Pattern.compile("\\)(\\[*)T([\\w\\d]+);");
 
   public JMethod(Method method) {
+    super(method);
     this.method = method;
     refresh();
   }
 
-  public String name() {
-    return name;
-  }
-
   public Type returnType() {
     return returnType;
-  }
-
-  public int modifiers() {
-    return modifiers;
   }
 
   public String returnTypeName() {
@@ -44,13 +38,12 @@ public class JMethod implements Refreshable {
 
   @Override
   public void refresh() {
-    name = method.name();
+    super.refresh();
     try {
       returnType = method.returnType();
     } catch (ClassNotLoadedException e) {
       returnType = null;
-    } 
-    modifiers = method.modifiers();
+    }
     returnTypeName = method.returnTypeName();
     try {
       arguments = JLocalVariable.from(method.arguments());
@@ -65,5 +58,27 @@ public class JMethod implements Refreshable {
       methods.add(new JMethod(method));
     }
     return methods;
+  }
+
+  @Override
+  protected String getGenericType(String genericSignature) {
+    if (genericSignature == null) { // no generic signature
+      return "";
+    }
+
+    Matcher matcher = genericTypePattern.matcher(genericSignature);
+
+    int arrayDimensions = 0;
+    StringBuilder sb = new StringBuilder();
+
+    if (matcher.find()) {
+      arrayDimensions = matcher.group(1) == null ? 0 : matcher.group(1).length();
+      sb.append(matcher.group(2));
+      for (int i = 0; i < arrayDimensions; i++) {
+        sb.append("[]");
+      }
+    }
+
+    return sb.toString();
   }
 }
