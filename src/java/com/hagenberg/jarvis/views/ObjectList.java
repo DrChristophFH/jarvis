@@ -1,6 +1,10 @@
 package com.hagenberg.jarvis.views;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.hagenberg.imgui.Snippets;
 import com.hagenberg.imgui.View;
@@ -9,18 +13,43 @@ import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
+import com.hagenberg.jarvis.util.TypeFormatter;
 
 import imgui.ImGui;
+import imgui.ImGuiInputTextCallbackData;
+import imgui.callback.ImGuiInputTextCallback;
 import imgui.flag.ImGuiCol;
+import imgui.flag.ImGuiInputTextFlags;
 import imgui.flag.ImGuiTableBgTarget;
 import imgui.flag.ImGuiTableColumnFlags;
 import imgui.flag.ImGuiTableFlags;
 import imgui.flag.ImGuiTreeNodeFlags;
+import imgui.type.ImString;
 
 public class ObjectList extends View {
 
   private InteractionState iState;
   private ObjectGraphModel model;
+  private ImString filterInput = new ImString(256);
+  private String currentFilter = null;
+  Set<String> possibleFilters = new HashSet<>();
+
+  private ImGuiInputTextCallback textEditCallback = new ImGuiInputTextCallback() {
+    @Override
+    public void accept(ImGuiInputTextCallbackData data) {
+      String currentInput = data.getBuf();
+
+      // Iterate over possible filters and find matches
+      for (String filter : possibleFilters) {
+        if (filter.startsWith(currentInput)) {
+          data.deleteChars(0, currentInput.length());
+          data.insertChars(0, filter);
+          data.setCursorPos(filter.length());
+          break;
+        }
+      }
+    }
+  };
 
   public ObjectList(InteractionState interactionState) {
     setName("Object List");
@@ -38,10 +67,18 @@ public class ObjectList extends View {
       return;
     }
 
-    int tableFlags = 
-    ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable | 
-    ImGuiTableFlags.Hideable | ImGuiTableFlags.ScrollX | ImGuiTableFlags.SizingFixedFit | 
-    ImGuiTableFlags.ScrollY;
+    int inputFlags = ImGuiInputTextFlags.CallbackCompletion | ImGuiInputTextFlags.EnterReturnsTrue;
+
+    if (ImGui.inputText("Filter", filterInput, inputFlags, textEditCallback)) {
+      if (!possibleFilters.contains(filterInput.get())) {
+        filterInput.clear();
+        currentFilter = null;
+      } else {
+        currentFilter = filterInput.get();
+      }
+    }
+
+    int tableFlags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable | ImGuiTableFlags.ScrollX | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.ScrollY;
 
     if (ImGui.beginTable("table", 3, tableFlags)) {
 
@@ -60,8 +97,13 @@ public class ObjectList extends View {
   }
 
   private void showObjectsTable(List<ObjectGNode> objects) {
+    possibleFilters.clear();
     for (ObjectGNode object : objects) {
-      displayObject(object);
+      String typeName = TypeFormatter.getSimpleType(object.getTypeName());
+      possibleFilters.add(typeName);
+      if (currentFilter == null || currentFilter.equals(typeName)) {
+        displayObject(object);
+      }
     }
   }
 
