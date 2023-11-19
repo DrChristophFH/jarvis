@@ -334,10 +334,16 @@ public class ObjectGraphModel implements Observable {
 
   private ObjectGNode createArrayNode(ArrayReference arrayRef) {
     ArrayGNode newNode = new ArrayGNode(arrayRef.uniqueID(), arrayRef.referenceType());
+    Type componentType;
+    try {
+      componentType = ((ArrayType) arrayRef.referenceType()).componentType();
+    } catch (ClassNotLoadedException e) {
+      componentType = null;
+    }
     List<Value> values = arrayRef.getValues();
     for (int i = 0; i < values.size(); i++) {
       Value value = values.get(i);
-      ContentGVariable arrayMember = createContentGVariable(newNode, "[" + i + "]", newNode.getType(), value, i);
+      ContentGVariable arrayMember = createContentGVariable(newNode, "[" + i + "]", componentType, value, i);
       newNode.addContent(arrayMember);
     }
     return newNode;
