@@ -39,13 +39,14 @@ public class ObjectList extends View {
     }
 
     int tableFlags = 
-      ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit |
-      ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable | ImGuiTableFlags.ScrollX;
+    ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable | 
+    ImGuiTableFlags.Hideable | ImGuiTableFlags.ScrollX | ImGuiTableFlags.SizingFixedFit | 
+    ImGuiTableFlags.ScrollY;
 
     if (ImGui.beginTable("table", 3, tableFlags)) {
 
       // Setup the table columns
-      ImGui.tableSetupScrollFreeze(1, 0);
+      ImGui.tableSetupScrollFreeze(1, 1);
       ImGui.tableSetupColumn("Name", ImGuiTableColumnFlags.NoHide);
       ImGui.tableSetupColumn("Type");
       ImGui.tableSetupColumn("Value");
