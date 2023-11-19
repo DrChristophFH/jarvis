@@ -148,25 +148,62 @@ public class ObjectGraphModel implements Observable {
           updateContents(newArrayNode, (ArrayReference) objRef);
         }
       }
-      // get last held node
-      ObjectGNode lastHeldNode = (ObjectGNode) variable.getNode();
-
-      if (lastHeldNode != existingNode) {
-        // add the variable as a reference holder to the new node
-        existingNode.addReferenceHolder(variable);
-        variable.setNode(existingNode);
-        
-        // no more references to this node -> remove it
-        if (lastHeldNode != null) {
-          lastHeldNode.removeReferenceHolder(variable);
-          if (lastHeldNode.getReferenceHolders().isEmpty()) {
-            removeObject(lastHeldNode);
-          }
-        }
-      } 
+      updateHeldNode(variable, existingNode);
     } else if (varValue instanceof PrimitiveValue primValue) {
       variable.setNode(createPrimitiveNode(primValue));
+    } else {
+      updateHeldNode(variable, null);
     }
+  }
+
+  /**
+   * Update the held node of the variable. Adjusts the reference holders of the old and new node.
+   * 
+   * @param variable
+   * @param newNode
+   */
+  private void updateHeldNode(GVariable variable, ObjectGNode newNode) {
+    ObjectGNode lastHeldNode = null;
+
+    try {
+      lastHeldNode = (ObjectGNode) variable.getNode();
+    } catch (ClassCastException e) {
+      throw new NodeAssignmentException("Tried assigning an Object Node to a primitive holding variable.", e);
+    }
+
+    if (lastHeldNode != newNode) {
+      setNewNode(variable, newNode);
+      removeReference(variable, lastHeldNode);
+    }
+  }
+
+  /**
+   * Remove the variable from the reference holders of the object node and remove the object node if it has no more reference
+   * holders.
+   * 
+   * @param variable the variable to remove as reference holder
+   * @param objNode  the object node to check for references
+   */
+  private void removeReference(GVariable variable, ObjectGNode objNode) {
+    if (objNode != null) {
+      objNode.removeReferenceHolder(variable);
+      if (objNode.getReferenceHolders().isEmpty()) {
+        removeObject(objNode);
+      }
+    }
+  }
+
+  /**
+   * Set the new node for the variable and add the variable as reference holder to the new node.
+   * 
+   * @param variable the variable to set the new node for
+   * @param newNode  the new node to set
+   */
+  private void setNewNode(GVariable variable, ObjectGNode newNode) {
+    if (newNode != null) {
+      newNode.addReferenceHolder(variable);
+    }
+    variable.setNode(newNode);
   }
 
   private void removeObject(ObjectGNode currentNode) {
