@@ -18,4 +18,8 @@ public class PrimitiveGNode extends GNode {
     return primitiveValue;
   }
 
+  @Override
+  public String getToString() {
+    return primitiveValue.toString();
+  }
 }

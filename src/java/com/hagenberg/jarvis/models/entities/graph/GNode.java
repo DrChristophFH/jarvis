@@ -16,4 +16,6 @@ public abstract class GNode {
   public String getTypeName () {
     return type.name();
   }
+
+  public abstract String getToString();
 }
