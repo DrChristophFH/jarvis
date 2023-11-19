@@ -41,10 +41,7 @@ public class LocalVarList extends View {
       return;
     }
 
-    int tableFlags = 
-      ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable | 
-      ImGuiTableFlags.Hideable | ImGuiTableFlags.ScrollX | ImGuiTableFlags.SizingFixedFit | 
-      ImGuiTableFlags.ScrollY;
+    int tableFlags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable | ImGuiTableFlags.ScrollX | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.ScrollY;
 
     if (ImGui.beginTable("localVarList", 4, tableFlags)) {
 
@@ -79,11 +76,15 @@ public class LocalVarList extends View {
     String typeName = node == null ? "null" : node.getTypeName();
     String toString = node == null ? "null" : node.getToString();
 
-    if (node instanceof ObjectGNode object) {
-      if (object.getMembers().size() == 0) {
+    if (node instanceof ArrayGNode array) {
+      if (array.getContentGVariables().isEmpty()) {
         treeFlags |= ImGuiTreeNodeFlags.Leaf;
       }
-    } else if (node instanceof PrimitiveGNode) {
+    } else if (node instanceof ObjectGNode object) {
+      if (object.getMembers().isEmpty()) {
+        treeFlags |= ImGuiTreeNodeFlags.Leaf;
+      }
+    } else {
       treeFlags |= ImGuiTreeNodeFlags.Leaf;
     }
 
