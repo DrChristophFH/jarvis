@@ -46,6 +46,10 @@ public class ObjectGNode extends GNode {
     return members;
   }
 
+  public MemberGVariable getMember(String name) {
+    return members.stream().filter(m -> m.getName().equals(name)).findFirst().orElse(null);
+  }
+
   public long getObjectId() {
     return objectId;
   }

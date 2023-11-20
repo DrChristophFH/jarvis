@@ -63,13 +63,20 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [ ] manual layouting in object graph -> determines spring sizes to neighbours
 - [ ] add context options (display in class list, filter in object list)
 - [ ] current line preview
-- [ ] better breakpoint selection and adding with line display
-- [ ] tie class model with object model
 
 ### Low Prio
 
 - [x] better event logging (class prepare event)
 - [x] seems like constantly querying into JDI is not performant at all (cache everything for classList into own data structures)
+- [ ] better breakpoint selection and adding with line display
+- [ ] tie class model with object model
 - [ ] logging with coloring
 - [ ] fuzzy search known classes
 - [ ] add directory selector
+
+
+## Notes
+
+With more time an extensive template based rendering could be built into the system, with features like saving and loading templates and while building them having a preview as well as automatic type safety. This can be achieved by specifying the renderer for a class and then using this class in the background to provide options for the paths to take in the template. This is not trivial as upon restart we'd need to recreate those renderer objects and also try to resolve the paths again against the new class model. For now the pathing is done with strings and relies on the user to provide the correct pathing. This is not ideal but provides a lot of flexibility and is easy to implement. Additionally it is also serializable and can be saved and loaded.
+
+Each rendering step the path is tried to resolve from the current object. When the path cannot be resolved at some point a simple string with an error message is rendered.
