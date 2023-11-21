@@ -44,6 +44,14 @@ public class ObjectGraph extends View {
     return model;
   }
 
+  public OGMTransformer getTransformer() {
+    return transformer;
+  }
+
+  public RendererRegistry getRendererRegistry() {
+    return rendererRegistry;
+  }
+
   public GraphLayouter getLayouter() {
     return layouter;
   }

@@ -37,6 +37,8 @@ public class SimpleObjectNodeRenderer extends Renderer<ObjectGNode> {
     ImGui.text("Object#" + node.getObjectId());
     ImNodes.endNodeTitleBar();
 
+    Snippets.nodeContextMenu(node, registry);
+
     int attId = nodeId;
 
     // Reference attribute has node id

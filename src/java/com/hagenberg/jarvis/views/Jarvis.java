@@ -32,6 +32,7 @@ public class Jarvis {
   private ObjectList objectList = new ObjectList(interactionState);
   private CallStack callStack = new CallStack();
   private ClassList classList = new ClassList(interactionState);
+  private TemplateBuilder templateBuilder = new TemplateBuilder(objectGraph.getRendererRegistry());
 
   private JarvisDebugger jarvisDebugger = new JarvisDebugger(eventLog, breakPointControl, console);
 
@@ -56,6 +57,9 @@ public class Jarvis {
     Profiler.start("layouterControl");
     if (layouterControl.getShowWindow()) layouterControl.render();
     Profiler.stop("layouterControl");
+    Profiler.start("templateBuilder");
+    if (templateBuilder.getShowWindow()) templateBuilder.render();
+    Profiler.stop("templateBuilder");
     Profiler.start("debugStepControl");
     if (debugStepControl.getShowWindow()) debugStepControl.render();
     Profiler.stop("debugStepControl");

@@ -1,10 +1,8 @@
 package com.hagenberg.jarvis.graph.rendering;
 
-import java.lang.reflect.Member;
 import java.util.List;
 
 import com.hagenberg.jarvis.models.entities.graph.GNode;
-import com.hagenberg.jarvis.models.entities.graph.GVariable;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 
@@ -14,6 +12,18 @@ public class Path {
 
   public Path(List<String> path) {
     this.path = path;
+  }
+
+  public Path(String path) {
+    setPath(path);
+  }
+
+  public void setPath(List<String> path) {
+    this.path = path;
+  }
+
+  public void setPath(String path) {
+    this.path = List.of(path.split("\\."));
   }
 
   /**
@@ -40,6 +50,9 @@ public class Path {
 
   @Override
   public String toString() {
+    if (path.isEmpty()) {
+      return "<empty path>";
+    }
     StringBuilder builder = new StringBuilder();
     for (String member : path) {
       builder.append(member);

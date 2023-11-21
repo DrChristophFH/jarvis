@@ -12,8 +12,8 @@ import com.hagenberg.jarvis.graph.rendering.renderers.simple.SimpleLocalVariable
 import com.hagenberg.jarvis.graph.rendering.renderers.simple.SimpleObjectNodeRenderer;
 import com.hagenberg.jarvis.graph.rendering.renderers.simple.SimplePrimitiveRenderer;
 import com.hagenberg.jarvis.graph.rendering.renderers.specific.BinaryRenderer;
+import com.hagenberg.jarvis.graph.rendering.renderers.specific.TemplateRenderer;
 import com.hagenberg.jarvis.models.entities.graph.ContentGVariable;
-import com.hagenberg.jarvis.models.entities.graph.GNode;
 import com.hagenberg.jarvis.models.entities.graph.GVariable;
 import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
@@ -27,9 +27,10 @@ public class RendererRegistry {
 
   // all renderers
   private List<Renderer<?>> renderers = new ArrayList<>();
+  private List<TemplateRenderer> templates = new ArrayList<>();
 
   // renderers set to be used for certain types, objs, locals, or members by the user
-  private Map<Type, Renderer<GNode>> typeRenderers = new HashMap<>();
+  private Map<Type, Renderer<ObjectGNode>> typeRenderers = new HashMap<>();
   private Map<Long, Renderer<ObjectGNode>> objRenderers = new HashMap<>();
   private Map<LocalVariable, Renderer<PrimitiveGNode>> localVarRenderers = new HashMap<>();
   private Map<Field, Renderer<PrimitiveGNode>> memVarRenderers = new HashMap<>();
@@ -69,7 +70,7 @@ public class RendererRegistry {
     Renderer<ObjectGNode> renderer = objRenderers.get(obj.getObjectId()); // object specific
 
     if (renderer == null) {
-      // renderer = typeRenderers.get(obj.getStaticType()); // dynamic type
+      renderer = typeRenderers.get(obj.getType()); // dynamic type
       if (renderer == null) {
         renderer = defaultObjRenderer; // default
       }
@@ -124,10 +125,27 @@ public class RendererRegistry {
         }
       }
     }
+    for (TemplateRenderer template : templates) {
+      if (template.canHandle(node)) {
+        @SuppressWarnings("unchecked")
+        Renderer<T> castedRenderer = (Renderer<T>) template;
+        if (castedRenderer.isApplicable(node)) {
+          applicableRenderers.add(castedRenderer);
+        }
+      }
+    }
     return applicableRenderers;
   }
 
   public void setFieldRenderer(Field field, Renderer<PrimitiveGNode> renderer) {
     memVarRenderers.put(field, renderer);
+  }
+
+  public void setTypeRenderer(Type type, Renderer<ObjectGNode> renderer) {
+    typeRenderers.put(type, renderer);
+  }
+
+  public List<TemplateRenderer> getTemplates() {
+    return templates;
   }
 }

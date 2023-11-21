@@ -6,6 +6,7 @@ import com.hagenberg.imgui.components.Tooltip;
 import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
 import com.hagenberg.jarvis.graph.rendering.renderers.Renderer;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
+import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
 
 import imgui.ImGui;
@@ -58,6 +59,32 @@ public class Snippets {
           }
           ImGui.endMenu();
         }
+      }
+      ImGui.endPopup();
+    }
+    ImGui.popStyleVar();
+  }
+
+  public static void nodeContextMenu(ObjectGNode node, RendererRegistry registry) {
+    if (ImGui.isItemHovered() && ImGui.isMouseReleased(ImGuiMouseButton.Right)) {
+      ImGui.openPopup("NodeCtx##" + node.getObjectId());
+    }
+
+    ImGui.pushStyleVar(ImGuiStyleVar.WindowPadding, 5, 5); // NodeEditor somehow overrides this so we have to set it here
+    if (ImGui.beginPopup("NodeCtx##" + node.getObjectId())) {
+      ImGui.menuItem("Settings for " + node.getTypeName(), "", false, false);
+      if (ImGui.beginMenu("Renderer")) {
+        List<Renderer<ObjectGNode>> renderers = registry.getApplicableRenderers(node);
+        Renderer<ObjectGNode> currentRenderer = registry.getObjectRenderer(node);
+        for (Renderer<ObjectGNode> renderer : renderers) {
+          if (ImGui.menuItem(renderer.getName(), "", renderer == currentRenderer)) {
+            registry.setTypeRenderer(node.getType(), renderer);
+          }
+        }
+        if (ImGui.menuItem("[Reset to Default]")) {
+          registry.setTypeRenderer(node.getType(), null);
+        }
+        ImGui.endMenu();
       }
       ImGui.endPopup();
     }

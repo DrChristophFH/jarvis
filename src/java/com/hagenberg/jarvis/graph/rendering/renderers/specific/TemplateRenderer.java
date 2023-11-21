@@ -1,5 +1,6 @@
 package com.hagenberg.jarvis.graph.rendering.renderers.specific;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.hagenberg.imgui.Colors;
@@ -8,7 +9,6 @@ import com.hagenberg.imgui.Vec2;
 import com.hagenberg.jarvis.graph.rendering.Path;
 import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
 import com.hagenberg.jarvis.graph.rendering.renderers.Renderer;
-import com.hagenberg.jarvis.models.entities.graph.GNode;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 import com.hagenberg.jarvis.views.ObjectGraph;
@@ -18,10 +18,14 @@ import imgui.extension.imnodes.ImNodes;
 
 public class TemplateRenderer extends Renderer<ObjectGNode> {
 
-  private List<Path> paths;
+  private List<Path> paths = new ArrayList<>();
 
   public TemplateRenderer(String name, RendererRegistry registry) {
     super(ObjectGNode.class, name, registry);
+  }
+
+  public List<Path> getPaths() {
+    return paths;
   }
 
   @Override
