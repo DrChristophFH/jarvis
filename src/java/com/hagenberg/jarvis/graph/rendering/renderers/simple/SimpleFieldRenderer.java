@@ -28,11 +28,11 @@ public class SimpleFieldRenderer extends Renderer<MemberGVariable> {
       ImNodes.beginOutputAttribute(attId);
     }
 
-    ImGui.textColored(Colors.AccessModifier, var.getAccessModifier().toString() + var.getField().genericSignature());
+    ImGui.textColored(Colors.AccessModifier, var.getAccessModifier().toString());
     ImGui.sameLine();
     Snippets.drawTypeWithTooltip(var.getStaticTypeName(), tooltip);
     ImGui.sameLine();
-    ImGui.text(var.getName());
+    ImGui.textColored(Colors.Identifier, var.getName());
     
     if (isPrimitive) {
       PrimitiveGNode prim = (PrimitiveGNode) var.getNode();

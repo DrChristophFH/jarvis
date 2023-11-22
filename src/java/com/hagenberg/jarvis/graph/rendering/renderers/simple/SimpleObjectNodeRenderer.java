@@ -3,6 +3,7 @@ package com.hagenberg.jarvis.graph.rendering.renderers.simple;
 import com.hagenberg.imgui.Colors;
 import com.hagenberg.imgui.Snippets;
 import com.hagenberg.imgui.Vec2;
+import com.hagenberg.jarvis.graph.LayoutNode;
 import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
 import com.hagenberg.jarvis.graph.rendering.renderers.Renderer;
 import com.hagenberg.jarvis.models.entities.graph.ArrayGNode;
@@ -77,6 +78,8 @@ public class SimpleObjectNodeRenderer extends Renderer<ObjectGNode> {
         attId++;
       }
     }
+
+    Snippets.DisplayLayoutNodeDebug(node.getLayoutNode());
 
     ImNodes.endNode();
   }

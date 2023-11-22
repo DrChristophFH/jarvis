@@ -3,6 +3,7 @@ package com.hagenberg.imgui;
 import java.util.List;
 
 import com.hagenberg.imgui.components.Tooltip;
+import com.hagenberg.jarvis.graph.LayoutNode;
 import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
 import com.hagenberg.jarvis.graph.rendering.renderers.Renderer;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
@@ -89,5 +90,17 @@ public class Snippets {
       ImGui.endPopup();
     }
     ImGui.popStyleVar();
+  }
+
+  public static void DisplayLayoutNodeDebug(LayoutNode layoutNode) {
+    ImGui.text("Id: " + layoutNode);
+    ImGui.text("Position: " + layoutNode.getPosition());
+    ImGui.text("Length: " + layoutNode.getLength());
+    for (LayoutNode neighbor : layoutNode.getInNeighbors()) {
+      ImGui.text("In: " + neighbor);
+    }
+    for (LayoutNode neighbor : layoutNode.getOutNeighbors()) {
+      ImGui.text("Out: " + neighbor);
+    }
   }
 }

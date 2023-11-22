@@ -6,23 +6,24 @@ import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 import com.hagenberg.jarvis.util.Observer;
 
-public class OGMTransformer implements Observer {
+public class NodeEnumerator implements Observer, IdProvider {
   private ObjectGraphModel ogm;
+  private IdPool idPool = new IdPool(0);
 
-  public OGMTransformer(ObjectGraphModel ogm) {
+  public NodeEnumerator(ObjectGraphModel ogm) {
     this.ogm = ogm;
     ogm.addObserver(this);
   }
 
   @Override
   public void update() {
-    transform();
+    enumerateNodes();
   }
 
   /**
    * Assigns all nodes a unique id, reserving enough space for member attributes.
    */
-  public void transform() {
+  public void enumerateNodes() {
     int nodeId = 0;
 
     for (ObjectGNode object : ogm.getObjects()) {
@@ -38,5 +39,15 @@ public class OGMTransformer implements Observer {
     for (LocalGVariable localGVariable : ogm.getLocalVariables()) {
       localGVariable.getLayoutNode().setNodeId(nodeId++);
     }
+
+    idPool.setInitialValue(nodeId);
+  }
+
+  public int nextId() {
+    return idPool.next();
+  }
+
+  public void reset() {
+    idPool.reset();
   }
 }

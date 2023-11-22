@@ -1,5 +1,6 @@
 package com.hagenberg.jarvis.graph.rendering.renderers.simple;
 
+import com.hagenberg.imgui.Colors;
 import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
 import com.hagenberg.jarvis.graph.rendering.renderers.Renderer;
 import com.hagenberg.jarvis.models.entities.graph.ContentGVariable;
@@ -26,7 +27,7 @@ public class SimpleContentRenderer extends Renderer<ContentGVariable> {
       ImNodes.beginOutputAttribute(attId);
     }
 
-    ImGui.text(var.getName());
+    ImGui.textColored(Colors.Identifier, var.getName());
     
     if (isPrimitive) {
       PrimitiveGNode prim = (PrimitiveGNode) var.getNode();

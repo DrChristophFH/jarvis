@@ -33,6 +33,7 @@ public class GraphLayouter implements Observer {
       layoutRoots(roots);
     }
     layoutNodes(nodes, roots);
+    clearLinks(nodes, roots);
   }
 
   private void layoutRoots(Iterable<LayoutNode> roots) {
@@ -121,6 +122,18 @@ public class GraphLayouter implements Observer {
     result.y -= rf * dy / distance;
 
     return result;
+  }
+
+  
+  private void clearLinks(Iterable<LayoutNode> nodes, Iterable<LayoutNode> roots) {
+    for (LayoutNode node : nodes) {
+      node.getInNeighbors().clear();
+      node.getOutNeighbors().clear();
+    }
+    for (LayoutNode root : roots) {
+      root.getInNeighbors().clear();
+      root.getOutNeighbors().clear();
+    }
   }
 
   public boolean isLayoutStable() {

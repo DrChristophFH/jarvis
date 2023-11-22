@@ -6,6 +6,8 @@ import java.util.List;
 import com.hagenberg.imgui.Colors;
 import com.hagenberg.imgui.Snippets;
 import com.hagenberg.imgui.Vec2;
+import com.hagenberg.jarvis.graph.IdProvider;
+import com.hagenberg.jarvis.graph.LayoutNode;
 import com.hagenberg.jarvis.graph.rendering.Path;
 import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
 import com.hagenberg.jarvis.graph.rendering.renderers.Renderer;
@@ -19,9 +21,11 @@ import imgui.extension.imnodes.ImNodes;
 public class TemplateRenderer extends Renderer<ObjectGNode> {
 
   private List<Path> paths = new ArrayList<>();
+  private IdProvider ids;
 
-  public TemplateRenderer(String name, RendererRegistry registry) {
+  public TemplateRenderer(String name, RendererRegistry registry, IdProvider ids) {
     super(ObjectGNode.class, name, registry);
+    this.ids = ids;
   }
 
   public List<Path> getPaths() {
@@ -47,10 +51,8 @@ public class TemplateRenderer extends Renderer<ObjectGNode> {
     ImGui.textColored(Colors.Attention, "[" + name + "]");
     ImNodes.endNodeTitleBar();
 
-    int attId = id;
-
     // Reference attribute has node id
-    ImNodes.beginInputAttribute(attId++);
+    ImNodes.beginInputAttribute(id);
     ImGui.text(node.getReferenceHolders().size() + " references");
     tooltip.show(() -> {
       for (int i = 0; i < node.getReferenceHolders().size(); i++) {
@@ -64,11 +66,14 @@ public class TemplateRenderer extends Renderer<ObjectGNode> {
     for (Path path : paths) {
       MemberGVariable resolved = path.resolve(node);
       if (resolved != null) {
-        registry.getMemberRenderer(resolved).render(resolved, attId++, graph);
+        registry.getMemberRenderer(resolved).render(resolved, ids.nextId(), graph);
+        
       } else {
         ImGui.textColored(Colors.Error, "Could not resolve path: " + path);
       }
     }
+
+    Snippets.DisplayLayoutNodeDebug(node.getLayoutNode());
 
     ImNodes.endNode();
   }

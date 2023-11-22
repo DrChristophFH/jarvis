@@ -14,7 +14,7 @@ import java.util.Stack;
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.graph.GraphLayouter;
 import com.hagenberg.jarvis.graph.LayoutNode;
-import com.hagenberg.jarvis.graph.OGMTransformer;
+import com.hagenberg.jarvis.graph.NodeEnumerator;
 import com.hagenberg.jarvis.graph.rendering.Link;
 import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
@@ -32,7 +32,7 @@ public class ObjectGraph extends View {
 
   private final GraphLayouter layouter = new GraphLayouter();
   private final ObjectGraphModel model = new ObjectGraphModel();
-  private final OGMTransformer transformer = new OGMTransformer(model);
+  private final NodeEnumerator nodeEnumerator = new NodeEnumerator(model);
   private final RendererRegistry rendererRegistry = new RendererRegistry();
 
   public ObjectGraph() {
@@ -44,8 +44,8 @@ public class ObjectGraph extends View {
     return model;
   }
 
-  public OGMTransformer getTransformer() {
-    return transformer;
+  public NodeEnumerator getNodeEnumerator() {
+    return nodeEnumerator;
   }
 
   public RendererRegistry getRendererRegistry() {
@@ -105,6 +105,8 @@ public class ObjectGraph extends View {
 
     ImNodes.miniMap(0.2f, ImNodesMiniMapLocation.BottomLeft);
     ImNodes.endNodeEditor();
+
+    nodeEnumerator.reset(); // reset att id pool
 
     layouter.layoutRunner(nodesToLayout, rootsToLayout);
   }

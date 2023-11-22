@@ -32,7 +32,7 @@ public class Jarvis {
   private ObjectList objectList = new ObjectList(interactionState);
   private CallStack callStack = new CallStack();
   private ClassList classList = new ClassList(interactionState);
-  private TemplateBuilder templateBuilder = new TemplateBuilder(objectGraph.getRendererRegistry());
+  private TemplateBuilder templateBuilder = new TemplateBuilder(objectGraph.getRendererRegistry(), objectGraph.getNodeEnumerator());
 
   private JarvisDebugger jarvisDebugger = new JarvisDebugger(eventLog, breakPointControl, console);
 

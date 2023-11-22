@@ -16,6 +16,6 @@ public class SimplePrimitiveRenderer extends Renderer<PrimitiveGNode> {
   @Override
   public void render(PrimitiveGNode node, int id, ObjectGraph graph) {
     ImGui.sameLine();
-    ImGui.text(" = " + node.getPrimitiveValue().toString());
+    ImGui.text(node.getPrimitiveValue().toString());
   }
 }

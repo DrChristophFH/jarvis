@@ -3,6 +3,7 @@ package com.hagenberg.jarvis.views;
 import java.util.List;
 
 import com.hagenberg.imgui.View;
+import com.hagenberg.jarvis.graph.IdProvider;
 import com.hagenberg.jarvis.graph.rendering.Path;
 import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
 import com.hagenberg.jarvis.graph.rendering.renderers.specific.TemplateRenderer;
@@ -16,16 +17,18 @@ import imgui.type.ImString;
 public class TemplateBuilder extends View {
   
   private RendererRegistry registry;
+  private IdProvider ids;
   private TemplateRenderer selectedTemplate;
   private Path selectedPath;
   private ImString input = new ImString();
   private ImString name = new ImString();
   private int[] width = { 200 };
 
-  public TemplateBuilder(RendererRegistry registry) {
+  public TemplateBuilder(RendererRegistry registry, IdProvider ids) {
     setName("Template Builder");
     setFlags(ImGuiWindowFlags.MenuBar);
     this.registry = registry;
+    this.ids = ids;
   }
 
   @Override
@@ -40,7 +43,7 @@ public class TemplateBuilder extends View {
     if (ImGui.beginMenuBar()) {
       if (ImGui.beginMenu("File")) {
         if (ImGui.menuItem("New Template")) {
-          registry.getTemplates().add(new TemplateRenderer("New Template", registry));
+          registry.getTemplates().add(new TemplateRenderer("New Template", registry, ids));
         } 
         ImGui.endMenu();
       }
