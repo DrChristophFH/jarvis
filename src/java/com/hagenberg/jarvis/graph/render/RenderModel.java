@@ -9,10 +9,6 @@ public class RenderModel {
   private final List<Node> nodes = new ArrayList<>();
   private final List<Link> links = new ArrayList<>();
 
-  public RenderModel() {
-    
-  }
-
   public void addNode(Node node) {
     nodes.add(node);
   }
@@ -27,5 +23,13 @@ public class RenderModel {
 
   public List<Link> getLinks() {
     return links;
+  }
+
+  public void clearNodes() {
+    this.nodes.clear();
+  }
+
+  public void clearLinks() {
+    this.links.clear();
   }
 }

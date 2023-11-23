@@ -20,10 +20,10 @@ public class GraphTransformer implements Observer {
   private final TransformerRegistry registry = new TransformerRegistry();
   
   private final IdPool idPool = new IdPool(0);
-  private final Map<ObjectGNode, Node> transformationMap = new HashMap<>();
   private final Stack<ObjectGNode> objectsToTransform = new Stack<>();
   private final Set<PendingLink> pendingLinks = new HashSet<>();
-
+  private Map<ObjectGNode, Node> transformationMap = new HashMap<>();
+  
   public GraphTransformer(ObjectGraphModel ogm, RenderModel rm) {
     this.ogm = ogm;
     this.rm = rm;
@@ -39,15 +39,23 @@ public class GraphTransformer implements Observer {
    * Transforms the object graph into a graph of renderable nodes.
    */
   public void transformGraph() {
-    idPool.reset();
-    transformationMap.clear();
-    objectsToTransform.clear();
-
     transformationPass();
     connectionPass();
   }
 
+  /**
+   * Transforms all objects and local variables into renderable nodes
+   */
   private void transformationPass() {
+    // get previous transformation map for position migration
+    Map<ObjectGNode, Node> oldTransformationMap = transformationMap;
+
+    // clear old data
+    idPool.reset();
+    transformationMap = new HashMap<>();
+    objectsToTransform.clear();
+    rm.clearNodes();
+    
     for (LocalGVariable root : ogm.getLocalVariables()) {
       Node node = registry.getLocalVarTransformer(root).transform(root, idPool, (id, target) -> {
         pendingLinks.add(new PendingLink(id, target));
@@ -61,12 +69,23 @@ public class GraphTransformer implements Observer {
       Node node = registry.getObjectTransformer(object).transform(object, idPool, (id, target) -> {
         pendingLinks.add(new PendingLink(id, target));
       });
+
+      // migrate position from previous transformation
+      if (oldTransformationMap.containsKey(object)) {
+        node.setPosition(oldTransformationMap.get(object).getPosition());
+      }
+
       transformationMap.put(object, node);
       rm.addNode(node);
     }
   }
 
+
+  /**
+   * Resolves pending links between nodes into actual links
+   */
   private void connectionPass() {
+    rm.clearLinks();
     for (PendingLink pendingLink : pendingLinks) {
       rm.addLink(pendingLink.getTransformedAttId(), transformationMap.get(pendingLink.getTarget()).getNodeId());
     }
