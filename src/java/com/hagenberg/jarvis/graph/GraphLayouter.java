@@ -3,6 +3,7 @@ package com.hagenberg.jarvis.graph;
 import java.util.Random;
 
 import com.hagenberg.imgui.Vec2;
+import com.hagenberg.jarvis.graph.render.RenderModel;
 import com.hagenberg.jarvis.graph.render.nodes.Node;
 import com.hagenberg.jarvis.util.Observer;
 
@@ -25,15 +26,15 @@ public class GraphLayouter implements Observer {
     isLayoutStable = false;
   }
 
-  public void layoutRunner(Iterable<Node> nodes, Iterable<Node> roots) {
+  public void layoutRunner(RenderModel renderGraph) {
     if (isLayoutStable()) return;
 
     isLayoutStable = true;
 
     if (!layoutRootsManually) {
-      layoutRoots(roots);
+      layoutRoots(renderGraph.getRoots());
     }
-    layoutNodes(nodes, roots);
+    layoutNodes(renderGraph.getNodes(), renderGraph.getRoots());
   }
 
   private void layoutRoots(Iterable<Node> roots) {

@@ -7,10 +7,15 @@ import com.hagenberg.jarvis.graph.render.nodes.Node;
 
 public class RenderModel {
   private final List<Node> nodes = new ArrayList<>();
+  private final List<Node> roots = new ArrayList<>();
   private final List<Link> links = new ArrayList<>();
 
   public void addNode(Node node) {
     nodes.add(node);
+  }
+
+  public void addRoot(Node node) {
+    roots.add(node);
   }
 
   public void addLink(int sourceId, int targetId) {
@@ -21,12 +26,17 @@ public class RenderModel {
     return nodes;
   }
 
+  public List<Node> getRoots() {
+    return roots;
+  }
+
   public List<Link> getLinks() {
     return links;
   }
 
   public void clearNodes() {
     this.nodes.clear();
+    this.roots.clear();
   }
 
   public void clearLinks() {

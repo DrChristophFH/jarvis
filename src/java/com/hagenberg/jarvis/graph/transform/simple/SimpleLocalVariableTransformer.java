@@ -25,17 +25,19 @@ public class SimpleLocalVariableTransformer extends NodeTransformer<LocalGVariab
     );
 
     String value = "null";
+    int attId = idProvider.next();
 
     if (localVariable.getNode() instanceof PrimitiveGNode primitve) {
       value = primitve.getToString();
     } else if (localVariable.getNode() instanceof ObjectGNode object) {
       value = "Object#" + object.getObjectId();
+      linkRegisterCallback.registerLink(node, attId, object);
     }
 
     Attribute att = new DefaultLocalVariableAttribute(
-      idProvider.next(),
+      attId,
       node,
-      true,
+      localVariable.getNode() instanceof PrimitiveGNode,
       localVariable.getStaticTypeName(),
       localVariable.getName(),
       value

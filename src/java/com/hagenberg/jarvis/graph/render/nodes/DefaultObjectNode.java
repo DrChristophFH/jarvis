@@ -60,8 +60,6 @@ public class DefaultObjectNode extends Node {
       attribute.render();
     }
 
-    Snippets.DisplayLayoutNodeDebug(this);
-
     ImNodes.endNode();
   }
 }

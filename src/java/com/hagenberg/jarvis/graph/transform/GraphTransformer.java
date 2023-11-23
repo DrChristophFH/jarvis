@@ -59,16 +59,23 @@ public class GraphTransformer implements Observer {
     for (LocalGVariable root : ogm.getLocalVariables()) {
       Node node = registry.getLocalVarTransformer(root).transform(root, idPool, (source, id, target) -> {
         pendingLinks.add(new PendingLink(source, id, target));
+        if (!transformationMap.containsKey(target) && !objectsToTransform.contains(target)) {
+          objectsToTransform.push(target);
+        }
       });
       // no need for transformation map here, as local variables take no input connections
-      rm.addNode(node);
+      rm.addRoot(node);
     }
 
     while (!objectsToTransform.isEmpty()) {
       ObjectGNode object = objectsToTransform.pop();
       Node node = registry.getObjectTransformer(object).transform(object, idPool, (source, id, target) -> {
         pendingLinks.add(new PendingLink(source, id, target));
+        if (!transformationMap.containsKey(target) && !objectsToTransform.contains(target) && !target.equals(object)) {
+          objectsToTransform.push(target);
+        }
       });
+      transformationMap.put(object, node);
 
       // migrate position from previous transformation
       if (oldTransformationMap.containsKey(object)) {
@@ -84,6 +91,9 @@ public class GraphTransformer implements Observer {
    * Resolves pending links between nodes into actual links
    */
   private void connectionPass() {
+
+    Map<Integer, Node> debug = new HashMap<>();
+
     rm.clearLinks();
     for (PendingLink pendingLink : pendingLinks) {
       Node source = pendingLink.getSource();
@@ -93,7 +103,10 @@ public class GraphTransformer implements Observer {
       target.getInNeighbors().add(source);
 
       rm.addLink(pendingLink.getAttributeId(), transformationMap.get(pendingLink.getTarget()).getNodeId());
+      debug.put(pendingLink.getAttributeId(), target);
     }
+
+    pendingLinks.clear();
   }
 
   public TransformerRegistry getRegistry() {

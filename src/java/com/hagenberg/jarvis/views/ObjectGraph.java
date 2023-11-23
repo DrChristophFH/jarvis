@@ -57,10 +57,14 @@ public class ObjectGraph extends View {
     ImNodes.miniMap(0.2f, ImNodesMiniMapLocation.BottomLeft);
     ImNodes.endNodeEditor();
 
-    // layouter.layoutRunner(renderGraph); 
+    layouter.layoutRunner(renderGraph); 
   }
 
   private void drawGraph() {
+    for (Node node : renderGraph.getRoots()) {
+      node.render();
+    }
+
     for (Node node : renderGraph.getNodes()) {
       node.render();
     }
