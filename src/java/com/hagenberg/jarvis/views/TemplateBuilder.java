@@ -3,10 +3,10 @@ package com.hagenberg.jarvis.views;
 import java.util.List;
 
 import com.hagenberg.imgui.View;
-import com.hagenberg.jarvis.graph.IdProvider;
-import com.hagenberg.jarvis.graph.rendering.Path;
-import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
-import com.hagenberg.jarvis.graph.rendering.renderers.specific.TemplateRenderer;
+import com.hagenberg.jarvis.graph.render.Path;
+import com.hagenberg.jarvis.graph.render.transformer.specific.TemplateRenderer;
+import com.hagenberg.jarvis.graph.transform.IdProvider;
+import com.hagenberg.jarvis.graph.transform.TransformerRegistry;
 
 import imgui.ImGui;
 import imgui.flag.ImGuiInputTextFlags;
@@ -16,7 +16,7 @@ import imgui.type.ImString;
 
 public class TemplateBuilder extends View {
   
-  private RendererRegistry registry;
+  private TransformerRegistry registry;
   private IdProvider ids;
   private TemplateRenderer selectedTemplate;
   private Path selectedPath;
@@ -24,7 +24,7 @@ public class TemplateBuilder extends View {
   private ImString name = new ImString();
   private int[] width = { 200 };
 
-  public TemplateBuilder(RendererRegistry registry, IdProvider ids) {
+  public TemplateBuilder(TransformerRegistry registry, IdProvider ids) {
     setName("Template Builder");
     setFlags(ImGuiWindowFlags.MenuBar);
     this.registry = registry;

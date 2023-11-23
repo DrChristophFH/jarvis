@@ -16,7 +16,7 @@ public class ArrayGNode extends ObjectGNode {
     contents.add(arrayMember);
   }
 
-  public List<ContentGVariable> getContentGVariables() {
+  public List<ContentGVariable> getContent() {
     return contents;
   }
 }

@@ -3,7 +3,6 @@ package com.hagenberg.jarvis.models.entities.graph;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.hagenberg.jarvis.graph.LayoutNode;
 import com.sun.jdi.Type;
 
 public class ObjectGNode extends GNode {
@@ -11,7 +10,6 @@ public class ObjectGNode extends GNode {
   private final List<MemberGVariable> members = new ArrayList<>();
   private final List<GVariable> referenceHolders = new ArrayList<>();
   private String toStringRepresentation = "";
-  private LayoutNode layoutNode = new LayoutNode(-1);
 
   public ObjectGNode(long id, Type type) {
     super(type);
@@ -52,10 +50,6 @@ public class ObjectGNode extends GNode {
 
   public long getObjectId() {
     return objectId;
-  }
-
-  public LayoutNode getLayoutNode() {
-    return layoutNode;
   }
 
   @Override

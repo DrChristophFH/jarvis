@@ -208,7 +208,7 @@ public class ObjectGraphModel implements Observable {
 
   private void removeObject(ObjectGNode currentNode) {
     if (currentNode instanceof ArrayGNode arrayNode) {
-      for (ContentGVariable content : arrayNode.getContentGVariables()) {
+      for (ContentGVariable content : arrayNode.getContent()) {
         if (content.getNode() instanceof ObjectGNode contentNode) {
           contentNode.removeReferenceHolder(content);
           if (contentNode.getReferenceHolders().isEmpty()) {
@@ -239,7 +239,7 @@ public class ObjectGraphModel implements Observable {
     List<Value> values = arrayRef.getValues();
     for (int i = 0; i < values.size(); i++) {
       Value value = values.get(i);
-      ContentGVariable arrayMember = node.getContentGVariables().get(i);
+      ContentGVariable arrayMember = node.getContent().get(i);
       updateVariable(arrayMember, value);
     }
   }

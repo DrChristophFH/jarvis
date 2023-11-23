@@ -76,7 +76,7 @@ public class LocalVarList extends View {
     String toString = node == null ? "null" : node.getToString();
 
     if (node instanceof ArrayGNode array) {
-      if (array.getContentGVariables().isEmpty()) {
+      if (array.getContent().isEmpty()) {
         treeFlags |= ImGuiTreeNodeFlags.Leaf;
       }
     } else if (node instanceof ObjectGNode object) {
@@ -103,7 +103,7 @@ public class LocalVarList extends View {
           displayVariable(member);
         }
         if (object instanceof ArrayGNode array) {
-          for (ContentGVariable element : array.getContentGVariables()) {
+          for (ContentGVariable element : array.getContent()) {
             displayVariable(element);
           }
         }

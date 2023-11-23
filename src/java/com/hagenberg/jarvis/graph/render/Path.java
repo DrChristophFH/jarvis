@@ -1,4 +1,4 @@
-package com.hagenberg.jarvis.graph.rendering;
+package com.hagenberg.jarvis.graph.render;
 
 import java.util.List;
 

@@ -1,20 +1,11 @@
 package com.hagenberg.imgui;
 
-import java.util.List;
-
 import com.hagenberg.imgui.components.Tooltip;
-import com.hagenberg.jarvis.graph.LayoutNode;
-import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
-import com.hagenberg.jarvis.graph.rendering.renderers.Renderer;
-import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
-import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
-import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
+import com.hagenberg.jarvis.graph.render.nodes.Node;
 
 import imgui.ImGui;
 import imgui.ImVec2;
 import imgui.extension.imnodes.ImNodes;
-import imgui.flag.ImGuiMouseButton;
-import imgui.flag.ImGuiStyleVar;
 
 public class Snippets {
 
@@ -38,69 +29,10 @@ public class Snippets {
     });
   }
 
-  public static void memberContextMenu(int attId, MemberGVariable member, RendererRegistry registry) {
-    if (ImGui.isItemHovered() && ImGui.isMouseReleased(ImGuiMouseButton.Right)) {
-      ImGui.openPopup("MemCtx##" + attId);
-    }
 
-    ImGui.pushStyleVar(ImGuiStyleVar.WindowPadding, 5, 5); // NodeEditor somehow overrides this so we have to set it here
-    if (ImGui.beginPopup("MemCtx##" + attId)) {
-      ImGui.menuItem("Settings for " + member.getName(), "", false, false);
-      if (member.getNode() instanceof PrimitiveGNode prim) {
-        if (ImGui.beginMenu("Renderer")) {
-          List<Renderer<PrimitiveGNode>> renderers = registry.getApplicableRenderers(prim);
-          Renderer<PrimitiveGNode> currentRenderer = registry.getPrimitiveRenderer(member);
-          for (Renderer<PrimitiveGNode> renderer : renderers) {
-            if (ImGui.menuItem(renderer.getName(), "", renderer == currentRenderer)) {
-              registry.setFieldRenderer(member.getField(), renderer);
-            }
-          }
-          if (ImGui.menuItem("[Reset to Default]")) {
-            registry.setFieldRenderer(member.getField(), null);
-          }
-          ImGui.endMenu();
-        }
-      }
-      ImGui.endPopup();
-    }
-    ImGui.popStyleVar();
-  }
-
-  public static void nodeContextMenu(ObjectGNode node, RendererRegistry registry) {
-    if (ImGui.isItemHovered() && ImGui.isMouseReleased(ImGuiMouseButton.Right)) {
-      ImGui.openPopup("NodeCtx##" + node.getObjectId());
-    }
-
-    ImGui.pushStyleVar(ImGuiStyleVar.WindowPadding, 5, 5); // NodeEditor somehow overrides this so we have to set it here
-    if (ImGui.beginPopup("NodeCtx##" + node.getObjectId())) {
-      ImGui.menuItem("Settings for " + node.getTypeName(), "", false, false);
-      if (ImGui.beginMenu("Renderer")) {
-        List<Renderer<ObjectGNode>> renderers = registry.getApplicableRenderers(node);
-        Renderer<ObjectGNode> currentRenderer = registry.getObjectRenderer(node);
-        for (Renderer<ObjectGNode> renderer : renderers) {
-          if (ImGui.menuItem(renderer.getName(), "", renderer == currentRenderer)) {
-            registry.setTypeRenderer(node.getType(), renderer);
-          }
-        }
-        if (ImGui.menuItem("[Reset to Default]")) {
-          registry.setTypeRenderer(node.getType(), null);
-        }
-        ImGui.endMenu();
-      }
-      ImGui.endPopup();
-    }
-    ImGui.popStyleVar();
-  }
-
-  public static void DisplayLayoutNodeDebug(LayoutNode layoutNode) {
+  public static void DisplayLayoutNodeDebug(Node layoutNode) {
     ImGui.text("Id: " + layoutNode);
     ImGui.text("Position: " + layoutNode.getPosition());
     ImGui.text("Length: " + layoutNode.getLength());
-    for (LayoutNode neighbor : layoutNode.getInNeighbors()) {
-      ImGui.text("In: " + neighbor);
-    }
-    for (LayoutNode neighbor : layoutNode.getOutNeighbors()) {
-      ImGui.text("Out: " + neighbor);
-    }
   }
 }

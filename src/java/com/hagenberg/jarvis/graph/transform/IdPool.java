@@ -1,6 +1,6 @@
-package com.hagenberg.jarvis.graph;
+package com.hagenberg.jarvis.graph.transform;
 
-public class IdPool {
+public class IdPool implements IdProvider {
   private int initialValue;
   private int id;
 

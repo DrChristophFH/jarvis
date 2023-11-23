@@ -13,43 +13,33 @@ import java.util.Stack;
 
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.graph.GraphLayouter;
-import com.hagenberg.jarvis.graph.LayoutNode;
-import com.hagenberg.jarvis.graph.NodeEnumerator;
-import com.hagenberg.jarvis.graph.rendering.Link;
-import com.hagenberg.jarvis.graph.rendering.RendererRegistry;
+import com.hagenberg.jarvis.graph.render.Link;
+import com.hagenberg.jarvis.graph.render.RenderModel;
+import com.hagenberg.jarvis.graph.render.nodes.Node;
+import com.hagenberg.jarvis.graph.transform.GraphTransformer;
+import com.hagenberg.jarvis.graph.transform.TransformerRegistry;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 
 public class ObjectGraph extends View {
 
-  private final List<Link> links = new ArrayList<>();
-  private final Set<ObjectGNode> renderedObjects = new HashSet<>();
-  private final Stack<ObjectGNode> objectsToRender = new Stack<>();
-
-  private final List<LayoutNode> nodesToLayout = new ArrayList<>();
-  private final List<LayoutNode> rootsToLayout = new ArrayList<>();
-
   private final GraphLayouter layouter = new GraphLayouter();
-  private final ObjectGraphModel model = new ObjectGraphModel();
-  private final NodeEnumerator nodeEnumerator = new NodeEnumerator(model);
-  private final RendererRegistry rendererRegistry = new RendererRegistry();
+  private final ObjectGraphModel objectGraph = new ObjectGraphModel();
+  private final RenderModel renderGraph = new RenderModel();
+  private final GraphTransformer graphTransformer = new GraphTransformer(objectGraph, renderGraph);
 
   public ObjectGraph() {
     setName("Object Graph");
-    model.addObserver(layouter);
+    objectGraph.addObserver(layouter);
   }
 
   public ObjectGraphModel getObjectGraphModel() {
-    return model;
+    return objectGraph;
   }
 
-  public NodeEnumerator getNodeEnumerator() {
-    return nodeEnumerator;
-  }
-
-  public RendererRegistry getRendererRegistry() {
-    return rendererRegistry;
+  public GraphTransformer getGraphTransformer() {
+    return graphTransformer;
   }
 
   public GraphLayouter getLayouter() {
@@ -59,46 +49,16 @@ public class ObjectGraph extends View {
   @Override
   public void render() {
     ImGui.setNextWindowSize(800, 800, ImGuiCond.FirstUseEver);
-    model.lockModel();
+    objectGraph.lockModel();
     try {
       super.render();
     } finally {
-      model.unlockModel();
+      objectGraph.unlockModel();
     }
-  }
-
-  /**
-   * Renderers use this method to add a link to the graph and the target node to the
-   * rendering queue if it has not been rendered yet. Renderers therefore decide the layout.
-   * @param startNodeId
-   * @param target
-   * @return
-   */
-  public Link addLink(int startNodeId, ObjectGNode target) {
-    if (!renderedObjects.contains(target)) {
-      objectsToRender.push(target);
-      renderedObjects.add(target); // prevent adding the same object multiple times
-    }
-    Link link = new Link(startNodeId, target.getLayoutNode().getNodeId());
-    links.add(link);
-    return link;
-  }
-
-  public void registerNodeForLayout(LayoutNode node) {
-    nodesToLayout.add(node);
-  }
-
-  public void registerRootForLayout(LayoutNode node) {
-    rootsToLayout.add(node);
   }
 
   @Override
   protected void renderWindow() {
-    nodesToLayout.clear();
-    rootsToLayout.clear();
-    renderedObjects.clear();
-    links.clear();
-
     ImNodes.beginNodeEditor();
 
     drawGraph();
@@ -106,26 +66,16 @@ public class ObjectGraph extends View {
     ImNodes.miniMap(0.2f, ImNodesMiniMapLocation.BottomLeft);
     ImNodes.endNodeEditor();
 
-    nodeEnumerator.reset(); // reset att id pool
-
-    layouter.layoutRunner(nodesToLayout, rootsToLayout);
+    // layouter.layoutRunner(renderGraph); 
   }
 
   private void drawGraph() {
-    // start from roots
-    for (LocalGVariable localVar : model.getLocalVariables()) {
-      rendererRegistry.getLocalRenderer(localVar).render(localVar, localVar.getLayoutNode().getNodeId(), this);
-    }
-
-    // process render queue
-    while (!objectsToRender.isEmpty()) {
-      ObjectGNode object = objectsToRender.pop();
-      renderedObjects.add(object);
-      rendererRegistry.getObjectRenderer(object).render(object, object.getLayoutNode().getNodeId(), this);
+    for (Node node : renderGraph.getNodes()) {
+      node.render();
     }
 
     int linkId = 0;
-    for (Link link : links) {
+    for (Link link : renderGraph.getLinks()) {
       ImNodes.link(linkId++, link.startNodeId(), link.endNodeId());
     }
   }
