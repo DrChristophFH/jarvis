@@ -17,6 +17,9 @@ public abstract class Node {
 
   protected final List<Attribute> attributes = new ArrayList<>();
 
+  protected final List<Node> InNeighbors = new ArrayList<>();
+  protected final List<Node> OutNeighbors = new ArrayList<>();
+
   public Node(int nodeId) {
     this.nodeId = nodeId;
   }
@@ -80,5 +83,18 @@ public abstract class Node {
 
   public void addAttribute(Attribute attribute) {
     attributes.add(attribute);
+  }
+
+  public List<Node> getInNeighbors() {
+    return InNeighbors;
+  }
+
+  public List<Node> getOutNeighbors() {
+    return OutNeighbors;
+  }
+
+  public void clearNeighbors() {
+    InNeighbors.clear();
+    OutNeighbors.clear();
   }
 }

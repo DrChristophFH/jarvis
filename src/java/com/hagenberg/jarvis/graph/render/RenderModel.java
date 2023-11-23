@@ -31,5 +31,9 @@ public class RenderModel {
 
   public void clearLinks() {
     this.links.clear();
+
+    for (Node node : nodes) {
+      node.clearNeighbors();
+    }
   }
 }

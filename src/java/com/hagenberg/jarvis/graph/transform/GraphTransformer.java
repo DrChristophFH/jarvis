@@ -57,8 +57,8 @@ public class GraphTransformer implements Observer {
     rm.clearNodes();
     
     for (LocalGVariable root : ogm.getLocalVariables()) {
-      Node node = registry.getLocalVarTransformer(root).transform(root, idPool, (id, target) -> {
-        pendingLinks.add(new PendingLink(id, target));
+      Node node = registry.getLocalVarTransformer(root).transform(root, idPool, (source, id, target) -> {
+        pendingLinks.add(new PendingLink(source, id, target));
       });
       // no need for transformation map here, as local variables take no input connections
       rm.addNode(node);
@@ -66,8 +66,8 @@ public class GraphTransformer implements Observer {
 
     while (!objectsToTransform.isEmpty()) {
       ObjectGNode object = objectsToTransform.pop();
-      Node node = registry.getObjectTransformer(object).transform(object, idPool, (id, target) -> {
-        pendingLinks.add(new PendingLink(id, target));
+      Node node = registry.getObjectTransformer(object).transform(object, idPool, (source, id, target) -> {
+        pendingLinks.add(new PendingLink(source, id, target));
       });
 
       // migrate position from previous transformation
@@ -87,7 +87,13 @@ public class GraphTransformer implements Observer {
   private void connectionPass() {
     rm.clearLinks();
     for (PendingLink pendingLink : pendingLinks) {
-      rm.addLink(pendingLink.getTransformedAttId(), transformationMap.get(pendingLink.getTarget()).getNodeId());
+      Node source = pendingLink.getSource();
+      Node target = transformationMap.get(pendingLink.getTarget());
+
+      source.getOutNeighbors().add(target);
+      target.getInNeighbors().add(source);
+
+      rm.addLink(pendingLink.getAttributeId(), transformationMap.get(pendingLink.getTarget()).getNodeId());
     }
   }
 }

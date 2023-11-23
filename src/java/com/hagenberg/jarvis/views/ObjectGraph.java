@@ -5,22 +5,13 @@ import imgui.extension.imnodes.ImNodes;
 import imgui.extension.imnodes.flag.ImNodesMiniMapLocation;
 import imgui.flag.ImGuiCond;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.Stack;
-
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.graph.GraphLayouter;
 import com.hagenberg.jarvis.graph.render.Link;
 import com.hagenberg.jarvis.graph.render.RenderModel;
 import com.hagenberg.jarvis.graph.render.nodes.Node;
 import com.hagenberg.jarvis.graph.transform.GraphTransformer;
-import com.hagenberg.jarvis.graph.transform.TransformerRegistry;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
-import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
-import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 
 public class ObjectGraph extends View {
 
