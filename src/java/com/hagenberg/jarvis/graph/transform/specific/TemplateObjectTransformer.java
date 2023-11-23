@@ -1,22 +1,25 @@
-package com.hagenberg.jarvis.graph.transform.simple;
+package com.hagenberg.jarvis.graph.transform.specific;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import com.hagenberg.jarvis.graph.render.attributes.Attribute;
 import com.hagenberg.jarvis.graph.render.nodes.DefaultObjectNode;
 import com.hagenberg.jarvis.graph.transform.IdProvider;
 import com.hagenberg.jarvis.graph.transform.LinkRegisterCallback;
 import com.hagenberg.jarvis.graph.transform.NodeTransformer;
+import com.hagenberg.jarvis.graph.transform.Path;
 import com.hagenberg.jarvis.graph.transform.TransformerRegistry;
-import com.hagenberg.jarvis.models.entities.graph.ArrayGNode;
-import com.hagenberg.jarvis.models.entities.graph.ContentGVariable;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 
-public class SimpleObjectTransformer extends NodeTransformer<ObjectGNode> {
+public class TemplateObjectTransformer extends NodeTransformer<ObjectGNode> {
 
-  private final TransformerRegistry registry;
+  private List<Path> paths = new ArrayList<>();
+  private TransformerRegistry registry;
 
-  public SimpleObjectTransformer(TransformerRegistry registry) {
-    name = "Simple Object Renderer";
+  public TemplateObjectTransformer(String name, TransformerRegistry registry) {
+    this.name = name;
     this.registry = registry;
   }
 
@@ -29,19 +32,23 @@ public class SimpleObjectTransformer extends NodeTransformer<ObjectGNode> {
       object.getToString(), 
       object.getReferenceHolders()
     );
-
-    for (MemberGVariable member : object.getMembers()) {
-      Attribute att = registry.getMemberTransformer(member).transform(member, idProvider, objNode, linkRegisterCallback);
-      objNode.addAttribute(att);
-    }
-
-    if (object instanceof ArrayGNode arrayGNode) {
-      for (ContentGVariable content : arrayGNode.getContent()) {
-        Attribute att = registry.getContentTransformer(content).transform(content, idProvider, objNode, linkRegisterCallback);
+    
+    for (Path path : paths) {
+      MemberGVariable member = path.resolve(object);
+      if (member != null) {
+        Attribute att = registry.getMemberTransformer(member).transform(member, idProvider, objNode, linkRegisterCallback);
         objNode.addAttribute(att);
       }
     }
 
     return objNode;
+  }
+
+  public List<Path> getPaths() {
+    return paths;
+  }
+
+  public void setName(String name) {
+    this.name = name;
   }
 }

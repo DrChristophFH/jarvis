@@ -122,7 +122,7 @@ public class ObjectList extends View {
     boolean open = ImGui.treeNodeEx("Object#" + object.getObjectId(), treeFlags);
 
     if (ImGui.beginPopupContextItem()) {
-      Snippets.focusOnNode(object.getLayoutNode().getNodeId());
+      // TODO Snippets.focusOnNode(object.getLayoutNode().getNodeId());
       ImGui.endPopup();
     }
 

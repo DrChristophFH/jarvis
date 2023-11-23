@@ -3,10 +3,9 @@ package com.hagenberg.jarvis.views;
 import java.util.List;
 
 import com.hagenberg.imgui.View;
-import com.hagenberg.jarvis.graph.render.Path;
-import com.hagenberg.jarvis.graph.render.transformer.specific.TemplateRenderer;
-import com.hagenberg.jarvis.graph.transform.IdProvider;
+import com.hagenberg.jarvis.graph.transform.Path;
 import com.hagenberg.jarvis.graph.transform.TransformerRegistry;
+import com.hagenberg.jarvis.graph.transform.specific.TemplateObjectTransformer;
 
 import imgui.ImGui;
 import imgui.flag.ImGuiInputTextFlags;
@@ -17,18 +16,16 @@ import imgui.type.ImString;
 public class TemplateBuilder extends View {
   
   private TransformerRegistry registry;
-  private IdProvider ids;
-  private TemplateRenderer selectedTemplate;
+  private TemplateObjectTransformer selectedTemplate;
   private Path selectedPath;
   private ImString input = new ImString();
   private ImString name = new ImString();
   private int[] width = { 200 };
 
-  public TemplateBuilder(TransformerRegistry registry, IdProvider ids) {
+  public TemplateBuilder(TransformerRegistry registry) {
     setName("Template Builder");
     setFlags(ImGuiWindowFlags.MenuBar);
     this.registry = registry;
-    this.ids = ids;
   }
 
   @Override
@@ -43,7 +40,7 @@ public class TemplateBuilder extends View {
     if (ImGui.beginMenuBar()) {
       if (ImGui.beginMenu("File")) {
         if (ImGui.menuItem("New Template")) {
-          registry.getTemplates().add(new TemplateRenderer("New Template", registry, ids));
+          registry.getTemplates().add(new TemplateObjectTransformer("New Template", registry));
         } 
         ImGui.endMenu();
       }
@@ -58,13 +55,13 @@ public class TemplateBuilder extends View {
 
     ImGui.beginChild("right pane", 0, 0, true);
     if (selectedTemplate != null) {
-      displayTemplate(selectedTemplate);
+      displayTemplate();
     }
     ImGui.endChild();
   }
 
   private void displayList() {
-    for (TemplateRenderer template : registry.getTemplates()) {
+    for (TemplateObjectTransformer template : registry.getTemplates()) {
       if (ImGui.selectable(template.getName(), template == selectedTemplate)) {
         selectedTemplate = template;
         selectedPath = null;
@@ -74,7 +71,7 @@ public class TemplateBuilder extends View {
     }
   }
 
-  private void displayTemplate(TemplateRenderer selectedTemplate) {
+  private void displayTemplate() {
     if (ImGui.inputText("Name", name)) {
       selectedTemplate.setName(name.get());
     }

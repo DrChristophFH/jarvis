@@ -80,7 +80,6 @@ public class GraphTransformer implements Observer {
     }
   }
 
-
   /**
    * Resolves pending links between nodes into actual links
    */
@@ -95,5 +94,9 @@ public class GraphTransformer implements Observer {
 
       rm.addLink(pendingLink.getAttributeId(), transformationMap.get(pendingLink.getTarget()).getNodeId());
     }
+  }
+
+  public TransformerRegistry getRegistry() {
+    return registry;
   }
 }

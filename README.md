@@ -36,9 +36,9 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] root springs -> convert to simple fixed root layout (springs dumb idea)
 - [x] fix arrays? see hashmap demo with hashmap entry not getting links?
 - [x] tie RenderGraph to ObjectGraph -> needed for incremental node layouting (cannot simply discard nodes) -> either update old nodes or steal position from old nodes
-- [ ] repair graph layouting -> nodes have to track in and out neighbours (determine during connection pass)
+- [x] repair graph layouting -> nodes have to track in and out neighbours (determine during connection pass)
+- [x] add template based rendering back in
 - [ ] add context menu for transformers back in
-- [ ] add template based rendering back in
 - [ ] specific renderers
 
 ### Med Prio
