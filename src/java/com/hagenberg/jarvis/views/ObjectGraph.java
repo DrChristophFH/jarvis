@@ -65,7 +65,7 @@ public class ObjectGraph extends View {
       node.render();
     }
 
-    for (Node node : renderGraph.getNodes()) {
+    for (Node node : renderGraph.getChildren()) {
       node.render();
     }
 

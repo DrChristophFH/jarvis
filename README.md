@@ -38,6 +38,7 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] tie RenderGraph to ObjectGraph -> needed for incremental node layouting (cannot simply discard nodes) -> either update old nodes or steal position from old nodes
 - [x] repair graph layouting -> nodes have to track in and out neighbours (determine during connection pass)
 - [x] add template based rendering back in
+- [x] add manual node dragging back in
 - [ ] add context menu for transformers back in
 - [ ] specific renderers
 

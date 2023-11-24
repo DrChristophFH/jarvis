@@ -7,6 +7,9 @@ import com.hagenberg.jarvis.graph.render.RenderModel;
 import com.hagenberg.jarvis.graph.render.nodes.Node;
 import com.hagenberg.jarvis.util.Observer;
 
+import imgui.ImVec2;
+import imgui.extension.imnodes.ImNodes;
+
 public class GraphLayouter implements Observer {
   private float springForce = 4.5f;
   private float springForceRoot = 1.8f;
@@ -27,14 +30,44 @@ public class GraphLayouter implements Observer {
   }
 
   public void layoutRunner(RenderModel renderGraph) {
-    if (isLayoutStable()) return;
 
-    isLayoutStable = true;
+    updateNodeDragPositions(renderGraph);
+
+    if (isLayoutStable) return;
+
+    isLayoutStable = true; // assume stable until proven otherwise
 
     if (!layoutRootsManually) {
       layoutRoots(renderGraph.getRoots());
     }
-    layoutNodes(renderGraph.getNodes(), renderGraph.getRoots());
+    layoutNodes(renderGraph.getChildren(), renderGraph.getRoots());
+  }
+
+  /**
+   * Update node positions from dragging
+   * @param nodes normal nodes
+   * @param roots root nodes
+   */
+  private void updateNodeDragPositions(RenderModel renderGraph) {
+    int count = ImNodes.numSelectedNodes();
+    if (count > 0) {
+      int[] selectedNodes = new int[count];
+      ImNodes.getSelectedNodes(selectedNodes);
+
+      ImVec2 newPos = new ImVec2();
+      Vec2 previousPos;
+
+      for (int i = 0; i < count; i++) {
+        ImNodes.getNodeGridSpacePos(selectedNodes[i], newPos);
+        Node node = renderGraph.getNode(selectedNodes[i]);
+        previousPos = node.getPosition();
+
+        if (!previousPos.isEqualTo(newPos)) {
+          previousPos.set(newPos); 
+          isLayoutStable = false;
+        }
+      }
+    }
   }
 
   private void layoutRoots(Iterable<Node> roots) {

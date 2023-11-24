@@ -106,6 +106,12 @@ public class Vec2 {
     return this; 
   }
 
+  public Vec2 set(ImVec2 other) {
+    this.x = other.x;
+    this.y = other.y;
+    return this; 
+  }
+
   public Vec2 clampAbs(float max) {
     if (Math.abs(this.x) > max) {
       this.x = Math.signum(this.x) * max;
@@ -114,6 +120,18 @@ public class Vec2 {
       this.y = Math.signum(this.y) * max;
     }
     return this; 
+  }
+
+  public boolean isEqualTo(ImVec2 other) {
+    return this.x == other.x && this.y == other.y;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof Vec2 other) {
+      return this.x == other.x && this.y == other.y;
+    }
+    return false;
   }
 
   @Override

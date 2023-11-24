@@ -83,7 +83,7 @@ public class GraphTransformer implements Observer {
       }
 
       transformationMap.put(object, node);
-      rm.addNode(node);
+      rm.addChild(node);
     }
   }
 
