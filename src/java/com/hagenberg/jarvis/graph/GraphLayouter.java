@@ -5,12 +5,11 @@ import java.util.Random;
 import com.hagenberg.imgui.Vec2;
 import com.hagenberg.jarvis.graph.render.RenderModel;
 import com.hagenberg.jarvis.graph.render.nodes.Node;
-import com.hagenberg.jarvis.util.Observer;
 
 import imgui.ImVec2;
 import imgui.extension.imnodes.ImNodes;
 
-public class GraphLayouter implements Observer {
+public class GraphLayouter {
   private float springForce = 4.5f;
   private float springForceRoot = 1.8f;
   private int idealSpringLength = 140;
@@ -25,7 +24,7 @@ public class GraphLayouter implements Observer {
   private boolean isLayoutStable = false;
   private boolean layoutRootsManually = false;
 
-  public void update() {
+  public void setUpdated() {
     isLayoutStable = false;
   }
 

@@ -47,6 +47,8 @@ public class RenderModel {
     return links;
   }
 
+  // currently unused, needed if rm is not destroyed but just swapped and reused
+
   public void clearNodes() {
     this.nodes.clear();
     this.roots.clear();

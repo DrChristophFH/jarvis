@@ -39,7 +39,7 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] repair graph layouting -> nodes have to track in and out neighbours (determine during connection pass)
 - [x] add template based rendering back in
 - [x] add manual node dragging back in
-- [ ] add context menu for transformers back in
+- [x] add context menu for transformers back in
 - [ ] specific renderers
 
 ### Med Prio

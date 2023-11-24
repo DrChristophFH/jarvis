@@ -10,14 +10,17 @@ import com.hagenberg.jarvis.models.entities.graph.ArrayGNode;
 import com.hagenberg.jarvis.models.entities.graph.ContentGVariable;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
+import com.hagenberg.jarvis.util.Procedure;
 
 public class SimpleObjectTransformer extends NodeTransformer<ObjectGNode> {
 
   private final TransformerRegistry registry;
+  private final Procedure triggerRetransform;
 
-  public SimpleObjectTransformer(TransformerRegistry registry) {
+  public SimpleObjectTransformer(TransformerRegistry registry, Procedure triggerRetransform) {
     name = "Simple Object Renderer";
     this.registry = registry;
+    this.triggerRetransform = triggerRetransform;
   }
 
   @Override
@@ -27,7 +30,10 @@ public class SimpleObjectTransformer extends NodeTransformer<ObjectGNode> {
       object.getTypeName(), 
       "Object#" + object.getObjectId(), 
       object.getToString(), 
-      object.getReferenceHolders()
+      object.getReferenceHolders(),
+      registry,
+      object,
+      triggerRetransform
     );
 
     for (MemberGVariable member : object.getMembers()) {

@@ -12,15 +12,18 @@ import com.hagenberg.jarvis.graph.transform.Path;
 import com.hagenberg.jarvis.graph.transform.TransformerRegistry;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
+import com.hagenberg.jarvis.util.Procedure;
 
 public class TemplateObjectTransformer extends NodeTransformer<ObjectGNode> {
 
   private List<Path> paths = new ArrayList<>();
   private TransformerRegistry registry;
+  private Procedure triggerTransform;
 
-  public TemplateObjectTransformer(String name, TransformerRegistry registry) {
+  public TemplateObjectTransformer(String name, TransformerRegistry registry, Procedure triggerTransform) {
     this.name = name;
     this.registry = registry;
+    this.triggerTransform = triggerTransform;
   }
 
   @Override
@@ -30,7 +33,10 @@ public class TemplateObjectTransformer extends NodeTransformer<ObjectGNode> {
       object.getTypeName(), 
       "Object#" + object.getObjectId(), 
       object.getToString(), 
-      object.getReferenceHolders()
+      object.getReferenceHolders(),
+      registry,
+      object,
+      triggerTransform
     );
     
     for (Path path : paths) {

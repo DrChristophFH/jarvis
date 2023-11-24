@@ -12,35 +12,63 @@ import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 import com.hagenberg.jarvis.util.Observer;
+import com.hagenberg.jarvis.views.ObjectGraph;
 
 public class GraphTransformer implements Observer {
   private final ObjectGraphModel ogm;
-  private final RenderModel rm;
+  private final ObjectGraph og;
+  private RenderModel rm;
 
-  private final TransformerRegistry registry = new TransformerRegistry();
-  
+  private final TransformerRegistry registry = new TransformerRegistry(this::update);
+
+  private Thread transformerThread = null;
+  private boolean transformPending = false;
+
   private final IdPool idPool = new IdPool(0);
   private final Stack<ObjectGNode> objectsToTransform = new Stack<>();
   private final Set<PendingLink> pendingLinks = new HashSet<>();
   private Map<ObjectGNode, Node> transformationMap = new HashMap<>();
-  
-  public GraphTransformer(ObjectGraphModel ogm, RenderModel rm) {
+
+  public GraphTransformer(ObjectGraphModel ogm, ObjectGraph og) {
     this.ogm = ogm;
-    this.rm = rm;
+    this.og = og;
     ogm.addObserver(this);
   }
 
+  /**
+   * Triggers a graph transformation for OGM -> RM. This happens in parallel to
+   * the rendering thread.
+   */
   @Override
   public void update() {
-    transformGraph();
+    if (transformerThread != null && transformerThread.isAlive()) {
+      transformPending = true;
+      return;
+    }
+
+    transformerThread = new Thread(this::transformGraph);
+    transformerThread.start();
   }
 
   /**
-   * Transforms the object graph into a graph of renderable nodes.
+   * Transforms the ObjectGraphModel into a RenderModel. This happens in parallel
+   * to the rendering thread via "double buffering". The whole transformation is
+   * done in two passes: 1. Transformation pass: Transforms all objects and local
+   * variables into renderable nodes 2. Connection pass: Resolves pending links
+   * between nodes into actual links
    */
-  public void transformGraph() {
+  private void transformGraph() {
+    rm = new RenderModel(); // get new render model to populate
     transformationPass();
     connectionPass();
+    og.stageRenderModel(rm); // stage render model for rendering
+
+    synchronized (this) {
+      if (transformPending) { // check if another update was triggered while transformation was running
+        transformPending = false;
+        update();
+      }
+    }
   }
 
   /**
@@ -54,8 +82,7 @@ public class GraphTransformer implements Observer {
     idPool.reset();
     transformationMap = new HashMap<>();
     objectsToTransform.clear();
-    rm.clearNodes();
-    
+
     for (LocalGVariable root : ogm.getLocalVariables()) {
       Node node = registry.getLocalVarTransformer(root).transform(root, idPool, (source, id, target) -> {
         pendingLinks.add(new PendingLink(source, id, target));
@@ -63,7 +90,8 @@ public class GraphTransformer implements Observer {
           objectsToTransform.push(target);
         }
       });
-      // no need for transformation map here, as local variables take no input connections
+      // no need for transformation map here, as local variables take no input
+      // connections
       rm.addRoot(node);
     }
 
@@ -94,7 +122,6 @@ public class GraphTransformer implements Observer {
 
     Map<Integer, Node> debug = new HashMap<>();
 
-    rm.clearLinks();
     for (PendingLink pendingLink : pendingLinks) {
       Node source = pendingLink.getSource();
       Node target = transformationMap.get(pendingLink.getTarget());

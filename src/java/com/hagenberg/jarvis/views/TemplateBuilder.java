@@ -40,7 +40,7 @@ public class TemplateBuilder extends View {
     if (ImGui.beginMenuBar()) {
       if (ImGui.beginMenu("File")) {
         if (ImGui.menuItem("New Template")) {
-          registry.getTemplates().add(new TemplateObjectTransformer("New Template", registry));
+          registry.registerTemplate("New Template");
         } 
         ImGui.endMenu();
       }

@@ -20,12 +20,13 @@ public class ObjectGraph extends View {
 
   private final GraphLayouter layouter = new GraphLayouter();
   private final ObjectGraphModel objectGraph = new ObjectGraphModel();
-  private final RenderModel renderGraph = new RenderModel();
-  private final GraphTransformer graphTransformer = new GraphTransformer(objectGraph, renderGraph);
+  private final GraphTransformer graphTransformer = new GraphTransformer(objectGraph, this);
+
+  private RenderModel stagedRenderGraph;
+  private RenderModel renderGraph = new RenderModel();
 
   public ObjectGraph() {
     setName("Object Graph");
-    objectGraph.addObserver(layouter);
   }
 
   public ObjectGraphModel getObjectGraphModel() {
@@ -36,6 +37,14 @@ public class ObjectGraph extends View {
     return graphTransformer;
   }
 
+  public RenderModel getRenderModel() {
+    return renderGraph;
+  }
+
+  public void stageRenderModel(RenderModel rm) {
+    this.stagedRenderGraph = rm;
+  }
+
   public GraphLayouter getLayouter() {
     return layouter;
   }
@@ -43,12 +52,7 @@ public class ObjectGraph extends View {
   @Override
   public void render() {
     ImGui.setNextWindowSize(800, 800, ImGuiCond.FirstUseEver);
-    objectGraph.lockModel();
-    try {
-      super.render();
-    } finally {
-      objectGraph.unlockModel();
-    }
+    super.render();
   }
 
   @Override
@@ -64,6 +68,13 @@ public class ObjectGraph extends View {
   }
 
   private void drawGraph() {
+    // swap render graph if new one is available
+    if (stagedRenderGraph != null) {
+      renderGraph = stagedRenderGraph;
+      layouter.setUpdated();
+      stagedRenderGraph = null;
+    }
+
     for (Node node : renderGraph.getRoots()) {
       node.render();
     }
