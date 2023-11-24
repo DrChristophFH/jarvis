@@ -2,9 +2,12 @@ package com.hagenberg.jarvis.views;
 
 import imgui.ImGui;
 import imgui.extension.imnodes.ImNodes;
+import imgui.extension.imnodes.flag.ImNodesColorStyle;
 import imgui.extension.imnodes.flag.ImNodesMiniMapLocation;
+import imgui.extension.imnodes.flag.ImNodesStyleVar;
 import imgui.flag.ImGuiCond;
 
+import com.hagenberg.imgui.Colors;
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.graph.GraphLayouter;
 import com.hagenberg.jarvis.graph.render.Link;
@@ -71,7 +74,16 @@ public class ObjectGraph extends View {
 
     int linkId = 0;
     for (Link link : renderGraph.getLinks()) {
+      boolean isSelected = ImNodes.isLinkSelected(linkId);
+      if (isSelected) {
+        ImNodes.pushStyleVar(ImNodesStyleVar.LinkThickness, 5.0f);
+        ImNodes.pushColorStyle(ImNodesColorStyle.LinkSelected, Colors.LinkSelected);
+      }
       ImNodes.link(linkId++, link.startNodeId(), link.endNodeId());
+      if (isSelected) {
+        ImNodes.popColorStyle();
+        ImNodes.popStyleVar();
+      }
     }
   }
 }
