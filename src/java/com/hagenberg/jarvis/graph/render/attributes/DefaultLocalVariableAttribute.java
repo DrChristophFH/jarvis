@@ -27,9 +27,9 @@ public class DefaultLocalVariableAttribute extends Attribute {
   @Override
   public void render() {
     if (isPrimitive) {
-      ImNodes.beginStaticAttribute(id);
+      ImNodes.beginStaticAttribute(attId);
     } else {
-      ImNodes.beginOutputAttribute(id);
+      ImNodes.beginOutputAttribute(attId);
     }
 
     Snippets.drawTypeWithTooltip(typeName, tooltip);

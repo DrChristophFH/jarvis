@@ -38,7 +38,7 @@ public class SimpleMemberTransformer extends AttributeTransformer<MemberGVariabl
     );
 
     if (node != null && node instanceof ObjectGNode obj) {
-      linkRegisterCallback.registerLink(parent, attribute.getId(), obj);
+      linkRegisterCallback.registerLink(parent, attribute.getAttId(), obj);
     }
     
     return attribute;

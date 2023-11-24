@@ -29,9 +29,9 @@ public class DefaultMemberAttribute extends Attribute {
   @Override
   public void render() {
     if (isPrimitive) {
-      ImNodes.beginStaticAttribute(id);
+      ImNodes.beginStaticAttribute(attId);
     } else {
-      ImNodes.beginOutputAttribute(id);
+      ImNodes.beginOutputAttribute(attId);
     }
 
     ImGui.textColored(Colors.AccessModifier, accessModifier);

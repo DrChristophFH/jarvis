@@ -38,7 +38,7 @@ public class SimpleContentTransformer extends AttributeTransformer<ContentGVaria
     );
 
     if (node != null && node instanceof ObjectGNode obj) {
-      linkRegisterCallback.registerLink(parent, attribute.getId(), obj);
+      linkRegisterCallback.registerLink(parent, attribute.getAttId(), obj);
     }
     
     return attribute;
