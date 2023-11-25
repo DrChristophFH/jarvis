@@ -1,9 +1,5 @@
 package com.hagenberg.jarvis.graph.render.attributes;
 
-import java.util.List;
-
-import javax.swing.Renderer;
-
 import com.hagenberg.jarvis.graph.render.nodes.Node;
 import com.hagenberg.jarvis.graph.transform.TransformerRegistry;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
