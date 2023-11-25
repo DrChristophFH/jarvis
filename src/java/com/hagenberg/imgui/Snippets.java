@@ -33,6 +33,7 @@ public class Snippets {
   public static void DisplayLayoutNodeDebug(Node layoutNode) {
     ImGui.text("Id: " + layoutNode);
     ImGui.text("Position: " + layoutNode.getPosition());
-    ImGui.text("Length: " + layoutNode.getLength());
+    ImGui.text("Velocity: " + layoutNode.getVelocity());
+    ImGui.text("Width: " + layoutNode.getWidth());
   }
 }

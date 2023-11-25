@@ -6,6 +6,7 @@ import java.util.List;
 import com.hagenberg.imgui.Vec2;
 import com.hagenberg.jarvis.graph.render.attributes.Attribute;
 
+import imgui.ImVec2;
 import imgui.extension.imnodes.ImNodes;
 
 public abstract class Node {
@@ -15,7 +16,7 @@ public abstract class Node {
   protected Vec2 position = new Vec2();
   protected Vec2 velocity = new Vec2();
   protected boolean frozen = false;
-  protected int length = 0;
+  protected int width = 0;
 
   protected final List<Attribute> attributes = new ArrayList<>();
 
@@ -37,14 +38,20 @@ public abstract class Node {
     ImNodes.endNode();
     postNode();
   }
+
+  public Vec2 getGridPosition() {
+    ImVec2 gridPos = new ImVec2();
+    ImNodes.getNodeGridSpacePos(nodeId, gridPos);
+    return new Vec2(gridPos.x, gridPos.y);
+  }
   
   protected void preNode() {
   }
 
   protected void preHeader() {
     ImNodes.setNodeDraggable(nodeId, true);
+    width = (int) ImNodes.getNodeDimensionsX(nodeId);
     ImNodes.setNodeGridSpacePos(nodeId, position.x, position.y);
-    length = (int) ImNodes.getNodeDimensionsX(nodeId);
   }
 
   protected void beginHeader() {
@@ -105,12 +112,8 @@ public abstract class Node {
     this.frozen = frozen;
   }
 
-  public int getLength() {
-    return length;
-  }
-
-  public void setLength(int length) {
-    this.length = length;
+  public int getWidth() {
+    return width;
   }
 
   public List<Attribute> getAttributes() {

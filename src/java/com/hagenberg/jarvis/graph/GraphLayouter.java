@@ -6,7 +6,6 @@ import com.hagenberg.imgui.Vec2;
 import com.hagenberg.jarvis.graph.render.RenderModel;
 import com.hagenberg.jarvis.graph.render.nodes.Node;
 
-import imgui.ImVec2;
 import imgui.extension.imnodes.ImNodes;
 
 public class GraphLayouter {
@@ -53,15 +52,15 @@ public class GraphLayouter {
       int[] selectedNodes = new int[count];
       ImNodes.getSelectedNodes(selectedNodes);
 
-      ImVec2 newPos = new ImVec2();
+      Vec2 newPos;
       Vec2 previousPos;
 
       for (int i = 0; i < count; i++) {
-        ImNodes.getNodeGridSpacePos(selectedNodes[i], newPos);
         Node node = renderGraph.getNode(selectedNodes[i]);
+        newPos = node.getGridPosition();
         previousPos = node.getPosition();
 
-        if (!previousPos.isEqualTo(newPos)) {
+        if (!previousPos.equals(newPos)) {
           previousPos.set(newPos); 
           isLayoutStable = false;
         }
@@ -99,11 +98,11 @@ public class GraphLayouter {
 
       // Spring forces from neighbors
       for (Node neighbor : node.getInNeighbors()) {
-        netForce.add(calcSpringForce(node, neighbor, springForce, idealSpringLength + neighbor.getLength()));
+        netForce.add(calcSpringForce(node, neighbor, springForce, idealSpringLength + neighbor.getWidth()));
       }
 
       for (Node neighbor : node.getOutNeighbors()) {
-        netForce.add(calcSpringForce(node, neighbor, springForce, idealSpringLength + node.getLength()));
+        netForce.add(calcSpringForce(node, neighbor, springForce, idealSpringLength + node.getWidth()));
       }
 
       // Gravity force (to the right)
@@ -120,6 +119,8 @@ public class GraphLayouter {
       if (isLayoutStable && (Math.abs(node.getVelocity().x) > threshold || Math.abs(node.getVelocity().y) > threshold)) {
         isLayoutStable = false;
       }
+
+      System.out.println("Node " + node.getNodeId() + " velocity: " + node.getVelocity());
 
       node.getPosition().add(node.getVelocity());
     }
