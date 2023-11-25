@@ -10,6 +10,7 @@ import java.util.Map;
 
 import com.hagenberg.jarvis.graph.transform.simple.SimpleContentTransformer;
 import com.hagenberg.jarvis.graph.transform.simple.SimpleObjectTransformer;
+import com.hagenberg.jarvis.graph.transform.specific.StringObjectTransformer;
 import com.hagenberg.jarvis.graph.transform.specific.TemplateObjectTransformer;
 import com.hagenberg.jarvis.models.entities.graph.ContentGVariable;
 import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
@@ -29,15 +30,16 @@ public class TransformerRegistry {
   
   // transformer lists
   private List<TemplateObjectTransformer> templateTransformers = new ArrayList<>();
+  private List<NodeTransformer<ObjectGNode>> objectTransformers = new ArrayList<>();
   
   // transformer mapping
-  private Map<Object, NodeTransformer<ObjectGNode>> objectTransformers = new HashMap<>();
+  private Map<Object, NodeTransformer<ObjectGNode>> objectTransformerMap = new HashMap<>();
 
   public TransformerRegistry(Procedure triggerTransform) {
     this.triggerTransform = triggerTransform;
     defaultObjectRenderer = new SimpleObjectTransformer(this, this.triggerTransform);
+    objectTransformers.add(new StringObjectTransformer(this, this.triggerTransform));
   }
-
 
   public NodeTransformer<LocalGVariable> getLocalVarTransformer(LocalGVariable localVar) {
     return defaultLocalVarRenderer;
@@ -49,11 +51,11 @@ public class TransformerRegistry {
     NodeTransformer<ObjectGNode> transformer;
 
     // first fetch for specific object
-    transformer = objectTransformers.get(object);
+    transformer = objectTransformerMap.get(object);
 
     // then fetch for object class
     if (transformer == null) {
-      transformer = objectTransformers.get(object.getType());
+      transformer = objectTransformerMap.get(object.getType());
 
       // return default if no specific transformer is found
       if (transformer == null) {
@@ -73,11 +75,11 @@ public class TransformerRegistry {
     NodeTransformer<ObjectGNode> transformer;
 
     // first fetch for specific object
-    transformer = objectTransformers.get(object);
+    transformer = objectTransformerMap.get(object);
 
     // then fetch for object class
     if (transformer == null) {
-      transformer = objectTransformers.get(object.getType());
+      transformer = objectTransformerMap.get(object.getType());
     }
 
     return transformer;
@@ -89,7 +91,7 @@ public class TransformerRegistry {
    * @return  the transformer for the given object's type or null if no transformer is registered
    */
   public NodeTransformer<ObjectGNode> getSpecificOTForType(ObjectGNode object) {
-    return objectTransformers.get(object.getType());
+    return objectTransformerMap.get(object.getType());
   }
 
   public List<NodeTransformer<ObjectGNode>> getObjectTransformers() {
@@ -97,14 +99,17 @@ public class TransformerRegistry {
     for (TemplateObjectTransformer transformer : templateTransformers) {
       transformers.add(transformer);
     }
+    for (NodeTransformer<ObjectGNode> transformer : objectTransformers) {
+      transformers.add(transformer);
+    }
     return transformers;
   }
 
   public void setObjectTransformer(Object objNode, NodeTransformer<ObjectGNode> transformer) {
     if (transformer == defaultObjectRenderer || transformer == null) {
-      objectTransformers.remove(objNode);
+      objectTransformerMap.remove(objNode);
     } else {
-      objectTransformers.put(objNode, transformer);
+      objectTransformerMap.put(objNode, transformer);
     }
   }
 

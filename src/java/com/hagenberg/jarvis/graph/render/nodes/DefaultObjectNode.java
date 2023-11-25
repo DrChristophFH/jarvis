@@ -16,14 +16,14 @@ import imgui.extension.imnodes.ImNodes;
 
 public class DefaultObjectNode extends Node {
 
-  private final String typeName;
-  private final String objectName;
-  private final String toString;
-  private final List<GVariable> referenceHolders;
-  private final Tooltip tooltip = new Tooltip();
-  private final TransformerRegistry registry;
-  private final ObjectGNode originNode;
-  private final Procedure triggerRetransform;
+  protected final String typeName;
+  protected final String objectName;
+  protected final String toString;
+  protected final List<GVariable> referenceHolders;
+  protected final Tooltip tooltip = new Tooltip();
+  protected final TransformerRegistry registry;
+  protected final ObjectGNode originNode;
+  protected final Procedure triggerRetransform;
 
   public DefaultObjectNode(int nodeId, String typeName, String objectName, String toString, List<GVariable> referenceHolders,
       TransformerRegistry registry, ObjectGNode originNode, Procedure triggerRetransform) {
@@ -37,31 +37,20 @@ public class DefaultObjectNode extends Node {
     this.triggerRetransform = triggerRetransform;
   }
 
+  
+
   @Override
-  public void render() {
-    ImNodes.beginNode(nodeId);
-
-    ImNodes.setNodeDraggable(nodeId, true);
-    ImNodes.setNodeGridSpacePos(nodeId, position.x, position.y);
-    length = (int) ImNodes.getNodeDimensionsX(nodeId);
-
-    ImNodes.beginNodeTitleBar();
+  protected void headerContent() {
     Snippets.drawTypeWithTooltip(typeName, tooltip);
     ImGui.sameLine();
     ImGui.text(objectName);
-    ImNodes.endNodeTitleBar();
+  }
 
+  @Override
+  protected void content() {
     transformerContextMenu(registry, originNode, triggerRetransform);
 
-    // Reference attribute has node id
-    ImNodes.beginInputAttribute(nodeId);
-    ImGui.text(referenceHolders.size() + " references");
-    tooltip.show(() -> {
-      for (int i = 0; i < referenceHolders.size(); i++) {
-        ImGui.text("-> " + referenceHolders.get(i).getName());
-      }
-    });
-    ImNodes.endInputAttribute();
+    showRefInputAttribute();
 
     ImGui.textColored(Colors.Type, "toString():");
     ImGui.sameLine();
@@ -72,7 +61,17 @@ public class DefaultObjectNode extends Node {
     for (Attribute attribute : attributes) {
       attribute.render();
     }
+  }
 
-    ImNodes.endNode();
+  protected void showRefInputAttribute() {
+    // Reference attribute has node id
+    ImNodes.beginInputAttribute(nodeId);
+    ImGui.text(referenceHolders.size() + " references");
+    tooltip.show(() -> {
+      for (int i = 0; i < referenceHolders.size(); i++) {
+        ImGui.text("-> " + referenceHolders.get(i).getName());
+      }
+    });
+    ImNodes.endInputAttribute();
   }
 }

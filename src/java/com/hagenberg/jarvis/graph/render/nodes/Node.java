@@ -11,6 +11,7 @@ import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 import com.hagenberg.jarvis.util.Procedure;
 
 import imgui.ImGui;
+import imgui.extension.imnodes.ImNodes;
 import imgui.flag.ImGuiMouseButton;
 import imgui.flag.ImGuiStyleVar;
 
@@ -32,7 +33,41 @@ public abstract class Node {
     this.nodeId = nodeId;
   }
 
-  public abstract void render();
+  public void render() {
+    preNode();
+    ImNodes.beginNode(nodeId);
+    preHeader();
+    beginHeader();
+    headerContent();
+    endHeader();
+    content();
+    ImNodes.endNode();
+    postNode();
+  }
+  
+  protected void preNode() {
+  }
+
+  protected void preHeader() {
+    ImNodes.setNodeDraggable(nodeId, true);
+    ImNodes.setNodeGridSpacePos(nodeId, position.x, position.y);
+    length = (int) ImNodes.getNodeDimensionsX(nodeId);
+  }
+
+  protected void beginHeader() {
+    ImNodes.beginNodeTitleBar();
+  }
+
+  protected abstract void headerContent();
+
+  protected void endHeader() {
+    ImNodes.endNodeTitleBar();
+  }
+
+  protected abstract void content();
+
+  protected void postNode() {
+  }
 
   @Override
   public int hashCode() {

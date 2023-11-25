@@ -17,24 +17,24 @@ public class DefaultLocalVariableNode extends Node {
   }
 
   @Override
-  public void render() {
+  protected void preNode() {
     ImNodes.pushColorStyle(ImNodesColorStyle.TitleBar, Colors.LocalVariable);
-    ImNodes.beginNode(nodeId);
+  }
 
-    ImNodes.setNodeDraggable(nodeId, true);
-    ImNodes.setNodeGridSpacePos(nodeId, position.x, position.y);
-    length = (int) ImNodes.getNodeDimensionsX(nodeId);
-
-    ImNodes.beginNodeTitleBar();
+  @Override
+  protected void headerContent() {
     ImGui.text("Local Variable: " + variableName);
-    ImNodes.endNodeTitleBar();
+  }
 
-    ImNodes.popColorStyle();
-
+  @Override
+  protected void content() {
     for (Attribute attribute : attributes) {
       attribute.render();
     }
+  }
 
-    ImNodes.endNode();
+  @Override
+  protected void postNode() {
+    ImNodes.popColorStyle();
   }
 }
