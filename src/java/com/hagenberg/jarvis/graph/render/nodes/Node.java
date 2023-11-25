@@ -5,15 +5,8 @@ import java.util.List;
 
 import com.hagenberg.imgui.Vec2;
 import com.hagenberg.jarvis.graph.render.attributes.Attribute;
-import com.hagenberg.jarvis.graph.transform.NodeTransformer;
-import com.hagenberg.jarvis.graph.transform.TransformerRegistry;
-import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
-import com.hagenberg.jarvis.util.Procedure;
 
-import imgui.ImGui;
 import imgui.extension.imnodes.ImNodes;
-import imgui.flag.ImGuiMouseButton;
-import imgui.flag.ImGuiStyleVar;
 
 public abstract class Node {
   protected final int nodeId;
@@ -139,58 +132,5 @@ public abstract class Node {
   public void clearNeighbors() {
     InNeighbors.clear();
     OutNeighbors.clear();
-  }
-
-  /**
-   * @param node
-   * @param registry
-   */
-  protected void transformerContextMenu(TransformerRegistry registry, ObjectGNode originNode, Procedure triggerTransform) {
-    if (ImGui.isItemHovered() && ImGui.isMouseReleased(ImGuiMouseButton.Right)) {
-      ImGui.openPopup("NodeCtx##" + nodeId);
-    }
-
-    ImGui.pushStyleVar(ImGuiStyleVar.WindowPadding, 5, 5); // NodeEditor somehow overrides this so we have to set it here
-
-    if (ImGui.beginPopup("NodeCtx##" + nodeId)) {
-      ImGui.menuItem("Settings", "", false, false);
-      if (ImGui.beginMenu("Renderer for this Object")) {
-        List<NodeTransformer<ObjectGNode>> transformers = registry.getObjectTransformers();
-        NodeTransformer<ObjectGNode> currentTransformer = registry.getSpecificOT(originNode);
-        for (NodeTransformer<ObjectGNode> transformer : transformers) {
-          boolean selected = transformer == currentTransformer;
-          if (ImGui.menuItem(transformer.getName(), "", selected)) {
-            registry.setObjectTransformer(originNode, transformer);
-            if (!selected) {
-              triggerTransform.run();
-            }
-          }
-        }
-        if (ImGui.menuItem("[Default]", "", currentTransformer == null)) {
-          registry.setObjectTransformer(originNode, null);
-        }
-        ImGui.endMenu();
-      }
-      if (ImGui.beginMenu("Renderer for this Type")) {
-        List<NodeTransformer<ObjectGNode>> transformers = registry.getObjectTransformers();
-        NodeTransformer<ObjectGNode> currentTransformer = registry.getSpecificOTForType(originNode);
-        for (NodeTransformer<ObjectGNode> transformer : transformers) {
-          boolean selected = transformer == currentTransformer;
-          if (ImGui.menuItem(transformer.getName(), "", selected)) {
-            registry.setObjectTransformer(originNode.getType(), transformer);
-            if (!selected) {
-              triggerTransform.run();
-            }
-          }
-        }
-        if (ImGui.menuItem("[Default]", "", currentTransformer == null)) {
-          registry.setObjectTransformer(originNode.getType(), null);
-
-        }
-        ImGui.endMenu();
-      }
-      ImGui.endPopup();
-    }
-    ImGui.popStyleVar();
   }
 }

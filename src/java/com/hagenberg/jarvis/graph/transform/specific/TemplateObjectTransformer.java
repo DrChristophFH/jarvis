@@ -9,21 +9,21 @@ import com.hagenberg.jarvis.graph.transform.IdProvider;
 import com.hagenberg.jarvis.graph.transform.LinkRegisterCallback;
 import com.hagenberg.jarvis.graph.transform.NodeTransformer;
 import com.hagenberg.jarvis.graph.transform.Path;
+import com.hagenberg.jarvis.graph.transform.TransformerContextMenu;
 import com.hagenberg.jarvis.graph.transform.TransformerRegistry;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
-import com.hagenberg.jarvis.util.Procedure;
 
 public class TemplateObjectTransformer extends NodeTransformer<ObjectGNode> {
 
   private List<Path> paths = new ArrayList<>();
   private TransformerRegistry registry;
-  private Procedure triggerTransform;
+  private TransformerContextMenu transformerContextMenu;
 
-  public TemplateObjectTransformer(String name, TransformerRegistry registry, Procedure triggerTransform) {
+  public TemplateObjectTransformer(String name, TransformerRegistry registry, TransformerContextMenu transformerContextMenu) {
     this.name = name;
     this.registry = registry;
-    this.triggerTransform = triggerTransform;
+    this.transformerContextMenu = transformerContextMenu;
   }
 
   @Override
@@ -34,9 +34,7 @@ public class TemplateObjectTransformer extends NodeTransformer<ObjectGNode> {
       "Object#" + object.getObjectId(), 
       object.getToString(), 
       object.getReferenceHolders(),
-      registry,
-      object,
-      triggerTransform
+      transformerContextMenu
     );
     
     for (Path path : paths) {

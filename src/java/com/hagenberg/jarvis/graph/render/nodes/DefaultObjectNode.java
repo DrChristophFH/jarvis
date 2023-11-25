@@ -6,10 +6,8 @@ import com.hagenberg.imgui.Colors;
 import com.hagenberg.imgui.Snippets;
 import com.hagenberg.imgui.components.Tooltip;
 import com.hagenberg.jarvis.graph.render.attributes.Attribute;
-import com.hagenberg.jarvis.graph.transform.TransformerRegistry;
+import com.hagenberg.jarvis.graph.transform.TransformerContextMenu;
 import com.hagenberg.jarvis.models.entities.graph.GVariable;
-import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
-import com.hagenberg.jarvis.util.Procedure;
 
 import imgui.ImGui;
 import imgui.extension.imnodes.ImNodes;
@@ -21,20 +19,16 @@ public class DefaultObjectNode extends Node {
   protected final String toString;
   protected final List<GVariable> referenceHolders;
   protected final Tooltip tooltip = new Tooltip();
-  protected final TransformerRegistry registry;
-  protected final ObjectGNode originNode;
-  protected final Procedure triggerRetransform;
+  protected final TransformerContextMenu transformerContextMenu;
 
   public DefaultObjectNode(int nodeId, String typeName, String objectName, String toString, List<GVariable> referenceHolders,
-      TransformerRegistry registry, ObjectGNode originNode, Procedure triggerRetransform) {
+      TransformerContextMenu transformerContextMenu) {
     super(nodeId);
     this.typeName = typeName;
     this.objectName = objectName;
     this.toString = toString;
     this.referenceHolders = referenceHolders;
-    this.registry = registry;
-    this.originNode = originNode;
-    this.triggerRetransform = triggerRetransform;
+    this.transformerContextMenu = transformerContextMenu;
   }
 
   @Override
@@ -46,7 +40,7 @@ public class DefaultObjectNode extends Node {
 
   @Override
   protected void content() {
-    transformerContextMenu(registry, originNode, triggerRetransform);
+    transformerContextMenu.show(nodeId);
 
     showRefInputAttribute();
 

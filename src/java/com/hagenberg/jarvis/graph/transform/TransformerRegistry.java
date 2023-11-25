@@ -16,11 +16,10 @@ import com.hagenberg.jarvis.models.entities.graph.ContentGVariable;
 import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
-import com.hagenberg.jarvis.util.Procedure;
 
 public class TransformerRegistry {
 
-  private final Procedure triggerTransform;
+  private final TransformerContextMenu transformerContextMenu;
   
   // default transformers
   private NodeTransformer<ObjectGNode> defaultObjectRenderer;
@@ -35,10 +34,10 @@ public class TransformerRegistry {
   // transformer mapping
   private Map<Object, NodeTransformer<ObjectGNode>> objectTransformerMap = new HashMap<>();
 
-  public TransformerRegistry(Procedure triggerTransform) {
-    this.triggerTransform = triggerTransform;
-    defaultObjectRenderer = new SimpleObjectTransformer(this, this.triggerTransform);
-    objectTransformers.add(new StringObjectTransformer(this, this.triggerTransform));
+  public TransformerRegistry(TransformerContextMenu transformerContextMenu) {
+    this.transformerContextMenu = transformerContextMenu;
+    defaultObjectRenderer = new SimpleObjectTransformer(this, this.transformerContextMenu);
+    objectTransformers.add(new StringObjectTransformer(this.transformerContextMenu));
   }
 
   public NodeTransformer<LocalGVariable> getLocalVarTransformer(LocalGVariable localVar) {
@@ -130,6 +129,6 @@ public class TransformerRegistry {
   }
 
   public void registerTemplate(String name) {
-    templateTransformers.add(new TemplateObjectTransformer(name, this, triggerTransform));
+    templateTransformers.add(new TemplateObjectTransformer(name, this, transformerContextMenu));
   }
 }

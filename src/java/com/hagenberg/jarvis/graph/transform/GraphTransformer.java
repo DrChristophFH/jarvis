@@ -2,6 +2,7 @@ package com.hagenberg.jarvis.graph.transform;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -14,12 +15,16 @@ import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
 import com.hagenberg.jarvis.util.Observer;
 import com.hagenberg.jarvis.views.ObjectGraph;
 
+import imgui.ImGui;
+import imgui.flag.ImGuiMouseButton;
+import imgui.flag.ImGuiStyleVar;
+
 public class GraphTransformer implements Observer {
   private final ObjectGraphModel ogm;
   private final ObjectGraph og;
   private RenderModel rm;
 
-  private final TransformerRegistry registry = new TransformerRegistry(this::update);
+  private final TransformerRegistry registry = new TransformerRegistry(this::showTransformerContextMenu);
 
   private Thread transformerThread = null;
   private boolean transformPending = false;
@@ -28,6 +33,7 @@ public class GraphTransformer implements Observer {
   private final Stack<ObjectGNode> objectsToTransform = new Stack<>();
   private final Set<PendingLink> pendingLinks = new HashSet<>();
   private Map<ObjectGNode, Node> transformationMap = new HashMap<>();
+  private Map<Integer, ObjectGNode> reverseTransformationMap = new HashMap<>();
 
   public GraphTransformer(ObjectGraphModel ogm, ObjectGraph og) {
     this.ogm = ogm;
@@ -81,6 +87,7 @@ public class GraphTransformer implements Observer {
     // clear old data
     idPool.reset();
     transformationMap = new HashMap<>();
+    reverseTransformationMap.clear();
     objectsToTransform.clear();
 
     for (LocalGVariable root : ogm.getLocalVariables()) {
@@ -104,6 +111,7 @@ public class GraphTransformer implements Observer {
         }
       });
       transformationMap.put(object, node);
+      reverseTransformationMap.put(node.getNodeId(), object);
 
       // migrate position from previous transformation
       if (oldTransformationMap.containsKey(object)) {
@@ -138,5 +146,56 @@ public class GraphTransformer implements Observer {
 
   public TransformerRegistry getRegistry() {
     return registry;
+  }
+
+  public void showTransformerContextMenu(int nodeId) {
+    ObjectGNode originNode = reverseTransformationMap.get(nodeId);
+
+    if (ImGui.isItemHovered() && ImGui.isMouseReleased(ImGuiMouseButton.Right)) {
+      ImGui.openPopup("NodeCtx##" + nodeId);
+    }
+
+    ImGui.pushStyleVar(ImGuiStyleVar.WindowPadding, 5, 5); // NodeEditor somehow overrides this so we have to set it here
+
+    if (ImGui.beginPopup("NodeCtx##" + nodeId)) {
+      ImGui.menuItem("Settings", "", false, false);
+      if (ImGui.beginMenu("Renderer for this Object")) {
+        List<NodeTransformer<ObjectGNode>> transformers = registry.getObjectTransformers();
+        NodeTransformer<ObjectGNode> currentTransformer = registry.getSpecificOT(originNode);
+        for (NodeTransformer<ObjectGNode> transformer : transformers) {
+          boolean selected = transformer == currentTransformer;
+          if (ImGui.menuItem(transformer.getName(), "", selected)) {
+            registry.setObjectTransformer(originNode, transformer);
+            if (!selected) {
+              update();
+            }
+          }
+        }
+        if (ImGui.menuItem("[Default]", "", currentTransformer == null)) {
+          registry.setObjectTransformer(originNode, null);
+        }
+        ImGui.endMenu();
+      }
+      if (ImGui.beginMenu("Renderer for this Type")) {
+        List<NodeTransformer<ObjectGNode>> transformers = registry.getObjectTransformers();
+        NodeTransformer<ObjectGNode> currentTransformer = registry.getSpecificOTForType(originNode);
+        for (NodeTransformer<ObjectGNode> transformer : transformers) {
+          boolean selected = transformer == currentTransformer;
+          if (ImGui.menuItem(transformer.getName(), "", selected)) {
+            registry.setObjectTransformer(originNode.getType(), transformer);
+            if (!selected) {
+              update();
+            }
+          }
+        }
+        if (ImGui.menuItem("[Default]", "", currentTransformer == null)) {
+          registry.setObjectTransformer(originNode.getType(), null);
+
+        }
+        ImGui.endMenu();
+      }
+      ImGui.endPopup();
+    }
+    ImGui.popStyleVar();
   }
 }
