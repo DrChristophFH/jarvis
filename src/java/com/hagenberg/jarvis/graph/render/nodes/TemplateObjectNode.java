@@ -10,9 +10,9 @@ import com.hagenberg.jarvis.util.Procedure;
 
 import imgui.ImGui;
 
-public class StringNode extends DefaultObjectNode {
+public class TemplateObjectNode extends DefaultObjectNode {
 
-  public StringNode(int nodeId, String typeName, String objectName, String toString, List<GVariable> referenceHolders,
+  public TemplateObjectNode(int nodeId, String typeName, String objectName, String toString, List<GVariable> referenceHolders,
       TransformerRegistry registry, ObjectGNode originNode, Procedure triggerRetransform) {
     super(nodeId, typeName, objectName, toString, referenceHolders, registry, originNode, triggerRetransform);
   }
@@ -21,16 +21,6 @@ public class StringNode extends DefaultObjectNode {
   protected void headerContent() {
     super.headerContent();
     ImGui.sameLine();
-    ImGui.textColored(Colors.Attention, "[String simplified]");
-  }
-
-  @Override
-  protected void content() {
-    transformerContextMenu(registry, originNode, triggerRetransform);
-
-    showRefInputAttribute();
-    ImGui.textColored(Colors.Identifier, "value: ");
-    ImGui.sameLine();
-    ImGui.text(toString);
+    ImGui.textColored(Colors.Attention, "[Template]");
   }
 }

@@ -37,8 +37,6 @@ public class DefaultObjectNode extends Node {
     this.triggerRetransform = triggerRetransform;
   }
 
-  
-
   @Override
   protected void headerContent() {
     Snippets.drawTypeWithTooltip(typeName, tooltip);
