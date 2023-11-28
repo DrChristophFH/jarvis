@@ -73,7 +73,11 @@ public class TemplateBuilder extends View {
 
   private void displayTemplate() {
     if (ImGui.inputText("Name", name)) {
-      selectedTemplate.setName(name.get());
+      if (name.get().length() > 0) {
+        selectedTemplate.setName(name.get());
+      } else {
+        name.set(selectedTemplate.getName());
+      }
     }
 
     ImGui.separator();
