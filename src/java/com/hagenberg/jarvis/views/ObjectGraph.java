@@ -93,10 +93,10 @@ public class ObjectGraph extends View {
     ImGui.pushStyleVar(ImGuiStyleVar.WindowPadding, 5, 5); // NodeEditor somehow overrides this so we have to set it here
 
     if (ImGui.beginPopup("GraphCtx")) {
-      if (ImGui.menuItem("Freeze")) {
+      if (ImGui.menuItem("Freeze Selected")) {
         nodeActions.add(() -> forSelectedNodes(node -> node.setFrozen(true)));
       }
-      if (ImGui.menuItem("Unfreeze")) {
+      if (ImGui.menuItem("Unfreeze Selected")) {
         nodeActions.add(() -> forSelectedNodes(node -> node.setFrozen(false)));
       }
       ImGui.endPopup();
