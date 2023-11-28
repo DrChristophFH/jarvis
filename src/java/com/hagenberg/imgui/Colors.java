@@ -13,6 +13,7 @@ public class Colors {
   // imnodes colors
   public static final int LocalVariable = ImColor.rgb("#0D1117");
   public static final int LinkSelected = ImColor.rgb("#FFA500");
+  public static final int NodeOutlineFrozen = ImColor.rgb("#96EFFF");
 
   // text colors
   public static final int Text = ImGui.getColorU32(ImGuiCol.Text);

@@ -11,6 +11,7 @@ import com.hagenberg.jarvis.models.entities.graph.GVariable;
 
 import imgui.ImGui;
 import imgui.extension.imnodes.ImNodes;
+import imgui.extension.imnodes.flag.ImNodesColorStyle;
 
 public class DefaultObjectNode extends Node {
 
@@ -21,6 +22,8 @@ public class DefaultObjectNode extends Node {
   protected final Tooltip tooltip = new Tooltip();
   protected final TransformerContextMenu transformerContextMenu;
 
+  private boolean frozenStyle = false;
+
   public DefaultObjectNode(int nodeId, String typeName, String objectName, String toString, List<GVariable> referenceHolders,
       TransformerContextMenu transformerContextMenu) {
     super(nodeId);
@@ -29,6 +32,15 @@ public class DefaultObjectNode extends Node {
     this.toString = toString;
     this.referenceHolders = referenceHolders;
     this.transformerContextMenu = transformerContextMenu;
+  }
+
+  @Override
+  protected void preNode() {
+    if (isFrozen()) {
+      frozenStyle = true;
+      ImNodes.pushColorStyle(ImNodesColorStyle.NodeOutline, Colors.NodeOutlineFrozen);
+    }
+    super.preNode();
   }
 
   @Override
@@ -42,6 +54,13 @@ public class DefaultObjectNode extends Node {
   protected void content() {
     transformerContextMenu.show(nodeId);
 
+    if (ImGui.beginPopup("NodeCtx##" + nodeId)) {
+      if (ImGui.menuItem("Freeze", "", isFrozen())) {
+        setFrozen(!isFrozen());
+      }
+      ImGui.endPopup();
+    }
+
     showRefInputAttribute();
 
     ImGui.textColored(Colors.Type, "toString():");
@@ -54,6 +73,16 @@ public class DefaultObjectNode extends Node {
       attribute.render();
     }
   }
+
+  @Override
+  protected void postNode() {
+    if (frozenStyle) {
+      ImNodes.popColorStyle();
+      frozenStyle = false;
+    }
+    super.postNode();
+  }
+
 
   protected void showRefInputAttribute() {
     // Reference attribute has node id

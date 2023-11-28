@@ -66,6 +66,9 @@ public class GraphLayouter {
 
         if (!previousPos.equals(newPos)) {
           previousPos.set(newPos); 
+          if (layoutNodesManually) {
+            node.setFrozen(true);
+          }
           isLayoutStable = false;
         }
       }

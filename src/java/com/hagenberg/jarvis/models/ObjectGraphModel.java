@@ -74,7 +74,14 @@ public class ObjectGraphModel implements Observable {
   }
 
   public List<ObjectGNode> getObjects() {
-    return new ArrayList<>(objectMap.values());
+    List<ObjectGNode> result = new ArrayList<>();
+    lockModel();
+    try {
+      result.addAll(objectMap.values());
+    } finally {
+      unlockModel();
+    }
+    return result;
   }
 
   public LocalGVariable getLocalVariable(LocalVariable lvar) {
