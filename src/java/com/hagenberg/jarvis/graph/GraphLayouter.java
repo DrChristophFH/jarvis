@@ -22,6 +22,7 @@ public class GraphLayouter {
 
   private boolean isLayoutStable = false;
   private boolean layoutRootsManually = false;
+  private boolean layoutNodesManually = false;
 
   public void setUpdated() {
     isLayoutStable = false;
@@ -38,7 +39,9 @@ public class GraphLayouter {
     if (!layoutRootsManually) {
       layoutRoots(renderGraph.getRoots());
     }
-    layoutNodes(renderGraph.getChildren(), renderGraph.getRoots());
+    if (!layoutNodesManually) {
+      layoutNodes(renderGraph.getChildren(), renderGraph.getRoots());
+    }
   }
 
   /**
@@ -57,6 +60,7 @@ public class GraphLayouter {
 
       for (int i = 0; i < count; i++) {
         Node node = renderGraph.getNode(selectedNodes[i]);
+        if (node == null) continue; // imnodes reporting back a node that does not exist anymore?
         newPos = node.getGridPosition();
         previousPos = node.getPosition();
 
@@ -119,8 +123,6 @@ public class GraphLayouter {
       if (isLayoutStable && (Math.abs(node.getVelocity().x) > threshold || Math.abs(node.getVelocity().y) > threshold)) {
         isLayoutStable = false;
       }
-
-      System.out.println("Node " + node.getNodeId() + " velocity: " + node.getVelocity());
 
       node.getPosition().add(node.getVelocity());
     }
@@ -249,5 +251,13 @@ public class GraphLayouter {
 
   public boolean getLayoutRootsManually() {
     return layoutRootsManually;
+  }
+
+  public void setLayoutNodesManually(boolean layoutNodesManually) {
+    this.layoutNodesManually = layoutNodesManually;
+  }
+
+  public boolean getLayoutNodesManually() {
+    return layoutNodesManually;
   }
 }

@@ -49,6 +49,9 @@ public class LayouterControl extends View {
     if (ImGui.checkbox("Manual Root Positioning", layouter.getLayoutRootsManually())) {
       layouter.setLayoutRootsManually(!layouter.getLayoutRootsManually());
     }
+    ImGui.sameLine();
+    if (ImGui.checkbox("Manual Node Positioning", layouter.getLayoutNodesManually())) {
+      layouter.setLayoutNodesManually(!layouter.getLayoutNodesManually());
+    }
   }
-
 }

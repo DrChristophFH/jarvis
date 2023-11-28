@@ -173,6 +173,9 @@ public class GraphTransformer implements Observer {
         }
         if (ImGui.menuItem("[Default]", "", currentTransformer == null)) {
           registry.setObjectTransformer(originNode, null);
+          if (currentTransformer != null) {
+            update();
+          }
         }
         ImGui.endMenu();
       }
@@ -190,7 +193,9 @@ public class GraphTransformer implements Observer {
         }
         if (ImGui.menuItem("[Default]", "", currentTransformer == null)) {
           registry.setObjectTransformer(originNode.getType(), null);
-
+          if (currentTransformer != null) {
+            update();
+          }
         }
         ImGui.endMenu();
       }
