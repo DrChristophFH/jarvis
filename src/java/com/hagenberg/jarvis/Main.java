@@ -9,7 +9,7 @@ import imgui.type.ImBoolean;
 
 public class Main extends Application {
 
-  ImBoolean showDemoWindow = new ImBoolean(true);
+  ImBoolean showMetricsWindow = new ImBoolean(true);
   Jarvis jarvis = new Jarvis(this);
 
   @Override
@@ -20,7 +20,7 @@ public class Main extends Application {
 
   @Override
   public void process() {
-    if (showDemoWindow.get()) ImGui.showDemoWindow(showDemoWindow);
+    if (showMetricsWindow.get()) ImGui.showDemoWindow(showMetricsWindow);
     jarvis.render();
   }
 

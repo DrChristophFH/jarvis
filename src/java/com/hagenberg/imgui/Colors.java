@@ -19,6 +19,7 @@ public class Colors {
   public static final int Text = ImGui.getColorU32(ImGuiCol.Text);
   public static final int Attention = ImColor.rgb("#E9B20C");
   public static final int Error = ImColor.rgb("#FF0000");
+  public static final int CurrentLine = ImColor.rgb("#569CD6");
 
   // general purpose colors
   public static final int Invisible = ImColor.rgba("#00000000");

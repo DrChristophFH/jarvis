@@ -31,6 +31,7 @@ public class Jarvis {
   private LocalVarList localVarList = new LocalVarList(interactionState);
   private ObjectList objectList = new ObjectList(interactionState);
   private CallStack callStack = new CallStack();
+  private LinePreview linePreview = new LinePreview(callStack.getCallStackModel());
   private ClassList classList = new ClassList(interactionState);
   private TemplateBuilder templateBuilder = new TemplateBuilder(objectGraph.getGraphTransformer().getRegistry());
 
@@ -78,6 +79,9 @@ public class Jarvis {
     Profiler.start("callStack");
     if (callStack.getShowWindow()) callStack.render();
     Profiler.stop("callStack");
+    Profiler.start("linePreview");
+    if (linePreview.getShowWindow()) linePreview.render();
+    Profiler.stop("linePreview");
     Profiler.start("eventLog");
     if (eventLog.getShowWindow()) eventLog.render();
     Profiler.stop("eventLog");
@@ -89,34 +93,37 @@ public class Jarvis {
   private void MenuBar() {
     if (ImGui.beginMenuBar()) {
       if (ImGui.beginMenu("View")) {
-        if (ImGui.menuItem("Object Graph", "Ctrl+O", objectGraph.getShowWindow())) {
+        if (ImGui.menuItem("Object Graph", "", objectGraph.getShowWindow())) {
           objectGraph.setShowWindow(!objectGraph.getShowWindow());
         }
-        if (ImGui.menuItem("Layouter Control", "Ctrl+L", layouterControl.getShowWindow())) {
+        if (ImGui.menuItem("Layouter Control", "", layouterControl.getShowWindow())) {
           layouterControl.setShowWindow(!layouterControl.getShowWindow());
         }
-        if (ImGui.menuItem("Debug Step Control", "Ctrl+D", debugStepControl.getShowWindow())) {
+        if (ImGui.menuItem("Debug Step Control", "", debugStepControl.getShowWindow())) {
           debugStepControl.setShowWindow(!debugStepControl.getShowWindow());
         }
-        if (ImGui.menuItem("Break Point Control", "Ctrl+B", breakPointControl.getShowWindow())) {
+        if (ImGui.menuItem("Break Point Control", "", breakPointControl.getShowWindow())) {
           breakPointControl.setShowWindow(!breakPointControl.getShowWindow());
         }
-        if (ImGui.menuItem("Object List", "Ctrl+G", objectList.getShowWindow())) {
+        if (ImGui.menuItem("Object List", "", objectList.getShowWindow())) {
           objectList.setShowWindow(!objectList.getShowWindow());
         }
-        if (ImGui.menuItem("Local Variable List", "Ctrl+V", localVarList.getShowWindow())) {
+        if (ImGui.menuItem("Local Variable List", "", localVarList.getShowWindow())) {
           localVarList.setShowWindow(!localVarList.getShowWindow());
         }
-        if (ImGui.menuItem("Class List", "Ctrl+C", classList.getShowWindow())) {
+        if (ImGui.menuItem("Class List", "", classList.getShowWindow())) {
           classList.setShowWindow(!classList.getShowWindow());
         }
-        if (ImGui.menuItem("Call Stack", "Ctrl+S", callStack.getShowWindow())) {
+        if (ImGui.menuItem("Call Stack", "", callStack.getShowWindow())) {
           callStack.setShowWindow(!callStack.getShowWindow());
         }
-        if (ImGui.menuItem("Event Log", "Ctrl+E", eventLog.getShowWindow())) {
+        if (ImGui.menuItem("Line Preview", "", linePreview.getShowWindow())) {
+          linePreview.setShowWindow(!linePreview.getShowWindow());
+        }
+        if (ImGui.menuItem("Event Log", "", eventLog.getShowWindow())) {
           eventLog.setShowWindow(!eventLog.getShowWindow());
         }
-        if (ImGui.menuItem("Console", "Ctrl+O", console.getShowWindow())) {
+        if (ImGui.menuItem("Console", "", console.getShowWindow())) {
           console.setShowWindow(!console.getShowWindow());
         }
         ImGui.endMenu();
