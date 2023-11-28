@@ -83,7 +83,6 @@ public class DefaultObjectNode extends Node {
     super.postNode();
   }
 
-
   protected void showRefInputAttribute() {
     // Reference attribute has node id
     ImNodes.beginInputAttribute(nodeId);

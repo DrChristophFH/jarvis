@@ -1,5 +1,7 @@
 package com.hagenberg.imgui;
 
+import java.util.function.Consumer;
+
 import com.hagenberg.imgui.components.Tooltip;
 import com.hagenberg.jarvis.graph.render.nodes.Node;
 
@@ -18,6 +20,17 @@ public class Snippets {
     }
   }
 
+  public static void forSelectedNodes(Consumer<Integer> consumer) {
+    int count = ImNodes.numSelectedNodes();
+    if (count > 0) {
+      int[] selectedNodes = new int[count];
+      ImNodes.getSelectedNodes(selectedNodes);
+      for (int nodeId : selectedNodes) {
+        consumer.accept(nodeId);
+      }
+    }
+  }
+
   public static String getSimpleType(String typeName) {
     return typeName.substring(typeName.lastIndexOf(".") + 1);
   }
@@ -28,7 +41,6 @@ public class Snippets {
       ImGui.text(typeName);
     });
   }
-
 
   public static void DisplayLayoutNodeDebug(Node layoutNode) {
     ImGui.text("Id: " + layoutNode);

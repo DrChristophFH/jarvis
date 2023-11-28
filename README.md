@@ -66,7 +66,7 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] local var list to standard debugger tree list
 - [x] object type filtering in object list
 - [x] empty template name results in crash :)
-- [ ] manual layouting in object graph -> determines spring sizes to neighbours
+- [x] manual layouting in object graph
 - [ ] add context options (display in class list, filter in object list)
 - [ ] current line preview
 

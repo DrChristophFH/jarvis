@@ -2,11 +2,10 @@ package com.hagenberg.jarvis.graph;
 
 import java.util.Random;
 
+import com.hagenberg.imgui.Snippets;
 import com.hagenberg.imgui.Vec2;
 import com.hagenberg.jarvis.graph.render.RenderModel;
 import com.hagenberg.jarvis.graph.render.nodes.Node;
-
-import imgui.extension.imnodes.ImNodes;
 
 public class GraphLayouter {
   private float springForce = 4.5f;
@@ -50,29 +49,20 @@ public class GraphLayouter {
    * @param roots root nodes
    */
   private void updateNodeDragPositions(RenderModel renderGraph) {
-    int count = ImNodes.numSelectedNodes();
-    if (count > 0) {
-      int[] selectedNodes = new int[count];
-      ImNodes.getSelectedNodes(selectedNodes);
+    Snippets.forSelectedNodes(nodeId -> {
+      Node node = renderGraph.getNode(nodeId);
+      if (node == null) return; // imnodes reporting back a node that does not exist anymore?
+      Vec2 newPos = node.getGridPosition();
+      Vec2 previousPos = node.getPosition();
 
-      Vec2 newPos;
-      Vec2 previousPos;
-
-      for (int i = 0; i < count; i++) {
-        Node node = renderGraph.getNode(selectedNodes[i]);
-        if (node == null) continue; // imnodes reporting back a node that does not exist anymore?
-        newPos = node.getGridPosition();
-        previousPos = node.getPosition();
-
-        if (!previousPos.equals(newPos)) {
-          previousPos.set(newPos); 
-          if (layoutNodesManually) {
-            node.setFrozen(true);
-          }
-          isLayoutStable = false;
+      if (!previousPos.equals(newPos)) {
+        previousPos.set(newPos); 
+        if (layoutNodesManually) {
+          node.setFrozen(true);
         }
+        isLayoutStable = false;
       }
-    }
+    });
   }
 
   private void layoutRoots(Iterable<Node> roots) {
