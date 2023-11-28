@@ -113,9 +113,11 @@ public class GraphTransformer implements Observer {
       transformationMap.put(object, node);
       reverseTransformationMap.put(node.getNodeId(), object);
 
-      // migrate position from previous transformation
-      if (oldTransformationMap.containsKey(object)) {
-        node.setPosition(oldTransformationMap.get(object).getPosition());
+      // migrate position and freeze from previous transformation
+      Node oldNode = oldTransformationMap.get(object);
+      if (oldNode != null) {
+        node.setPosition(oldNode.getPosition());
+        node.setFrozen(oldNode.isFrozen());
       }
 
       transformationMap.put(object, node);

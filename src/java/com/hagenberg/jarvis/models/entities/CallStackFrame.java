@@ -43,7 +43,7 @@ public class CallStackFrame {
     builder.append(method.name());
     builder.append("(");
     for (int i = 0; i < parameters.size(); i++) {
-      builder.append(parameters.get(i).getStaticTypeName());
+      builder.append(TypeFormatter.getSimpleType(parameters.get(i).getStaticTypeName()));
       builder.append(" ");
       builder.append(parameters.get(i).getName());
       if (i < parameters.size() - 1) {
@@ -63,7 +63,7 @@ public class CallStackFrame {
     builder.append(method.name());
     builder.append("(");
     for (int i = 0; i < parameters.size(); i++) {
-      builder.append(parameters.get(i).getStaticTypeName());
+      builder.append(TypeFormatter.getSimpleType(parameters.get(i).getStaticTypeName()));
       builder.append(" ");
       builder.append(parameters.get(i).getName());
       if (i < parameters.size() - 1) {

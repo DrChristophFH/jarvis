@@ -68,6 +68,8 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] empty template name results in crash :)
 - [x] manual layouting in object graph
 - [x] current line preview
+- [ ] loading and saving of templates
+- [ ] object list doesn't display array content
 - [ ] make src path configurable as well as src.zip location
 - [ ] add context options (display in class list, filter in object list)
 
