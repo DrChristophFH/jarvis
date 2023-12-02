@@ -89,7 +89,7 @@ public class JarvisDebugger {
   }
 
   public void shutdown() {
-    vm.exit(0);
+    if (vm != null) vm.exit(0);
   }
 
   // -------------------------------------------

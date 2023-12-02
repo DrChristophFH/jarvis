@@ -42,6 +42,12 @@ public class TemplateBuilder extends View {
         if (ImGui.menuItem("New Template")) {
           registry.registerTemplate("New Template");
         } 
+        if (ImGui.menuItem("Save")) {
+          registry.save();
+        }
+        if (ImGui.menuItem("Load")) {
+          registry.load();
+        }
         ImGui.endMenu();
       }
       ImGui.endMenuBar();

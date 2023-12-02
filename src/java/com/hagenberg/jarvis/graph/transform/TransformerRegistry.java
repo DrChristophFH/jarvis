@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.hagenberg.jarvis.config.AppConfig;
+import com.hagenberg.jarvis.config.ConfigManager;
+import com.hagenberg.jarvis.config.AppConfig.TransformerConfig;
 import com.hagenberg.jarvis.graph.transform.simple.SimpleContentTransformer;
 import com.hagenberg.jarvis.graph.transform.simple.SimpleObjectTransformer;
 import com.hagenberg.jarvis.graph.transform.specific.StringObjectTransformer;
@@ -130,5 +133,35 @@ public class TransformerRegistry {
 
   public void registerTemplate(String name) {
     templateTransformers.add(new TemplateObjectTransformer(name, this, transformerContextMenu));
+  }
+
+
+  // ------------ Save / Load ------------
+
+  public void load() {
+    ConfigManager configManager = ConfigManager.getInstance();
+    AppConfig config = configManager.getConfig();
+    Map<String, TransformerConfig> transformersConfig = config.getTransformers();
+    for (TransformerConfig transformerConfig : transformersConfig.values()) {
+      if (transformerConfig instanceof AppConfig.TemplateTransformerConfig) {
+        AppConfig.TemplateTransformerConfig templateConfig = (AppConfig.TemplateTransformerConfig) transformerConfig;
+        TemplateObjectTransformer transformer = new TemplateObjectTransformer(templateConfig.getName(), this, transformerContextMenu);
+        for (String path : templateConfig.getPaths()) {
+          transformer.getPaths().add(new Path(path));
+        }
+        templateTransformers.add(transformer);
+      }
+    }
+  }
+
+  public void save() {
+    ConfigManager configManager = ConfigManager.getInstance();
+    AppConfig config = configManager.getConfig();
+    Map<String, TransformerConfig> transformersConfig = config.getTransformers();
+    transformersConfig.clear();
+    for (TemplateObjectTransformer transformer : templateTransformers) {
+      transformersConfig.put(transformer.getName(), transformer.getConfig());
+    }
+    configManager.saveConfig();
   }
 }

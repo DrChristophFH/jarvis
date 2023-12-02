@@ -3,6 +3,7 @@ package com.hagenberg.jarvis.graph.transform.specific;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.hagenberg.jarvis.config.AppConfig;
 import com.hagenberg.jarvis.graph.render.attributes.Attribute;
 import com.hagenberg.jarvis.graph.render.nodes.TemplateObjectNode;
 import com.hagenberg.jarvis.graph.transform.IdProvider;
@@ -54,5 +55,13 @@ public class TemplateObjectTransformer extends NodeTransformer<ObjectGNode> {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public AppConfig.TemplateTransformerConfig getConfig() {
+    AppConfig.TemplateTransformerConfig config = new AppConfig.TemplateTransformerConfig();
+    config.setName(name);
+    config.setType("template");
+    config.setPaths(paths.stream().map(Path::toString).toArray(String[]::new));
+    return config;
   }
 }

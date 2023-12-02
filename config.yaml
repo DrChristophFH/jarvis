@@ -1,0 +1,11 @@
+transformers:
+  New sdas: !!com.hagenberg.jarvis.config.AppConfig$TemplateTransformerConfig
+    name: New sdas
+    paths:
+    - <empty path>
+    - da
+    type: template
+  New Template: !!com.hagenberg.jarvis.config.AppConfig$TemplateTransformerConfig
+    name: New Template
+    paths: []
+    type: template
