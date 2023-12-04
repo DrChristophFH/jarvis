@@ -8,9 +8,12 @@ import com.hagenberg.imgui.Snippets;
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.models.InteractionState;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
+import com.hagenberg.jarvis.models.entities.graph.ArrayGNode;
+import com.hagenberg.jarvis.models.entities.graph.ContentGVariable;
+import com.hagenberg.jarvis.models.entities.graph.GNode;
+import com.hagenberg.jarvis.models.entities.graph.GVariable;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
 import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
-import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
 import com.hagenberg.jarvis.util.TypeFormatter;
 
 import imgui.ImGui;
@@ -76,14 +79,16 @@ public class ObjectList extends View {
       }
     }
 
-    int tableFlags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable | ImGuiTableFlags.ScrollX | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.ScrollY;
+    int tableFlags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable
+        | ImGuiTableFlags.ScrollX | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.ScrollY;
 
-    if (ImGui.beginTable("table", 3, tableFlags)) {
+    if (ImGui.beginTable("table", 4, tableFlags)) {
 
       // Setup the table columns
       ImGui.tableSetupScrollFreeze(1, 1);
       ImGui.tableSetupColumn("Name", ImGuiTableColumnFlags.NoHide);
-      ImGui.tableSetupColumn("Type");
+      ImGui.tableSetupColumn("Static Type");
+      ImGui.tableSetupColumn("Dynamic Type");
       ImGui.tableSetupColumn("Value");
       ImGui.tableHeadersRow();
 
@@ -111,7 +116,11 @@ public class ObjectList extends View {
 
     int treeFlags = ImGuiTreeNodeFlags.SpanFullWidth | ImGuiTreeNodeFlags.SpanAvailWidth;
 
-    if (object.getMembers().size() == 0) {
+    if (object instanceof ArrayGNode array) {
+      if (array.getContent().isEmpty()) {
+        treeFlags |= ImGuiTreeNodeFlags.Leaf;
+      }
+    } else if (object.getMembers().size() == 0) {
       treeFlags |= ImGuiTreeNodeFlags.Leaf;
     }
 
@@ -119,7 +128,7 @@ public class ObjectList extends View {
       ImGui.tableSetBgColor(ImGuiTableBgTarget.RowBg1, ImGui.getColorU32(ImGuiCol.TextSelectedBg));
     }
 
-    boolean open = ImGui.treeNodeEx("Object#" + object.getObjectId(), treeFlags);
+    boolean open = ImGui.treeNodeEx(object.toString(), treeFlags);
 
     if (ImGui.beginPopupContextItem()) {
       // TODO Snippets.focusOnNode(object.getLayoutNode().getNodeId());
@@ -129,29 +138,66 @@ public class ObjectList extends View {
     ImGui.tableNextColumn();
     Snippets.drawTypeWithTooltip(object.getTypeName(), tooltip);
     ImGui.tableNextColumn();
+    // skip dynamic type
+    ImGui.tableNextColumn();
     ImGui.text(object.getToString());
     if (open) {
       for (MemberGVariable member : object.getMembers()) {
-        if (member.getNode() instanceof ObjectGNode memberObject) {
-          displayObject(memberObject);
-        } else if (member.getNode() instanceof PrimitiveGNode memberPrimitive) {
-          displayPrimitive(member.getName(), memberPrimitive);
+        displayVariable(member);
+      }
+      if (object instanceof ArrayGNode array) {
+        for (ContentGVariable element : array.getContent()) {
+          displayVariable(element);
         }
       }
       ImGui.treePop();
     }
   }
 
-  private void displayPrimitive(String name, PrimitiveGNode memberPrimitive) {
+  private void displayVariable(GVariable variable) {
     ImGui.tableNextRow();
     ImGui.tableNextColumn();
-    int treeFlags = ImGuiTreeNodeFlags.SpanFullWidth | ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.Leaf;
-    if (ImGui.treeNodeEx(name, treeFlags)) {
+
+    int treeFlags = ImGuiTreeNodeFlags.SpanFullWidth | ImGuiTreeNodeFlags.SpanAvailWidth;
+
+    GNode node = variable.getNode();
+    String typeName = node == null ? "null" : node.getTypeName();
+    String toString = node == null ? "null" : node.getToString();
+
+    if (node instanceof ArrayGNode array) {
+      if (array.getContent().isEmpty()) {
+        treeFlags |= ImGuiTreeNodeFlags.Leaf;
+      }
+    } else if (node instanceof ObjectGNode object) {
+      if (object.getMembers().isEmpty()) {
+        treeFlags |= ImGuiTreeNodeFlags.Leaf;
+      }
+    } else {
+      treeFlags |= ImGuiTreeNodeFlags.Leaf;
+    }
+
+    boolean open = ImGui.treeNodeEx(variable.getName(), treeFlags);
+
+    ImGui.tableNextColumn();
+    Snippets.drawTypeWithTooltip(variable.getStaticTypeName(), tooltip);
+    ImGui.tableNextColumn();
+    Snippets.drawTypeWithTooltip(typeName, tooltip);
+    ImGui.tableNextColumn();
+
+    ImGui.text(toString);
+
+    if (open) {
+      if (node instanceof ObjectGNode object) {
+        for (MemberGVariable member : object.getMembers()) {
+          displayVariable(member);
+        }
+        if (object instanceof ArrayGNode array) {
+          for (ContentGVariable element : array.getContent()) {
+            displayVariable(element);
+          }
+        }
+      }
       ImGui.treePop();
     }
-    ImGui.tableNextColumn();
-    Snippets.drawTypeWithTooltip(memberPrimitive.getTypeName(), tooltip);
-    ImGui.tableNextColumn();
-    ImGui.text(memberPrimitive.getPrimitiveValue().toString());
   }
 }

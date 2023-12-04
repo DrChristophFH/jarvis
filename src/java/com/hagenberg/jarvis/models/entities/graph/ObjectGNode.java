@@ -21,7 +21,12 @@ public class ObjectGNode extends GNode {
   }
 
   public void setToString(String toString) {
-    this.toStringRepresentation = toString;
+    if (toString != null) {
+      this.toStringRepresentation = toString;
+    } else {
+      System.out.println("Warning: toString() of " + getTypeName() + " is null");
+      this.toStringRepresentation = this.toString();
+    }
   }
 
   public void addMember(MemberGVariable memberVariable) {
@@ -65,5 +70,10 @@ public class ObjectGNode extends GNode {
     ObjectGNode other = (ObjectGNode) obj;
     if (objectId != other.objectId) return false;
     return true;
+  }
+
+  @Override
+  public String toString() {
+    return getTypeName() + "#" + objectId;
   }
 }

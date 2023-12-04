@@ -318,18 +318,19 @@ public class ObjectGraphModel implements Observable {
    * <b>NOTE:</b> This method will <b>RESUME</b> the current thread, therefore invalidating all stack frames!
    */
   private void resolveToString() {
-    String result;
+    String result = null;
     for (Pair<ObjectGNode, ObjectReference> pair : deferredToString) {
       ObjectGNode node = pair.first();
       ObjectReference objRef = pair.second();
       try {
         List<Method> methods = objRef.referenceType().methodsByName("toString", "()Ljava/lang/String;");
-        if (methods.isEmpty()) {
-          result = "toString() not available";
-        } else {
+        if (!methods.isEmpty()) {
           Method toStringMethod = methods.get(0);
-          int flags = ObjectReference.INVOKE_SINGLE_THREADED;
-          result = objRef.invokeMethod(currentThread, toStringMethod, new ArrayList<>(), flags).toString();
+          // skip base object toString() method
+          if (!toStringMethod.declaringType().name().equals("java.lang.Object")) {
+            int flags = ObjectReference.INVOKE_SINGLE_THREADED;
+            result = objRef.invokeMethod(currentThread, toStringMethod, new ArrayList<>(), flags).toString();
+          }
         }
       } catch (IllegalArgumentException | InvalidTypeException | ClassNotLoadedException | IncompatibleThreadStateException | InvocationException e) {
         result = "toString() not available";
