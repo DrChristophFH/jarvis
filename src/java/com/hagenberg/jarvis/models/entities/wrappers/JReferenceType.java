@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.hagenberg.jarvis.util.IndexedList;
+import com.sun.jdi.Method;
 import com.sun.jdi.ReferenceType;
 
 public abstract class JReferenceType extends JType {
@@ -37,6 +38,8 @@ public abstract class JReferenceType extends JType {
   public abstract List<IndexedList<JReferenceType, JField>> allFields();
 
   public abstract List<IndexedList<JReferenceType, JMethod>> allMethods();
+
+  public abstract JMethod getMethod(Method jdiMethod);
 
   public boolean isAbstract() {
     return jdiReferenceType.isAbstract();

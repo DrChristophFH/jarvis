@@ -1,26 +1,33 @@
 package com.hagenberg.jarvis.models;
 
-import com.hagenberg.jarvis.models.entities.wrappers.JArray;
-import com.hagenberg.jarvis.models.entities.wrappers.JClass;
-import com.hagenberg.jarvis.models.entities.wrappers.JInterface;
+import com.hagenberg.jarvis.models.entities.wrappers.JArrayType;
+import com.hagenberg.jarvis.models.entities.wrappers.JClassType;
+import com.hagenberg.jarvis.models.entities.wrappers.JInterfaceType;
+import com.hagenberg.jarvis.models.entities.wrappers.JMethod;
 import com.hagenberg.jarvis.models.entities.wrappers.JPackage;
+import com.hagenberg.jarvis.models.entities.wrappers.JPrimitiveType;
+import com.hagenberg.jarvis.models.entities.wrappers.JType;
 import com.sun.jdi.ArrayType;
 import com.sun.jdi.ClassType;
 import com.sun.jdi.InterfaceType;
+import com.sun.jdi.Method;
 import com.sun.jdi.ReferenceType;
+import com.sun.jdi.PrimitiveType;
+import com.sun.jdi.Type;
 
 import java.util.Map;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
+
 public class ClassModel {
   private final ReentrantLock lock = new ReentrantLock();
 
   private Map<String, JPackage> packages = new HashMap<>();
-  private HashMap<ClassType, JClass> classes = new HashMap<>();
-  private HashMap<InterfaceType, JInterface> interfaces = new HashMap<>();
-  private HashMap<ArrayType, JArray> arrays = new HashMap<>();
+  private HashMap<ClassType, JClassType> classes = new HashMap<>();
+  private HashMap<InterfaceType, JInterfaceType> interfaces = new HashMap<>();
+  private HashMap<ArrayType, JArrayType> arrays = new HashMap<>();
 
   public void lockModel() {
     lock.lock();
@@ -39,27 +46,27 @@ public class ClassModel {
     }
   }
 
-  public JClass getOrCreate(ClassType classType) {
+  public JClassType getOrCreate(ClassType classType) {
     lockModel();
     try {
-      JClass clazz = classes.get(classType);
+      JClassType clazz = classes.get(classType);
       if (clazz == null) {
-        clazz = new JClass(classType, this);
+        clazz = new JClassType(classType, this);
         classes.put(classType, clazz);
         clazz.refresh();
       }
       return clazz;
     } finally {
       unlockModel();
-    } 
+    }
   }
 
-  public JInterface getOrCreate(InterfaceType iFaceType) {
+  public JInterfaceType getOrCreate(InterfaceType iFaceType) {
     lockModel();
     try {
-      JInterface iface = interfaces.get(iFaceType);
+      JInterfaceType iface = interfaces.get(iFaceType);
       if (iface == null) {
-        iface = new JInterface(iFaceType, this);
+        iface = new JInterfaceType(iFaceType, this);
         interfaces.put(iFaceType, iface);
         iface.refresh();
       }
@@ -69,12 +76,12 @@ public class ClassModel {
     }
   }
 
-  public JArray getOrCreate(ArrayType arrayType) {
+  public JArrayType getOrCreate(ArrayType arrayType) {
     lockModel();
     try {
-      JArray array = arrays.get(arrayType);
+      JArrayType array = arrays.get(arrayType);
       if (array == null) {
-        array = new JArray(arrayType);
+        array = new JArrayType(arrayType);
         arrays.put(arrayType, array);
         array.refresh();
       }
@@ -114,6 +121,20 @@ public class ClassModel {
     }
   }
 
+  public JType getJType(Type type) {
+    if (type instanceof PrimitiveType primType) {
+      return new JPrimitiveType(primType);
+    } else if (type instanceof ClassType classType) {
+      return getOrCreate(classType);
+    } else if (type instanceof ArrayType arrayType) {
+      return getOrCreate(arrayType);
+    } else if (type instanceof InterfaceType ifaceType) {
+      return getOrCreate(ifaceType);
+    } else {
+      return null;
+    }
+  }
+
   private JPackage scaffoldPackages(Map<String, JPackage> searchPackages, String[] nameParts, int i) {
     JPackage currentPackage;
     for (int j = i; j < nameParts.length - 1; j++) {
@@ -129,5 +150,15 @@ public class ClassModel {
 
   public Map<String, JPackage> getRootPackages() {
     return packages;
+  }
+
+  public JMethod getJMethodInType(JType classType, Method method) {
+    if (classType instanceof JClassType clazz) {
+      return clazz.getMethod(method);
+    } else if (classType instanceof JInterfaceType iface) {
+      return iface.getMethod(method);
+    } else {
+      return null;
+    }
   }
 }

@@ -14,12 +14,13 @@ public class JObjectReference extends JValue implements ReferenceHolder {
 
   private final Map<JField, JValue> members = new HashMap<>();
   private final List<ReferenceHolder> referenceHolders = new ArrayList<>();
-  private long objectId = -1;
+  private long objectId;
   private String toStringRepresentation = "";
 
   public JObjectReference(ObjectReference jdiObjectReference, JType type) {
     super(type);
     this.jdiObjectReference = jdiObjectReference;
+    this.objectId = jdiObjectReference.uniqueID();
   }
 
   public String getToString() {
@@ -63,12 +64,20 @@ public class JObjectReference extends JValue implements ReferenceHolder {
     return members.get(field);
   }
 
-  public ObjectReference getObjectReference() {
+  public void setMember(JField field, JValue value) {
+    members.put(field, value);
+  }
+
+  public ObjectReference getJdiObjectReference() {
     return jdiObjectReference;
   }
 
   public long getObjectId() {
     return objectId;
+  }
+
+  public JReferenceType referenceType() {
+    return (JReferenceType) type;
   }
 
   @Override
@@ -89,18 +98,6 @@ public class JObjectReference extends JValue implements ReferenceHolder {
   @Override
   public String toString() {
     return getTypeName() + "#" + objectId;
-  }
-
-  @Override
-  public void refresh() {
-
-    // update members
-    updateMembers(existingObjRef, objRef);
-
-    // update contents
-    if (existingObjRef instanceof JArrayReference newArrayNode) {
-      updateContents(newArrayNode, (ArrayReference) objRef);
-    }
   }
 
   @Override

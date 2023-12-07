@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 
 import com.hagenberg.imgui.components.Tooltip;
 import com.hagenberg.jarvis.graph.render.nodes.Node;
+import com.hagenberg.jarvis.models.entities.wrappers.JType;
 
 import imgui.ImGui;
 import imgui.ImVec2;
@@ -30,15 +31,11 @@ public class Snippets {
       }
     }
   }
-
-  public static String getSimpleType(String typeName) {
-    return typeName.substring(typeName.lastIndexOf(".") + 1);
-  }
-
-  public static void drawTypeWithTooltip(String typeName, Tooltip tooltip) {
-    ImGui.textColored(Colors.Type, getSimpleType(typeName));
+  
+  public static void drawTypeWithTooltip(JType type, Tooltip tooltip) {
+    ImGui.textColored(Colors.Type, type.getSimpleName());
     tooltip.show(() -> {
-      ImGui.text(typeName);
+      ImGui.text(type.name());
     });
   }
 

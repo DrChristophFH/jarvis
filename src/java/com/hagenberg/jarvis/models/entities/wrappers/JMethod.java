@@ -12,19 +12,19 @@ import com.sun.jdi.Type;
 
 public class JMethod extends JTypeComponent {
 
-  private final Method method;
+  private final Method jdiMethod;
   private List<JLocalVariable> arguments;
-  private Type returnType;
+  private JType returnType;
   private String returnTypeName;
   private Pattern genericTypePattern = Pattern.compile("\\)(\\[*)T([\\w\\d]+);");
 
   public JMethod(Method method) {
     super(method);
-    this.method = method;
+    this.jdiMethod = method;
     refresh();
   }
 
-  public Type returnType() {
+  public JType returnType() {
     return returnType;
   }
 
@@ -36,17 +36,21 @@ public class JMethod extends JTypeComponent {
     return arguments;
   }
 
+  public Method getJdiMethod() {
+    return jdiMethod;
+  }
+
   @Override
   public void refresh() {
     super.refresh();
     try {
-      returnType = method.returnType();
+      returnType = jdiMethod.returnType();
     } catch (ClassNotLoadedException e) {
       returnType = null;
     }
-    returnTypeName = method.returnTypeName();
+    returnTypeName = jdiMethod.returnTypeName();
     try {
-      arguments = JLocalVariable.from(method.arguments());
+      arguments = JLocalVariable.from(jdiMethod.arguments());
     } catch (AbsentInformationException e) {
       arguments = new ArrayList<>();
     }

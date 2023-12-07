@@ -1,10 +1,9 @@
 package com.hagenberg.jarvis.models;
 
-import com.hagenberg.jarvis.models.entities.graph.*;
 import com.hagenberg.jarvis.models.entities.wrappers.JArrayReference;
+import com.hagenberg.jarvis.models.entities.wrappers.JField;
 import com.hagenberg.jarvis.models.entities.wrappers.JLocalVariable;
 import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
-import com.hagenberg.jarvis.models.entities.wrappers.JPrimitiveType;
 import com.hagenberg.jarvis.models.entities.wrappers.JPrimitiveValue;
 import com.hagenberg.jarvis.models.entities.wrappers.JType;
 import com.hagenberg.jarvis.models.entities.wrappers.JValue;
@@ -32,6 +31,7 @@ public class ObjectGraphModel implements Observable {
   private final Map<LocalVariable, JLocalVariable> localVars = new HashMap<>(); // The roots are the local variables visible
   private final Map<LocalVariable, JLocalVariable> localVarBuffer = new HashMap<>(); // buffer for local variables
   private final Map<ObjectReference, JObjectReference> objectMap = new HashMap<>(); // maps object ids to graph objects
+  private final Map<ObjectReference, JObjectReference> objectBuffer = new HashMap<>(); // buffer for objects
 
   // deferred toString() resolution
   private final List<Pair<JObjectReference, ObjectReference>> deferredToString = new ArrayList<>();
@@ -97,7 +97,7 @@ public class ObjectGraphModel implements Observable {
     return new ArrayList<>(localVars.values());
   }
 
-  public List<JLocalVariable> getLocalVariables(List<LocalVariable> lvars) {
+  public List<JLocalVariable> getJLocalVariables(List<LocalVariable> lvars) {
     List<JLocalVariable> result = new ArrayList<>();
     lockModel();
     try {
@@ -165,7 +165,7 @@ public class ObjectGraphModel implements Observable {
     JType type = null;
 
     try {
-      type = getType(lvar.type());
+      type = classModel.getJType(lvar.type());
     } catch (ClassNotLoadedException e) {
       e.printStackTrace(); // TODO due to lvar.type()
     }
@@ -175,78 +175,141 @@ public class ObjectGraphModel implements Observable {
   }
 
   private void updateValue(JLocalVariable localVariable, Value varValue) {
-    if (varValue instanceof ObjectReference objRef) {
-      JObjectReference existingObjRef = getJObjectReference(objRef);
-      handleObjectReferences(localVariable, existingObjRef);
-    } else if (varValue instanceof PrimitiveValue primValue) {
-      localVariable.setValue(createPrimitiveNode(primValue));
-    } else { // null value
-      handleObjectReferences(localVariable, null);
+    if (varValue instanceof PrimitiveValue primValue) {
+      localVariable.setValue(createJPrimitiveValue(primValue));
+    } else {
+      JObjectReference newValue = cycleObjectReference((ObjectReference) varValue);
+      setReferences(localVariable, (JObjectReference) localVariable.value(), newValue); // cast must be safe
+      localVariable.setValue(newValue);
     }
   }
 
-  private void handleObjectReferences(JLocalVariable variable, JObjectReference newNode) {
-    JObjectReference lastValue = null;
+  /**
+   * Removes the reference holder from the old value and adds it to the new value.
+   * 
+   * @param refHolder the reference holder
+   * @param oldVal    the old value
+   * @param newVal    the new value
+   */
+  private void setReferences(ReferenceHolder refHolder, JObjectReference oldVal, JObjectReference newVal) {
+    if (oldVal == newVal) return;
 
-    try {
-      lastValue = (JObjectReference) variable.value();
-    } catch (ClassCastException e) {
-      throw new NodeAssignmentException("Tried assigning an Object Node to a primitive holding variable.", e);
+    // add variable as reference holder to object
+    if (newVal != null) {
+      newVal.addReferenceHolder(refHolder);
     }
 
-    if (lastValue != newNode) {
-      // add variable as reference holder to object
-      if (newNode != null) {
-        newNode.addReferenceHolder(variable);
-      }
-      variable.setValue(newNode);
-
-      // remove variable as reference holder from old object
-      if (lastValue != null) {
-        lastValue.removeReferenceHolder(variable);
-        if (lastValue.getReferenceHolders().isEmpty()) {
-          removeObject(lastValue);
-        }
+    // remove variable as reference holder from old object
+    if (oldVal != null) {
+      oldVal.removeReferenceHolder(refHolder);
+      if (oldVal.getReferenceHolders().isEmpty()) {
+        removeObject(oldVal);
       }
     }
   }
 
   /**
-   * Get the JObjectReference for the given ObjectReference. If the object has
-   * never been seen before, a new JObjectReference is created and returned.
+   * Get the JObjectReference for the given ObjectReference by performing a full
+   * "cycle". This means it is first checked if the object has already been cycled
+   * and is present in the buffer. If not, it is checked if the object is in the
+   * old object map. Objects retrieved from the old object map are cycled again to
+   * update their values. If the object is not in the old object map, a new
+   * JObjectReference is created.
    * 
    * @param objRef the ObjectReference to get the JObjectReference for
    * @return the JObjectReference for the given ObjectReference
    */
-  private JObjectReference getJObjectReference(ObjectReference objRef) {
-    JObjectReference existingObjRef = objectMap.get(objRef);
+  private JObjectReference cycleObjectReference(ObjectReference objRef) {
+    if (objRef == null) return null;
 
-    if (existingObjRef == null) { // object has never been seen before
-      existingObjRef = createJObjectReference(objRef);
-    } else { // object already exists
-      existingObjRef.refresh();
+    JObjectReference existingObjRef = objectBuffer.get(objRef);
+
+    if (existingObjRef == null) { // try to get non cycled object from old object map
+      existingObjRef = objectMap.get(objRef);
+
+      if (existingObjRef == null) { // object has never been seen before
+        existingObjRef = createJObjectReference(objRef);
+      }
+
+      objectBuffer.put(objRef, existingObjRef); // add to buffer
+
+      // cycle object to update values
+      updateMembers(existingObjRef);
+      if (existingObjRef instanceof JArrayReference arrayRef) {
+        updateContents(arrayRef);
+      }
+
+      // defer toString() resolution
+      deferToString(existingObjRef, objRef);
     }
 
     return existingObjRef;
   }
 
+  private void updateMembers(JObjectReference objRef) {
+    for (JField field : objRef.referenceType().fields()) {
+      Value varValue = objRef.getJdiObjectReference().getValue(field.getField());
+      if (varValue instanceof PrimitiveValue primValue) {
+        objRef.setMember(field, createJPrimitiveValue(primValue));
+      } else {
+        JObjectReference oldValue = (JObjectReference) objRef.getMember(field);  // cast must be safe
+        JObjectReference newValue = cycleObjectReference((ObjectReference) varValue);
+        setReferences(objRef, oldValue, newValue);
+        objRef.setMember(field, newValue);
+      }
+    }
+  }
+
+  private void updateContents(JArrayReference arrayRef) {
+    // update content list based on array reference since size can change
+    List<Value> values = arrayRef.getJdiArrayReference().getValues();
+    for (int i = 0; i < values.size(); i++) {
+      Value value = values.get(i);
+      if (value instanceof PrimitiveValue primValue) {
+        arrayRef.setContent(i, createJPrimitiveValue(primValue));
+      } else {
+        JObjectReference oldValue = (JObjectReference) arrayRef.getContent(i);  // cast must be safe
+        JObjectReference newValue = cycleObjectReference((ObjectReference) value);
+        setReferences(arrayRef, oldValue, newValue);
+        arrayRef.setContent(i, newValue);
+      }
+    }
+  }
+
+  /**
+   * Creates a new JObjectReference for the given ObjectReference. The result is a
+   * plain JObjectReference without any cycling.
+   * 
+   * @param objRef the ObjectReference to create a JObjectReference for
+   * @return the created JObjectReference
+   */
   private JObjectReference createJObjectReference(ObjectReference objRef) {
-    JObjectReference existingObjRef;
+    JObjectReference newObjRef;
 
     if (objRef instanceof ArrayReference arrayRef) {
-      existingObjRef = createArrayNode(arrayRef);
+      newObjRef = createArrayNode(arrayRef);
     } else {
-      existingObjRef = createObjectNode(objRef);
+      newObjRef = createObjectNode(objRef);
     }
 
-    // put node into map to track it
-    objectMap.put(objRef, existingObjRef);
-    return existingObjRef;
+    return newObjRef;
+  }
+
+  private JObjectReference createObjectNode(ObjectReference objRef) {
+    return new JObjectReference(objRef, classModel.getJType(objRef.referenceType()));
+  }
+
+  private JObjectReference createArrayNode(ArrayReference arrayRef) {
+    return new JArrayReference(arrayRef, classModel.getJType(arrayRef.referenceType()));
+  }
+
+  private JValue createJPrimitiveValue(PrimitiveValue primValue) {
+    return new JPrimitiveValue(primValue, classModel.getJType(primValue.type()));
   }
 
   private void removeObject(JObjectReference objectRef) {
     removeReferenceHolder(objectRef, objectRef.getValues());
-    objectMap.remove(objectRef.getObjectReference());
+    objectMap.remove(objectRef.getJdiObjectReference());
   }
 
   private void removeReferenceHolder(ReferenceHolder referenceHolder, Collection<JValue> values) {
@@ -258,42 +321,6 @@ public class ObjectGraphModel implements Observable {
         }
       }
     }
-  }
-
-  private void updateMembers(JObjectReference node, ObjectReference objRef) {
-    for (MemberGVariable member : node.getMembers()) {
-      handleObjectReferences(member, objRef.getValue(member.getField()));
-    }
-  }
-
-  private void updateContents(JArrayReference node, ArrayReference arrayRef) {
-    // update content list based on array reference since size can change
-    List<Value> values = arrayRef.getValues();
-    for (int i = 0; i < values.size(); i++) {
-      Value value = values.get(i);
-      ContentGVariable arrayMember = node.getValues().get(i);
-      handleObjectReferences(arrayMember, value);
-    }
-  }
-
-  private JObjectReference createObjectNode(ObjectReference objRef) {
-    JObjectReference newNode = new JObjectReference(objRef.uniqueID(), objRef.referenceType());
-    deferToString(newNode, objRef);
-    for (Field field : objRef.referenceType().allFields()) {
-      if (field.isStatic()) continue; // skip static fields
-
-      Value fieldValue = objRef.getValue(field);
-      Type fieldType = null;
-      try {
-        fieldType = field.type();
-      } catch (ClassNotLoadedException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-      MemberGVariable member = createMemberGVariable(field, newNode, field.name(), fieldType, fieldValue, field.modifiers());
-      newNode.addMember(member);
-    }
-    return newNode;
   }
 
   private void deferToString(JObjectReference node, ObjectReference objRef) {
@@ -326,40 +353,5 @@ public class ObjectGraphModel implements Observable {
       node.setToString(result);
     }
     deferredToString.clear();
-  }
-
-  private JObjectReference createArrayNode(ArrayReference arrayRef) {
-    JArrayReference newNode = new JArrayReference(arrayRef.uniqueID(), arrayRef.referenceType());
-    Type componentType;
-    try {
-      componentType = ((ArrayType) arrayRef.referenceType()).componentType();
-    } catch (ClassNotLoadedException e) {
-      componentType = null;
-    }
-    List<Value> values = arrayRef.getValues();
-    for (int i = 0; i < values.size(); i++) {
-      Value value = values.get(i);
-      ContentGVariable arrayMember = createContentGVariable(newNode, "[" + i + "]", componentType, value, i);
-      newNode.addContent(arrayMember);
-    }
-    return newNode;
-  }
-
-  private JValue createPrimitiveNode(PrimitiveValue primValue) {
-    return new JPrimitiveValue(primValue.type(), primValue);
-  }
-
-  private JType getType(Type type) {
-    if (type instanceof PrimitiveType primType) {
-      return new JPrimitiveType(primType);
-    } else if (type instanceof ClassType classType) {
-      return classModel.getOrCreate(classType);
-    } else if (type instanceof ArrayType arrayType) {
-      return classModel.getOrCreate(arrayType);
-    } else if (type instanceof InterfaceType ifaceType) {
-      return classModel.getOrCreate(ifaceType);
-    } else {
-      return null;
-    }
   }
 }

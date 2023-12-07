@@ -12,7 +12,7 @@ import com.sun.jdi.Type;
 public class JField extends JTypeComponent {
 
   private final Field field;
-  private Type type;
+  private JType type;
   private String typeName;
   private Pattern genericTypePattern = Pattern.compile("T([\\w\\d]+);");
 
@@ -22,12 +22,16 @@ public class JField extends JTypeComponent {
     refresh();
   }
 
-  public Type type() {
+  public JType type() {
     return type;
   }
 
   public String typeName() {
     return typeName;
+  }
+
+  public Field getField() {
+    return field;
   }
 
   @Override

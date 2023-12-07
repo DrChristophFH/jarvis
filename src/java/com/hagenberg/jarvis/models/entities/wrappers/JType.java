@@ -14,6 +14,10 @@ public abstract class JType implements Refreshable {
     return name;
   }
 
+  public String getSimpleName() {
+    return name.substring(name.lastIndexOf(".") + 1);
+  }
+
   @Override
   public void refresh() {
     name = jdiType.name();

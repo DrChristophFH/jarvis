@@ -1,6 +1,6 @@
 package com.hagenberg.jarvis.models.entities.wrappers;
 
-public abstract class JValue implements Refreshable {
+public abstract class JValue {
   protected JType type;
 
   public JValue(JType type) {

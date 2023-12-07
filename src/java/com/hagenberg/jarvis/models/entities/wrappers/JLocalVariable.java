@@ -28,6 +28,14 @@ public class JLocalVariable implements ReferenceHolder {
     this.value = node;
   }
 
+  public JType getType() {
+    return type;
+  }
+
+  public LocalVariable getJdiLocalVariable() {
+    return jdiLocalVariable;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;

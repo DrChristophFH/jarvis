@@ -5,18 +5,19 @@ import java.util.List;
 
 import com.hagenberg.jarvis.util.IndexedList;
 import com.sun.jdi.ArrayType;
+import com.sun.jdi.Method;
 
-public class JArray extends JReferenceType implements Comparable<JArray> {
+public class JArrayType extends JReferenceType implements Comparable<JArrayType> {
 
   private final ArrayType array;
 
-  public JArray(ArrayType array) {
+  public JArrayType(ArrayType array) {
     super(array);
     this.array = array;
   }
 
   @Override
-  public int compareTo(JArray o) {
+  public int compareTo(JArrayType o) {
     return name().compareTo(o.name());
   }
 
@@ -25,7 +26,7 @@ public class JArray extends JReferenceType implements Comparable<JArray> {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    JArray other = (JArray) obj;
+    JArrayType other = (JArrayType) obj;
     if (array == null) {
       if (other.array != null) return false;
     } else if (!array.equals(other.array)) return false;
@@ -40,5 +41,10 @@ public class JArray extends JReferenceType implements Comparable<JArray> {
   @Override
   public List<IndexedList<JReferenceType, JMethod>> allMethods() {
     return new ArrayList<>();
+  }
+
+  @Override
+  public JMethod getMethod(Method jdiMethod) {
+    return null; // array types have no methods
   }
 }

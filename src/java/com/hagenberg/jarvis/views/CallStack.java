@@ -86,9 +86,9 @@ public class CallStack extends View {
         ImGui.endPopup();
       }
       ImGui.tableNextColumn();
-      Snippets.drawTypeWithTooltip(parameter.getStaticTypeName(), tooltip);
+      Snippets.drawTypeWithTooltip(parameter.getType(), tooltip);
       ImGui.tableNextColumn();
-      Snippets.drawTypeWithTooltip(parameter.value().getTypeName(), tooltip);
+      Snippets.drawTypeWithTooltip(parameter.value().type(), tooltip);
       ImGui.tableNextColumn();
       if (parameter.value() instanceof JObjectReference object) {
         ImGui.text("Object#%s = %s".formatted(object.getObjectId(), object.getToString()));
