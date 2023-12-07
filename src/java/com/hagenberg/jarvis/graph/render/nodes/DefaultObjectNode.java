@@ -89,7 +89,7 @@ public class DefaultObjectNode extends Node {
     ImGui.text(referenceHolders.size() + " references");
     tooltip.show(() -> {
       for (int i = 0; i < referenceHolders.size(); i++) {
-        ImGui.text("-> " + referenceHolders.get(i).getName());
+        ImGui.text("-> " + referenceHolders.get(i).name());
       }
     });
     ImNodes.endInputAttribute();

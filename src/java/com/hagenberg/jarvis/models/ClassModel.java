@@ -74,7 +74,7 @@ public class ClassModel {
     try {
       JArray array = arrays.get(arrayType);
       if (array == null) {
-        array = new JArray(arrayType, this);
+        array = new JArray(arrayType);
         arrays.put(arrayType, array);
         array.refresh();
       }

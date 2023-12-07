@@ -40,7 +40,7 @@ public class Path {
         if (currentMember == null) {
           return null;
         }
-        current = currentMember.getNode();
+        current = currentMember.value();
       } else {
         return null;
       }

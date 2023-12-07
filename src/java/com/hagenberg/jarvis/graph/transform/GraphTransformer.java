@@ -10,7 +10,7 @@ import java.util.Stack;
 import com.hagenberg.jarvis.graph.render.RenderModel;
 import com.hagenberg.jarvis.graph.render.nodes.Node;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
-import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
+import com.hagenberg.jarvis.models.entities.wrappers.JLocalVariable;
 import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
 import com.hagenberg.jarvis.util.Observer;
 import com.hagenberg.jarvis.views.ObjectGraph;
@@ -90,7 +90,7 @@ public class GraphTransformer implements Observer {
     reverseTransformationMap.clear();
     objectsToTransform.clear();
 
-    for (LocalGVariable root : ogm.getLocalVariables()) {
+    for (JLocalVariable root : ogm.getLocalVariables()) {
       Node node = registry.getLocalVarTransformer(root).transform(root, idPool, (source, id, target) -> {
         pendingLinks.add(new PendingLink(source, id, target));
         if (!transformationMap.containsKey(target) && !objectsToTransform.contains(target)) {

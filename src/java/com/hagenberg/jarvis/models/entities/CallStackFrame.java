@@ -2,7 +2,7 @@ package com.hagenberg.jarvis.models.entities;
 
 import java.util.List;
 
-import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
+import com.hagenberg.jarvis.models.entities.wrappers.JLocalVariable;
 import com.hagenberg.jarvis.util.TypeFormatter;
 import com.sun.jdi.Method;
 import com.sun.jdi.StackFrame;
@@ -13,9 +13,9 @@ public class CallStackFrame {
   private Type classType;
   private Method method;
   private int lineNumber;
-  private List<LocalGVariable> parameters;
+  private List<JLocalVariable> parameters;
 
-  public CallStackFrame(StackFrame frame, Type classType, Method method, List<LocalGVariable> parameters, int lineNumber) {
+  public CallStackFrame(StackFrame frame, Type classType, Method method, List<JLocalVariable> parameters, int lineNumber) {
     this.stackFrame = frame;
     this.classType = classType;
     this.method = method;
@@ -45,7 +45,7 @@ public class CallStackFrame {
     for (int i = 0; i < parameters.size(); i++) {
       builder.append(TypeFormatter.getSimpleType(parameters.get(i).getStaticTypeName()));
       builder.append(" ");
-      builder.append(parameters.get(i).getName());
+      builder.append(parameters.get(i).name());
       if (i < parameters.size() - 1) {
         builder.append(", ");
       }
@@ -65,7 +65,7 @@ public class CallStackFrame {
     for (int i = 0; i < parameters.size(); i++) {
       builder.append(TypeFormatter.getSimpleType(parameters.get(i).getStaticTypeName()));
       builder.append(" ");
-      builder.append(parameters.get(i).getName());
+      builder.append(parameters.get(i).name());
       if (i < parameters.size() - 1) {
         builder.append(", ");
       }
@@ -75,7 +75,7 @@ public class CallStackFrame {
     return builder.toString();
   }
 
-  public List<LocalGVariable> getParameters() {
+  public List<JLocalVariable> getParameters() {
     return parameters;
   }
 

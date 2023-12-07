@@ -40,7 +40,7 @@ public class SimpleObjectTransformer extends NodeTransformer<JObjectReference> {
     }
 
     if (object instanceof JArrayReference arrayGNode) {
-      for (ContentGVariable content : arrayGNode.getContent()) {
+      for (ContentGVariable content : arrayGNode.getValues()) {
         Attribute att = registry.getContentTransformer(content).transform(content, idProvider, objNode, linkRegisterCallback);
         objNode.addAttribute(att);
       }

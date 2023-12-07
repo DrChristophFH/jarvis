@@ -1,78 +1,42 @@
 package com.hagenberg.jarvis.models.entities.wrappers;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Objects;
 
-import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.LocalVariable;
-import com.sun.jdi.Type;
 
-public class JLocalVariable implements Refreshable {
-  private final LocalVariable localVariable;
+public class JLocalVariable implements ReferenceHolder {
+  private LocalVariable jdiLocalVariable; // The local variable this graph variable represents
+  
   private String name;
-  private Type type;
-  private String typeName;
-  private String genericType;
-  private Pattern genericTypePattern = Pattern.compile("T([\\w\\d]+);");
+  private JType type;
+  private JValue value;
 
-  public JLocalVariable(LocalVariable localVariable) {
-    this.localVariable = localVariable;
-    refresh();
+  public JLocalVariable(LocalVariable localVariable, JType type) {
+    this.jdiLocalVariable = localVariable;
+    this.type = type;
   }
 
   public String name() {
     return name;
   }
 
-  public Type type() {
-    return type;
+  public JValue value() {
+    return value;
   }
 
-  public String typeName() {
-    return typeName;
-  }
-
-  public String genericTypeName() {
-    return genericType;
-  }
-
-  public boolean typeIsGeneric() {
-    return !genericType.isEmpty();
+  public void setValue(JValue node) {
+    this.value = node;
   }
 
   @Override
-  public void refresh() {
-    name = localVariable.name();
-    try {
-      type = localVariable.type();
-    } catch (ClassNotLoadedException e) {
-      type = null;
-    }
-    typeName = localVariable.typeName();
-    genericType = getGenericType(localVariable.genericSignature());
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    return Objects.equals(name, ((JLocalVariable) o).name);
   }
 
-  public static List<JLocalVariable> from(List<LocalVariable> allFields) {
-    List<JLocalVariable> fields = new ArrayList<>();
-    for (LocalVariable field : allFields) {
-      fields.add(new JLocalVariable(field));
-    }
-    return fields;
-  }
-
-  private String getGenericType(String genericSignature) {
-    if (genericSignature == null) { // no generic signature
-      return "";
-    }
-
-    Matcher matcher = genericTypePattern.matcher(genericSignature);
-
-    if (matcher.matches()) {
-      return matcher.group(1);
-    }
-    
-    return "";
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, value);
   }
 }

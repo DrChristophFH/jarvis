@@ -15,13 +15,13 @@ public class SimpleMemberTransformer extends AttributeTransformer<MemberGVariabl
 
   @Override
   public Attribute transform(MemberGVariable member, IdProvider idProvider, Node parent, LinkRegisterCallback linkRegisterCallback) {
-    JValue node = member.getNode();
+    JValue node = member.value();
     boolean isPrimitive = node instanceof JPrimitiveValue;
     String value;
 
     if (isPrimitive) {
-      value = member.getNode().getToString();
-    } else if (member.getNode() instanceof JObjectReference obj) {
+      value = member.value().getToString();
+    } else if (member.value() instanceof JObjectReference obj) {
       value = "Reference to Object#" + obj.getObjectId();
     } else {
       value = "null";
@@ -33,7 +33,7 @@ public class SimpleMemberTransformer extends AttributeTransformer<MemberGVariabl
       isPrimitive,
       member.getAccessModifier().toString(),
       member.getStaticTypeName(),
-      member.getName(),
+      member.name(),
       value
     );
 

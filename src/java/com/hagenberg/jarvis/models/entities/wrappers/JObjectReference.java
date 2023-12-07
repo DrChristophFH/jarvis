@@ -1,13 +1,14 @@
 package com.hagenberg.jarvis.models.entities.wrappers;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.sun.jdi.ObjectReference;
 
-public class JObjectReference extends JValue {
+public class JObjectReference extends JValue implements ReferenceHolder {
 
   private final ObjectReference jdiObjectReference;
 
@@ -34,8 +35,8 @@ public class JObjectReference extends JValue {
     }
   }
 
-  public void addMember(MemberGVariable memberVariable) {
-    members.add(memberVariable);
+  public void addMember(JField field, JValue value) {
+    members.put(field, value);
   }
 
   public void addReferenceHolder(ReferenceHolder referenceHolder) {
@@ -50,12 +51,20 @@ public class JObjectReference extends JValue {
     return referenceHolders;
   }
 
-  public List<MemberGVariable> getMembers() {
+  public Map<JField, JValue> getMembers() {
     return members;
   }
 
-  public MemberGVariable getMember(String name) {
-    return members.stream().filter(m -> m.getName().equals(name)).findFirst().orElse(null);
+  public Collection<JValue> getValues() {
+    return members.values();
+  }
+
+  public JValue getMember(JField field) {
+    return members.get(field);
+  }
+
+  public ObjectReference getObjectReference() {
+    return jdiObjectReference;
   }
 
   public long getObjectId() {
@@ -84,7 +93,18 @@ public class JObjectReference extends JValue {
 
   @Override
   public void refresh() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'refresh'");
+
+    // update members
+    updateMembers(existingObjRef, objRef);
+
+    // update contents
+    if (existingObjRef instanceof JArrayReference newArrayNode) {
+      updateContents(newArrayNode, (ArrayReference) objRef);
+    }
+  }
+
+  @Override
+  public String name() {
+    return "Object#" + objectId;
   }
 }

@@ -16,8 +16,8 @@ import com.hagenberg.jarvis.graph.transform.simple.SimpleObjectTransformer;
 import com.hagenberg.jarvis.graph.transform.specific.StringObjectTransformer;
 import com.hagenberg.jarvis.graph.transform.specific.TemplateObjectTransformer;
 import com.hagenberg.jarvis.models.entities.graph.ContentGVariable;
-import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
+import com.hagenberg.jarvis.models.entities.wrappers.JLocalVariable;
 import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
 
 public class TransformerRegistry {
@@ -26,7 +26,7 @@ public class TransformerRegistry {
   
   // default transformers
   private NodeTransformer<JObjectReference> defaultObjectRenderer;
-  private NodeTransformer<LocalGVariable> defaultLocalVarRenderer = new SimpleLocalVariableTransformer();
+  private NodeTransformer<JLocalVariable> defaultLocalVarRenderer = new SimpleLocalVariableTransformer();
   private AttributeTransformer<MemberGVariable> defaultMemberRenderer = new SimpleMemberTransformer();
   private AttributeTransformer<ContentGVariable> defaultContentRenderer = new SimpleContentTransformer();
   
@@ -43,7 +43,7 @@ public class TransformerRegistry {
     objectTransformers.add(new StringObjectTransformer(this.transformerContextMenu));
   }
 
-  public NodeTransformer<LocalGVariable> getLocalVarTransformer(LocalGVariable localVar) {
+  public NodeTransformer<JLocalVariable> getLocalVarTransformer(JLocalVariable localVar) {
     return defaultLocalVarRenderer;
   }
 

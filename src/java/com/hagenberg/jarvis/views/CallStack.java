@@ -6,7 +6,7 @@ import com.hagenberg.imgui.Snippets;
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.models.CallStackModel;
 import com.hagenberg.jarvis.models.entities.CallStackFrame;
-import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
+import com.hagenberg.jarvis.models.entities.wrappers.JLocalVariable;
 import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
 import com.hagenberg.jarvis.models.entities.wrappers.JPrimitiveValue;
 
@@ -74,11 +74,11 @@ public class CallStack extends View {
     }
   }
 
-  private void showParameters(List<LocalGVariable> parameters) {
-    for (LocalGVariable parameter : parameters) {
+  private void showParameters(List<JLocalVariable> parameters) {
+    for (JLocalVariable parameter : parameters) {
       ImGui.tableNextRow();
       ImGui.tableNextColumn();
-      ImGui.text(parameter.getName());
+      ImGui.text(parameter.name());
       // Context menu for each row
       int nodeId = 0; // TODO parameter.getLayoutNode().getNodeId();
       if (ImGui.beginPopupContextItem("parameterContextMenu" + nodeId)) {
@@ -88,11 +88,11 @@ public class CallStack extends View {
       ImGui.tableNextColumn();
       Snippets.drawTypeWithTooltip(parameter.getStaticTypeName(), tooltip);
       ImGui.tableNextColumn();
-      Snippets.drawTypeWithTooltip(parameter.getNode().getTypeName(), tooltip);
+      Snippets.drawTypeWithTooltip(parameter.value().getTypeName(), tooltip);
       ImGui.tableNextColumn();
-      if (parameter.getNode() instanceof JObjectReference object) {
+      if (parameter.value() instanceof JObjectReference object) {
         ImGui.text("Object#%s = %s".formatted(object.getObjectId(), object.getToString()));
-      } else if (parameter.getNode() instanceof JPrimitiveValue primitive) {
+      } else if (parameter.value() instanceof JPrimitiveValue primitive) {
         ImGui.text(primitive.getJdiPrimitiveValue().toString());
       }
     }

@@ -15,13 +15,13 @@ public class SimpleContentTransformer extends AttributeTransformer<ContentGVaria
 
   @Override
   public Attribute transform(ContentGVariable content, IdProvider idProvider, Node parent, LinkRegisterCallback linkRegisterCallback) {
-    JValue node = content.getNode();
+    JValue node = content.value();
     boolean isPrimitive = node instanceof JPrimitiveValue;
     String value;
 
     if (isPrimitive) {
-      value = content.getNode().getToString();
-    } else if (content.getNode() instanceof JObjectReference obj) {
+      value = content.value().getToString();
+    } else if (content.value() instanceof JObjectReference obj) {
       value = "Reference to Object#" + obj.getObjectId();
     } else {
       value = "null";
@@ -33,7 +33,7 @@ public class SimpleContentTransformer extends AttributeTransformer<ContentGVaria
       isPrimitive,
       "(public)",
       content.getStaticTypeName(),
-      content.getName(),
+      content.name(),
       value
     );
 

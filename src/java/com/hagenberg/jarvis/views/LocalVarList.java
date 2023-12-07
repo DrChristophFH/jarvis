@@ -8,9 +8,9 @@ import com.hagenberg.jarvis.models.InteractionState;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.models.entities.graph.ContentGVariable;
 import com.hagenberg.jarvis.models.entities.graph.GVariable;
-import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
 import com.hagenberg.jarvis.models.entities.wrappers.JArrayReference;
+import com.hagenberg.jarvis.models.entities.wrappers.JLocalVariable;
 import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
 import com.hagenberg.jarvis.models.entities.wrappers.JValue;
 
@@ -59,8 +59,8 @@ public class LocalVarList extends View {
     }
   }
 
-  private void showLocalVarsTable(List<LocalGVariable> localVars) {
-    for (LocalGVariable localVar : localVars) {
+  private void showLocalVarsTable(List<JLocalVariable> localVars) {
+    for (JLocalVariable localVar : localVars) {
       displayVariable(localVar);
     }
   }
@@ -71,12 +71,12 @@ public class LocalVarList extends View {
 
     int treeFlags = ImGuiTreeNodeFlags.SpanFullWidth | ImGuiTreeNodeFlags.SpanAvailWidth;
 
-    JValue node = variable.getNode();
+    JValue node = variable.value();
     String typeName = node == null ? "null" : node.getTypeName();
     String toString = node == null ? "null" : node.getToString();
 
     if (node instanceof JArrayReference array) {
-      if (array.getContent().isEmpty()) {
+      if (array.getValues().isEmpty()) {
         treeFlags |= ImGuiTreeNodeFlags.Leaf;
       }
     } else if (node instanceof JObjectReference object) {
@@ -87,7 +87,7 @@ public class LocalVarList extends View {
       treeFlags |= ImGuiTreeNodeFlags.Leaf;
     }
 
-    boolean open = ImGui.treeNodeEx(variable.getName(), treeFlags);
+    boolean open = ImGui.treeNodeEx(variable.name(), treeFlags);
 
     ImGui.tableNextColumn();
     Snippets.drawTypeWithTooltip(variable.getStaticTypeName(), tooltip);
@@ -103,7 +103,7 @@ public class LocalVarList extends View {
           displayVariable(member);
         }
         if (object instanceof JArrayReference array) {
-          for (ContentGVariable element : array.getContent()) {
+          for (ContentGVariable element : array.getValues()) {
             displayVariable(element);
           }
         }
