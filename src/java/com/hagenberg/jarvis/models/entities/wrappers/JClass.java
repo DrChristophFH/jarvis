@@ -1,4 +1,4 @@
-package com.hagenberg.jarvis.models.entities.classList;
+package com.hagenberg.jarvis.models.entities.wrappers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,13 +11,15 @@ import com.sun.jdi.InterfaceType;
 public class JClass extends JReferenceType implements Comparable<JClass> {
   
   private final ClassType clazz; 
+  private final ClassModel model;
 
   private final List<JClass> subClasses = new ArrayList<>();
   private final List<JInterface> interfaces = new ArrayList<>();
   private JClass superClass;
 
   public JClass(ClassType clazz, ClassModel model) {
-    super(clazz, model);
+    super(clazz);
+    this.model = model;
     this.clazz = clazz;
   }
 

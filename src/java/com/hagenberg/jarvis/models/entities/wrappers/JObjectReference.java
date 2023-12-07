@@ -1,19 +1,24 @@
-package com.hagenberg.jarvis.models.entities.graph;
+package com.hagenberg.jarvis.models.entities.wrappers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import com.sun.jdi.Type;
+import com.sun.jdi.ObjectReference;
 
-public class ObjectGNode extends GNode {
-  private final long objectId; // ID from JDI
-  private final List<MemberGVariable> members = new ArrayList<>();
-  private final List<GVariable> referenceHolders = new ArrayList<>();
+public class JObjectReference extends JValue {
+
+  private final ObjectReference jdiObjectReference;
+
+  private final Map<JField, JValue> members = new HashMap<>();
+  private final List<ReferenceHolder> referenceHolders = new ArrayList<>();
+  private long objectId = -1;
   private String toStringRepresentation = "";
 
-  public ObjectGNode(long id, Type type) {
+  public JObjectReference(ObjectReference jdiObjectReference, JType type) {
     super(type);
-    this.objectId = id;
+    this.jdiObjectReference = jdiObjectReference;
   }
 
   public String getToString() {
@@ -33,15 +38,15 @@ public class ObjectGNode extends GNode {
     members.add(memberVariable);
   }
 
-  public void addReferenceHolder(GVariable referenceHolder) {
+  public void addReferenceHolder(ReferenceHolder referenceHolder) {
     referenceHolders.add(referenceHolder);
   }
 
-  public void removeReferenceHolder(GVariable referenceHolder) {
+  public void removeReferenceHolder(ReferenceHolder referenceHolder) {
     referenceHolders.remove(referenceHolder);
   }
 
-  public List<GVariable> getReferenceHolders() {
+  public List<ReferenceHolder> getReferenceHolders() {
     return referenceHolders;
   }
 
@@ -67,7 +72,7 @@ public class ObjectGNode extends GNode {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    ObjectGNode other = (ObjectGNode) obj;
+    JObjectReference other = (JObjectReference) obj;
     if (objectId != other.objectId) return false;
     return true;
   }
@@ -75,5 +80,11 @@ public class ObjectGNode extends GNode {
   @Override
   public String toString() {
     return getTypeName() + "#" + objectId;
+  }
+
+  @Override
+  public void refresh() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'refresh'");
   }
 }

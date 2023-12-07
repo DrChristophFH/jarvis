@@ -1,4 +1,4 @@
-package com.hagenberg.jarvis.models.entities.classList;
+package com.hagenberg.jarvis.models.entities.wrappers;
 
 import com.sun.jdi.TypeComponent;
 

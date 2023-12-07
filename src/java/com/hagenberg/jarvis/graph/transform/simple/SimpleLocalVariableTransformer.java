@@ -8,8 +8,8 @@ import com.hagenberg.jarvis.graph.transform.IdProvider;
 import com.hagenberg.jarvis.graph.transform.LinkRegisterCallback;
 import com.hagenberg.jarvis.graph.transform.NodeTransformer;
 import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
-import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
-import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
+import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
+import com.hagenberg.jarvis.models.entities.wrappers.JPrimitiveValue;
 
 public class SimpleLocalVariableTransformer extends NodeTransformer<LocalGVariable> {
 
@@ -27,9 +27,9 @@ public class SimpleLocalVariableTransformer extends NodeTransformer<LocalGVariab
     String value = "null";
     int attId = idProvider.next();
 
-    if (localVariable.getNode() instanceof PrimitiveGNode primitve) {
+    if (localVariable.getNode() instanceof JPrimitiveValue primitve) {
       value = primitve.getToString();
-    } else if (localVariable.getNode() instanceof ObjectGNode object) {
+    } else if (localVariable.getNode() instanceof JObjectReference object) {
       value = "Object#" + object.getObjectId();
       linkRegisterCallback.registerLink(node, attId, object);
     }
@@ -37,7 +37,7 @@ public class SimpleLocalVariableTransformer extends NodeTransformer<LocalGVariab
     Attribute att = new DefaultLocalVariableAttribute(
       attId,
       node,
-      localVariable.getNode() instanceof PrimitiveGNode,
+      localVariable.getNode() instanceof JPrimitiveValue,
       localVariable.getStaticTypeName(),
       localVariable.getName(),
       value

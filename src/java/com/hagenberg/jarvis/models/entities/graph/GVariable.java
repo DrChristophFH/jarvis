@@ -2,19 +2,20 @@ package com.hagenberg.jarvis.models.entities.graph;
 
 import java.util.Objects;
 
+import com.hagenberg.jarvis.models.entities.wrappers.JValue;
 import com.sun.jdi.Type;
 
 public class GVariable {
   private String name;
   private Type staticType;
-  private GNode node;
+  private JValue node;
 
   public GVariable(String name, Type staticType) {
     this.name = name;
     this.staticType = staticType;
   }
 
-  public GVariable(String name, Type staticType, GNode node) {
+  public GVariable(String name, Type staticType, JValue node) {
     this(name, staticType);
     this.node = node;
   }
@@ -23,11 +24,11 @@ public class GVariable {
     return name;
   }
 
-  public GNode getNode() {
+  public JValue getNode() {
     return node;
   }
 
-  public void setNode(GNode node) {
+  public void setNode(JValue node) {
     this.node = node;
   }
 

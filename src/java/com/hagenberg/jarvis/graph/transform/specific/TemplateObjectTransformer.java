@@ -13,9 +13,9 @@ import com.hagenberg.jarvis.graph.transform.Path;
 import com.hagenberg.jarvis.graph.transform.TransformerContextMenu;
 import com.hagenberg.jarvis.graph.transform.TransformerRegistry;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
-import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
+import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
 
-public class TemplateObjectTransformer extends NodeTransformer<ObjectGNode> {
+public class TemplateObjectTransformer extends NodeTransformer<JObjectReference> {
 
   private List<Path> paths = new ArrayList<>();
   private TransformerRegistry registry;
@@ -28,7 +28,7 @@ public class TemplateObjectTransformer extends NodeTransformer<ObjectGNode> {
   }
 
   @Override
-  public TemplateObjectNode transform(ObjectGNode object, IdProvider idProvider, LinkRegisterCallback linkRegisterCallback) {
+  public TemplateObjectNode transform(JObjectReference object, IdProvider idProvider, LinkRegisterCallback linkRegisterCallback) {
     TemplateObjectNode objNode = new TemplateObjectNode(
       idProvider.next(), 
       object.getTypeName(), 

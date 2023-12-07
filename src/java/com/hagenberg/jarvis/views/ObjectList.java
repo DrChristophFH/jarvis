@@ -8,12 +8,12 @@ import com.hagenberg.imgui.Snippets;
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.models.InteractionState;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
-import com.hagenberg.jarvis.models.entities.graph.ArrayGNode;
 import com.hagenberg.jarvis.models.entities.graph.ContentGVariable;
-import com.hagenberg.jarvis.models.entities.graph.GNode;
 import com.hagenberg.jarvis.models.entities.graph.GVariable;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
-import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
+import com.hagenberg.jarvis.models.entities.wrappers.JArrayReference;
+import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
+import com.hagenberg.jarvis.models.entities.wrappers.JValue;
 import com.hagenberg.jarvis.util.TypeFormatter;
 
 import imgui.ImGui;
@@ -99,9 +99,9 @@ public class ObjectList extends View {
     }
   }
 
-  private void showObjectsTable(List<ObjectGNode> objects) {
+  private void showObjectsTable(List<JObjectReference> objects) {
     possibleFilters.clear();
-    for (ObjectGNode object : objects) {
+    for (JObjectReference object : objects) {
       String typeName = TypeFormatter.getSimpleType(object.getTypeName());
       possibleFilters.add(typeName);
       if (currentFilter == null || currentFilter.equals(typeName)) {
@@ -110,13 +110,13 @@ public class ObjectList extends View {
     }
   }
 
-  private void displayObject(ObjectGNode object) {
+  private void displayObject(JObjectReference object) {
     ImGui.tableNextRow();
     ImGui.tableNextColumn();
 
     int treeFlags = ImGuiTreeNodeFlags.SpanFullWidth | ImGuiTreeNodeFlags.SpanAvailWidth;
 
-    if (object instanceof ArrayGNode array) {
+    if (object instanceof JArrayReference array) {
       if (array.getContent().isEmpty()) {
         treeFlags |= ImGuiTreeNodeFlags.Leaf;
       }
@@ -145,7 +145,7 @@ public class ObjectList extends View {
       for (MemberGVariable member : object.getMembers()) {
         displayVariable(member);
       }
-      if (object instanceof ArrayGNode array) {
+      if (object instanceof JArrayReference array) {
         for (ContentGVariable element : array.getContent()) {
           displayVariable(element);
         }
@@ -160,15 +160,15 @@ public class ObjectList extends View {
 
     int treeFlags = ImGuiTreeNodeFlags.SpanFullWidth | ImGuiTreeNodeFlags.SpanAvailWidth;
 
-    GNode node = variable.getNode();
+    JValue node = variable.getNode();
     String typeName = node == null ? "null" : node.getTypeName();
     String toString = node == null ? "null" : node.getToString();
 
-    if (node instanceof ArrayGNode array) {
+    if (node instanceof JArrayReference array) {
       if (array.getContent().isEmpty()) {
         treeFlags |= ImGuiTreeNodeFlags.Leaf;
       }
-    } else if (node instanceof ObjectGNode object) {
+    } else if (node instanceof JObjectReference object) {
       if (object.getMembers().isEmpty()) {
         treeFlags |= ImGuiTreeNodeFlags.Leaf;
       }
@@ -187,11 +187,11 @@ public class ObjectList extends View {
     ImGui.text(toString);
 
     if (open) {
-      if (node instanceof ObjectGNode object) {
+      if (node instanceof JObjectReference object) {
         for (MemberGVariable member : object.getMembers()) {
           displayVariable(member);
         }
-        if (object instanceof ArrayGNode array) {
+        if (object instanceof JArrayReference array) {
           for (ContentGVariable element : array.getContent()) {
             displayVariable(element);
           }

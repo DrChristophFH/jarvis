@@ -1,6 +1,10 @@
 package com.hagenberg.jarvis.models;
 
 import com.hagenberg.jarvis.models.entities.graph.*;
+import com.hagenberg.jarvis.models.entities.wrappers.JArrayReference;
+import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
+import com.hagenberg.jarvis.models.entities.wrappers.JPrimitiveValue;
+import com.hagenberg.jarvis.models.entities.wrappers.JValue;
 import com.hagenberg.jarvis.util.Observable;
 import com.hagenberg.jarvis.util.Observer;
 import com.hagenberg.jarvis.util.Pair;
@@ -17,9 +21,9 @@ public class ObjectGraphModel implements Observable {
   private final List<Observer> observers = new ArrayList<>();
 
   private final Map<LocalVariable, LocalGVariable> localVars = new HashMap<>(); // The roots are the local variables visible
-  private final Map<Long, ObjectGNode> objectMap = new HashMap<>(); // maps object ids to graph objects
+  private final Map<Long, JObjectReference> objectMap = new HashMap<>(); // maps object ids to graph objects
 
-  private final List<Pair<ObjectGNode, ObjectReference>> deferredToString = new ArrayList<>();
+  private final List<Pair<JObjectReference, ObjectReference>> deferredToString = new ArrayList<>();
 
   private ThreadReference currentThread;
 
@@ -73,8 +77,8 @@ public class ObjectGraphModel implements Observable {
     }
   }
 
-  public List<ObjectGNode> getObjects() {
-    List<ObjectGNode> result = new ArrayList<>();
+  public List<JObjectReference> getObjects() {
+    List<JObjectReference> result = new ArrayList<>();
     lockModel();
     try {
       result.addAll(objectMap.values());
@@ -135,7 +139,7 @@ public class ObjectGraphModel implements Observable {
 
   private void updateVariable(GVariable variable, Value varValue) {
     if (varValue instanceof ObjectReference objRef) {
-      ObjectGNode existingNode = objectMap.get(objRef.uniqueID());
+      JObjectReference existingNode = objectMap.get(objRef.uniqueID());
 
       if (existingNode == null) { // object has no corresponding node yet
         // create new node
@@ -151,7 +155,7 @@ public class ObjectGraphModel implements Observable {
         updateMembers(existingNode, objRef);
 
         // update contents
-        if (existingNode instanceof ArrayGNode newArrayNode) {
+        if (existingNode instanceof JArrayReference newArrayNode) {
           updateContents(newArrayNode, (ArrayReference) objRef);
         }
       }
@@ -169,11 +173,11 @@ public class ObjectGraphModel implements Observable {
    * @param variable
    * @param newNode
    */
-  private void updateHeldNode(GVariable variable, ObjectGNode newNode) {
-    ObjectGNode lastHeldNode = null;
+  private void updateHeldNode(GVariable variable, JObjectReference newNode) {
+    JObjectReference lastHeldNode = null;
 
     try {
-      lastHeldNode = (ObjectGNode) variable.getNode();
+      lastHeldNode = (JObjectReference) variable.getNode();
     } catch (ClassCastException e) {
       throw new NodeAssignmentException("Tried assigning an Object Node to a primitive holding variable.", e);
     }
@@ -191,7 +195,7 @@ public class ObjectGraphModel implements Observable {
    * @param variable the variable to remove as reference holder
    * @param objNode  the object node to check for references
    */
-  private void removeReference(GVariable variable, ObjectGNode objNode) {
+  private void removeReference(GVariable variable, JObjectReference objNode) {
     if (objNode != null) {
       objNode.removeReferenceHolder(variable);
       if (objNode.getReferenceHolders().isEmpty()) {
@@ -206,17 +210,17 @@ public class ObjectGraphModel implements Observable {
    * @param variable the variable to set the new node for
    * @param newNode  the new node to set
    */
-  private void setNewNode(GVariable variable, ObjectGNode newNode) {
+  private void setNewNode(GVariable variable, JObjectReference newNode) {
     if (newNode != null) {
       newNode.addReferenceHolder(variable);
     }
     variable.setNode(newNode);
   }
 
-  private void removeObject(ObjectGNode currentNode) {
-    if (currentNode instanceof ArrayGNode arrayNode) {
+  private void removeObject(JObjectReference currentNode) {
+    if (currentNode instanceof JArrayReference arrayNode) {
       for (ContentGVariable content : arrayNode.getContent()) {
-        if (content.getNode() instanceof ObjectGNode contentNode) {
+        if (content.getNode() instanceof JObjectReference contentNode) {
           contentNode.removeReferenceHolder(content);
           if (contentNode.getReferenceHolders().isEmpty()) {
             removeObject(contentNode);
@@ -225,7 +229,7 @@ public class ObjectGraphModel implements Observable {
       }
     }
     for (MemberGVariable member : currentNode.getMembers()) {
-      if (member.getNode() instanceof ObjectGNode memberNode) {
+      if (member.getNode() instanceof JObjectReference memberNode) {
         memberNode.removeReferenceHolder(member);
         if (memberNode.getReferenceHolders().isEmpty()) {
           removeObject(memberNode);
@@ -235,13 +239,13 @@ public class ObjectGraphModel implements Observable {
     objectMap.remove(currentNode.getObjectId());
   }
 
-  private void updateMembers(ObjectGNode node, ObjectReference objRef) {
+  private void updateMembers(JObjectReference node, ObjectReference objRef) {
     for (MemberGVariable member : node.getMembers()) {
       updateVariable(member, objRef.getValue(member.getField()));
     }
   }
 
-  private void updateContents(ArrayGNode node, ArrayReference arrayRef) {
+  private void updateContents(JArrayReference node, ArrayReference arrayRef) {
     // update content list based on array reference since size can change
     List<Value> values = arrayRef.getValues();
     for (int i = 0; i < values.size(); i++) {
@@ -273,9 +277,9 @@ public class ObjectGraphModel implements Observable {
     localVars.put(lvar, newVar);
   }
 
-  private ObjectGNode lookUpObjectNode(ObjectReference objRef, GVariable referenceHolder) {
+  private JObjectReference lookUpObjectNode(ObjectReference objRef, GVariable referenceHolder) {
     Long id = objRef.uniqueID();
-    ObjectGNode existingNode = objectMap.get(id);
+    JObjectReference existingNode = objectMap.get(id);
 
     if (existingNode == null) {
       if (objRef instanceof ArrayReference arrayRef) {
@@ -290,8 +294,8 @@ public class ObjectGraphModel implements Observable {
     return existingNode;
   }
 
-  private ObjectGNode createObjectNode(ObjectReference objRef) {
-    ObjectGNode newNode = new ObjectGNode(objRef.uniqueID(), objRef.referenceType());
+  private JObjectReference createObjectNode(ObjectReference objRef) {
+    JObjectReference newNode = new JObjectReference(objRef.uniqueID(), objRef.referenceType());
     deferToString(newNode, objRef);
     for (Field field : objRef.referenceType().allFields()) {
       if (field.isStatic()) continue; // skip static fields
@@ -310,7 +314,7 @@ public class ObjectGraphModel implements Observable {
     return newNode;
   }
 
-  private void deferToString(ObjectGNode node, ObjectReference objRef) {
+  private void deferToString(JObjectReference node, ObjectReference objRef) {
     deferredToString.add(new Pair<>(node, objRef));
   }
 
@@ -319,8 +323,8 @@ public class ObjectGraphModel implements Observable {
    */
   private void resolveToString() {
     String result = null;
-    for (Pair<ObjectGNode, ObjectReference> pair : deferredToString) {
-      ObjectGNode node = pair.first();
+    for (Pair<JObjectReference, ObjectReference> pair : deferredToString) {
+      JObjectReference node = pair.first();
       ObjectReference objRef = pair.second();
       try {
         List<Method> methods = objRef.referenceType().methodsByName("toString", "()Ljava/lang/String;");
@@ -340,8 +344,8 @@ public class ObjectGraphModel implements Observable {
     deferredToString.clear();
   }
 
-  private ObjectGNode createArrayNode(ArrayReference arrayRef) {
-    ArrayGNode newNode = new ArrayGNode(arrayRef.uniqueID(), arrayRef.referenceType());
+  private JObjectReference createArrayNode(ArrayReference arrayRef) {
+    JArrayReference newNode = new JArrayReference(arrayRef.uniqueID(), arrayRef.referenceType());
     Type componentType;
     try {
       componentType = ((ArrayType) arrayRef.referenceType()).componentType();
@@ -357,11 +361,11 @@ public class ObjectGraphModel implements Observable {
     return newNode;
   }
 
-  private GNode createPrimitiveNode(PrimitiveValue primValue) {
-    return new PrimitiveGNode(primValue.type(), primValue);
+  private JValue createPrimitiveNode(PrimitiveValue primValue) {
+    return new JPrimitiveValue(primValue.type(), primValue);
   }
 
-  private MemberGVariable createMemberGVariable(Field field, ObjectGNode parent, String name, Type staticType, Value value, int accessModifier) {
+  private MemberGVariable createMemberGVariable(Field field, JObjectReference parent, String name, Type staticType, Value value, int accessModifier) {
     MemberGVariable member = new MemberGVariable(field, name, staticType, parent, accessModifier);
 
     if (value instanceof ObjectReference objRef) {
@@ -373,7 +377,7 @@ public class ObjectGraphModel implements Observable {
     return member;
   }
 
-  private ContentGVariable createContentGVariable(ObjectGNode parent, String name, Type staticType, Value value, int index) {
+  private ContentGVariable createContentGVariable(JObjectReference parent, String name, Type staticType, Value value, int index) {
     ContentGVariable member = new ContentGVariable(name, staticType, parent, index);
 
     if (value instanceof ObjectReference objRef) {

@@ -6,9 +6,9 @@ import com.hagenberg.jarvis.graph.transform.IdProvider;
 import com.hagenberg.jarvis.graph.transform.LinkRegisterCallback;
 import com.hagenberg.jarvis.graph.transform.NodeTransformer;
 import com.hagenberg.jarvis.graph.transform.TransformerContextMenu;
-import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
+import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
 
-public class StringObjectTransformer extends NodeTransformer<ObjectGNode> {
+public class StringObjectTransformer extends NodeTransformer<JObjectReference> {
 
   private final TransformerContextMenu transformerContextMenu;
 
@@ -18,7 +18,7 @@ public class StringObjectTransformer extends NodeTransformer<ObjectGNode> {
   }
 
   @Override
-  public Node transform(ObjectGNode object, IdProvider idProvider, LinkRegisterCallback linkRegisterCallback) {
+  public Node transform(JObjectReference object, IdProvider idProvider, LinkRegisterCallback linkRegisterCallback) {
     return new StringNode(
       idProvider.next(), 
       object.getTypeName(), 

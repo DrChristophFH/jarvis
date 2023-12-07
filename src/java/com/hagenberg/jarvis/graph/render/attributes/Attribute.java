@@ -3,7 +3,7 @@ package com.hagenberg.jarvis.graph.render.attributes;
 import com.hagenberg.jarvis.graph.render.nodes.Node;
 import com.hagenberg.jarvis.graph.transform.TransformerRegistry;
 import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
-import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
+import com.hagenberg.jarvis.models.entities.wrappers.JPrimitiveValue;
 
 import imgui.ImGui;
 import imgui.flag.ImGuiMouseButton;
@@ -36,7 +36,7 @@ public abstract class Attribute {
     ImGui.pushStyleVar(ImGuiStyleVar.WindowPadding, 5, 5); // NodeEditor somehow overrides this so we have to set it here
     if (ImGui.beginPopup("MemCtx##" + attId)) {
       ImGui.menuItem("Settings for " + member.getName(), "", false, false);
-      if (member.getNode() instanceof PrimitiveGNode prim) {
+      if (member.getNode() instanceof JPrimitiveValue prim) {
         if (ImGui.beginMenu("Renderer")) {
           ImGui.endMenu();
         }

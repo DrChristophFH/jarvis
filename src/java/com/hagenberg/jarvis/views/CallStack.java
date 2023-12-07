@@ -7,8 +7,8 @@ import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.models.CallStackModel;
 import com.hagenberg.jarvis.models.entities.CallStackFrame;
 import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
-import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
-import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
+import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
+import com.hagenberg.jarvis.models.entities.wrappers.JPrimitiveValue;
 
 import imgui.ImGui;
 import imgui.flag.ImGuiTableColumnFlags;
@@ -90,10 +90,10 @@ public class CallStack extends View {
       ImGui.tableNextColumn();
       Snippets.drawTypeWithTooltip(parameter.getNode().getTypeName(), tooltip);
       ImGui.tableNextColumn();
-      if (parameter.getNode() instanceof ObjectGNode object) {
+      if (parameter.getNode() instanceof JObjectReference object) {
         ImGui.text("Object#%s = %s".formatted(object.getObjectId(), object.getToString()));
-      } else if (parameter.getNode() instanceof PrimitiveGNode primitive) {
-        ImGui.text(primitive.getPrimitiveValue().toString());
+      } else if (parameter.getNode() instanceof JPrimitiveValue primitive) {
+        ImGui.text(primitive.getJdiPrimitiveValue().toString());
       }
     }
   }

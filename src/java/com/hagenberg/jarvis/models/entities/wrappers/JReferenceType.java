@@ -1,31 +1,29 @@
-package com.hagenberg.jarvis.models.entities.classList;
+package com.hagenberg.jarvis.models.entities.wrappers;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.hagenberg.jarvis.models.ClassModel;
 import com.hagenberg.jarvis.util.IndexedList;
 import com.sun.jdi.ReferenceType;
 
-public abstract class JReferenceType implements Refreshable {
+public abstract class JReferenceType extends JType {
+  private final ReferenceType jdiReferenceType;
 
-  protected final ClassModel model;
-  private final ReferenceType referenceType;
   private final List<JField> fields = new ArrayList<>();
   private final List<JMethod> methods = new ArrayList<>();
+  
   private final Pattern genericSignaturePattern = Pattern.compile("([\\w\\d]+):");
-  private String name;
   private String genericTypeParameters;
 
-  public JReferenceType(ReferenceType referenceType, ClassModel model) {
-    this.model = model;
-    this.referenceType = referenceType;
+  public JReferenceType(ReferenceType referenceType) {
+    super(referenceType);
+    this.jdiReferenceType = referenceType;
   }
 
-  public ReferenceType getReferenceType() {
-    return referenceType;
+  public ReferenceType getJdiReferenceType() {
+    return jdiReferenceType;
   }
 
   public List<JField> fields() {
@@ -40,40 +38,37 @@ public abstract class JReferenceType implements Refreshable {
 
   public abstract List<IndexedList<JReferenceType, JMethod>> allMethods();
 
-  public String name() {
-    return name;
+  public boolean isAbstract() {
+    return jdiReferenceType.isAbstract();
+  }
+
+  public boolean isFinal() {
+    return jdiReferenceType.isFinal();
+  }
+
+  public boolean isPrepared() {
+    return jdiReferenceType.isPrepared();
+  }
+
+  public boolean isStatic() {
+    return jdiReferenceType.isStatic();
   }
 
   public String genericSignature() {
     return genericTypeParameters;
   }
 
-  public boolean isAbstract() {
-    return referenceType.isAbstract();
-  }
-
-  public boolean isFinal() {
-    return referenceType.isFinal();
-  }
-
-  public boolean isPrepared() {
-    return referenceType.isPrepared();
-  }
-
-  public boolean isStatic() {
-    return referenceType.isStatic();
-  }
-
   /**
    * Requeries all the information from the debuggee.
    */
+  @Override
   public void refresh() {
+    super.refresh();
     fields.clear();
-    fields.addAll(JField.from(referenceType.fields()));
+    fields.addAll(JField.from(jdiReferenceType.fields()));
     methods.clear();
-    methods.addAll(JMethod.from(referenceType.methods()));
-    name = referenceType.name();
-    genericTypeParameters = getGenericTypeParameters(referenceType.genericSignature());
+    methods.addAll(JMethod.from(jdiReferenceType.methods()));
+    genericTypeParameters = getGenericTypeParameters(jdiReferenceType.genericSignature());
   }
 
   /**

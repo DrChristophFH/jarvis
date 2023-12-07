@@ -1,9 +1,8 @@
-package com.hagenberg.jarvis.models.entities.classList;
+package com.hagenberg.jarvis.models.entities.wrappers;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.hagenberg.jarvis.models.ClassModel;
 import com.hagenberg.jarvis.util.IndexedList;
 import com.sun.jdi.ArrayType;
 
@@ -11,8 +10,8 @@ public class JArray extends JReferenceType implements Comparable<JArray> {
 
   private final ArrayType array;
 
-  public JArray(ArrayType array, ClassModel model) {
-    super(array, model);
+  public JArray(ArrayType array) {
+    super(array);
     this.array = array;
   }
 

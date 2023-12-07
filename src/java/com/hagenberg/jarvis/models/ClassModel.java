@@ -1,9 +1,9 @@
 package com.hagenberg.jarvis.models;
 
-import com.hagenberg.jarvis.models.entities.classList.JArray;
-import com.hagenberg.jarvis.models.entities.classList.JClass;
-import com.hagenberg.jarvis.models.entities.classList.JInterface;
-import com.hagenberg.jarvis.models.entities.classList.JPackage;
+import com.hagenberg.jarvis.models.entities.wrappers.JArray;
+import com.hagenberg.jarvis.models.entities.wrappers.JClass;
+import com.hagenberg.jarvis.models.entities.wrappers.JInterface;
+import com.hagenberg.jarvis.models.entities.wrappers.JPackage;
 import com.sun.jdi.ArrayType;
 import com.sun.jdi.ClassType;
 import com.sun.jdi.InterfaceType;
