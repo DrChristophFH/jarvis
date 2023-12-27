@@ -6,12 +6,11 @@ import com.hagenberg.jarvis.graph.render.nodes.Node;
 import com.hagenberg.jarvis.graph.transform.AttributeTransformer;
 import com.hagenberg.jarvis.graph.transform.IdProvider;
 import com.hagenberg.jarvis.graph.transform.LinkRegisterCallback;
-import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
 import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
 import com.hagenberg.jarvis.models.entities.wrappers.JPrimitiveValue;
 import com.hagenberg.jarvis.models.entities.wrappers.JValue;
 
-public class SimpleMemberTransformer extends AttributeTransformer<MemberGVariable> {
+public class SimpleMemberTransformer extends AttributeTransformer<JValue> {
 
   @Override
   public Attribute transform(MemberGVariable member, IdProvider idProvider, Node parent, LinkRegisterCallback linkRegisterCallback) {

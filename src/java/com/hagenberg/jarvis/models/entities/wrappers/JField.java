@@ -5,15 +5,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.Field;
-import com.sun.jdi.Type;
 
 public class JField extends JTypeComponent {
 
   private final Field field;
   private JType type;
-  private String typeName;
   private Pattern genericTypePattern = Pattern.compile("T([\\w\\d]+);");
 
   public JField(Field field) {
@@ -26,23 +23,8 @@ public class JField extends JTypeComponent {
     return type;
   }
 
-  public String typeName() {
-    return typeName;
-  }
-
   public Field getField() {
     return field;
-  }
-
-  @Override
-  public void refresh() {
-    super.refresh();
-    try {
-      type = field.type();
-    } catch (ClassNotLoadedException e) {
-      type = null;
-    }
-    typeName = field.typeName();
   }
 
   public static List<JField> from(List<Field> allFields) {

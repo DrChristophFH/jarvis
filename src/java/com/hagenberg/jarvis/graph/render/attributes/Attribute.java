@@ -2,7 +2,6 @@ package com.hagenberg.jarvis.graph.render.attributes;
 
 import com.hagenberg.jarvis.graph.render.nodes.Node;
 import com.hagenberg.jarvis.graph.transform.TransformerRegistry;
-import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
 import com.hagenberg.jarvis.models.entities.wrappers.JPrimitiveValue;
 
 import imgui.ImGui;

@@ -124,7 +124,7 @@ public class JarvisDebugger {
         } else if (event instanceof BreakpointEvent || event instanceof StepEvent) {
           ThreadReference currentThread = ((LocatableEvent) event).thread();
           objectGraphModel.syncWith(currentThread);
-          callStackModel.syncWith(new ArrayList<>(currentThread.frames()), objectGraphModel);
+          callStackModel.syncWith(new ArrayList<>(currentThread.frames()));
           processUserCommand(currentThread, this.waitForUserCommand());
         } else if (event instanceof ExceptionEvent exceptionEvent) {
           ObjectReference exceptionObj = exceptionEvent.exception();

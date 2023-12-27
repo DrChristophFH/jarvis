@@ -5,6 +5,8 @@ import java.util.List;
 import com.hagenberg.imgui.Snippets;
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.models.CallStackModel;
+import com.hagenberg.jarvis.models.ClassModel;
+import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.models.entities.CallStackFrame;
 import com.hagenberg.jarvis.models.entities.wrappers.JLocalVariable;
 import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
@@ -17,12 +19,13 @@ import imgui.flag.ImGuiWindowFlags;
 
 public class CallStack extends View {
 
-  private CallStackModel model = new CallStackModel();
+  private CallStackModel model;
   private boolean fullClassName = false;
 
-  public CallStack() {
+  public CallStack(ObjectGraphModel objectGraphModel, ClassModel classModel) {
     setName("Call Stack");
     setFlags(ImGuiWindowFlags.HorizontalScrollbar | ImGuiWindowFlags.MenuBar);
+    model = new CallStackModel(objectGraphModel, classModel);
   }
 
   public CallStackModel getCallStackModel() {

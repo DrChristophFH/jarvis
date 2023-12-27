@@ -5,17 +5,13 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.sun.jdi.AbsentInformationException;
-import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.Method;
-import com.sun.jdi.Type;
 
 public class JMethod extends JTypeComponent {
 
   private final Method jdiMethod;
   private List<JLocalVariable> arguments;
   private JType returnType;
-  private String returnTypeName;
   private Pattern genericTypePattern = Pattern.compile("\\)(\\[*)T([\\w\\d]+);");
 
   public JMethod(Method method) {
@@ -28,32 +24,12 @@ public class JMethod extends JTypeComponent {
     return returnType;
   }
 
-  public String returnTypeName() {
-    return returnTypeName;
-  }
-
   public List<JLocalVariable> arguments() {
     return arguments;
   }
 
   public Method getJdiMethod() {
     return jdiMethod;
-  }
-
-  @Override
-  public void refresh() {
-    super.refresh();
-    try {
-      returnType = jdiMethod.returnType();
-    } catch (ClassNotLoadedException e) {
-      returnType = null;
-    }
-    returnTypeName = jdiMethod.returnTypeName();
-    try {
-      arguments = JLocalVariable.from(jdiMethod.arguments());
-    } catch (AbsentInformationException e) {
-      arguments = new ArrayList<>();
-    }
   }
 
   public static List<JMethod> from(List<Method> allMethods) {

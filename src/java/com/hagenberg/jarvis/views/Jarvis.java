@@ -24,15 +24,15 @@ public class Jarvis {
 
   private Log eventLog = new Log("Event Log");
   private Console console = new Console();
-  private ObjectGraph objectGraph = new ObjectGraph();
+  private ClassList classList = new ClassList(interactionState);
+  private ObjectGraph objectGraph = new ObjectGraph(classList.getModel());
   private LayouterControl layouterControl = new LayouterControl(objectGraph.getLayouter());
   private DebugStepControl debugStepControl = new DebugStepControl();
   private BreakPointControl breakPointControl = new BreakPointControl();
   private LocalVarList localVarList = new LocalVarList(interactionState);
   private ObjectList objectList = new ObjectList(interactionState);
-  private CallStack callStack = new CallStack();
+  private CallStack callStack = new CallStack(objectGraph.getObjectGraphModel(), classList.getModel());
   private LinePreview linePreview = new LinePreview(callStack.getCallStackModel());
-  private ClassList classList = new ClassList(interactionState);
   private TemplateBuilder templateBuilder = new TemplateBuilder(objectGraph.getGraphTransformer().getRegistry());
 
   private JarvisDebugger jarvisDebugger = new JarvisDebugger(eventLog, breakPointControl, console);

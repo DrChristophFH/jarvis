@@ -15,10 +15,9 @@ import com.hagenberg.jarvis.graph.transform.simple.SimpleContentTransformer;
 import com.hagenberg.jarvis.graph.transform.simple.SimpleObjectTransformer;
 import com.hagenberg.jarvis.graph.transform.specific.StringObjectTransformer;
 import com.hagenberg.jarvis.graph.transform.specific.TemplateObjectTransformer;
-import com.hagenberg.jarvis.models.entities.graph.ContentGVariable;
-import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
 import com.hagenberg.jarvis.models.entities.wrappers.JLocalVariable;
 import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
+import com.hagenberg.jarvis.models.entities.wrappers.JValue;
 
 public class TransformerRegistry {
 
@@ -27,8 +26,7 @@ public class TransformerRegistry {
   // default transformers
   private NodeTransformer<JObjectReference> defaultObjectRenderer;
   private NodeTransformer<JLocalVariable> defaultLocalVarRenderer = new SimpleLocalVariableTransformer();
-  private AttributeTransformer<MemberGVariable> defaultMemberRenderer = new SimpleMemberTransformer();
-  private AttributeTransformer<ContentGVariable> defaultContentRenderer = new SimpleContentTransformer();
+  private AttributeTransformer<JValue> defaultValueRenderer = new SimpleMemberTransformer();
   
   // transformer lists
   private List<TemplateObjectTransformer> templateTransformers = new ArrayList<>();
@@ -118,7 +116,7 @@ public class TransformerRegistry {
   // ------------ Attribute transformers ------------
 
   public AttributeTransformer<MemberGVariable> getMemberTransformer(MemberGVariable member) {
-    return defaultMemberRenderer;
+    return defaultValueRenderer;
   }
 
   public AttributeTransformer<ContentGVariable> getContentTransformer(ContentGVariable content) {
