@@ -255,7 +255,7 @@ public class ObjectGraphModel implements Observable {
   private void updateMembers(JObjectReference objRef) {
     for (JMember member : objRef.getMembers()) {
       Value varValue = objRef.getJdiObjectReference().getValue(member.field().getField());
-      updateVariable(member, varValue);
+      updateVariable(objRef, member, varValue);
     }
   }
 
@@ -264,17 +264,17 @@ public class ObjectGraphModel implements Observable {
     List<Value> values = arrayRef.getJdiArrayReference().getValues();
     for (int i = 0; i < values.size(); i++) {
       Value value = values.get(i);
-      updateVariable(arrayRef.getContent(i), value);
+      updateVariable(arrayRef, arrayRef.getContent(i), value);
     }
   }
 
-  private void updateVariable(JVariable variable, Value varValue) {
+  private void updateVariable(JObjectReference obj, JVariable variable, Value varValue) {
     if (varValue instanceof PrimitiveValue primValue) {
       variable.setValue(createJPrimitiveValue(primValue));
     } else {
       JObjectReference oldValue = (JObjectReference) variable.value(); // cast must be safe
       JObjectReference newValue = cycleObjectReference((ObjectReference) varValue);
-      setReferences(variable, oldValue, newValue);
+      setReferences(obj, oldValue, newValue);
       variable.setValue(newValue);
     }
   }
@@ -313,6 +313,7 @@ public class ObjectGraphModel implements Observable {
         jValue = createJPrimitiveValue(primValue);
       } else if (value instanceof ObjectReference objRefValue) {
         jValue = cycleObjectReference(objRefValue);
+        ((JObjectReference) jValue).addReferenceHolder(newNode);
       }
 
       JMember member = new JMember(jField, jValue);
@@ -339,6 +340,7 @@ public class ObjectGraphModel implements Observable {
         jValue = createJPrimitiveValue(primValue);
       } else if (value instanceof ObjectReference objRefValue) {
         jValue = cycleObjectReference(objRefValue);
+        ((JObjectReference) jValue).addReferenceHolder(newNode);
       }
 
       newNode.setContent(i, jValue);

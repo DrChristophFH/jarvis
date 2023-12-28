@@ -6,6 +6,7 @@ import java.util.List;
 import com.hagenberg.jarvis.models.ClassModel;
 import com.hagenberg.jarvis.util.IndexedList;
 import com.sun.jdi.ClassType;
+import com.sun.jdi.Field;
 import com.sun.jdi.InterfaceType;
 import com.sun.jdi.Method;
 
@@ -110,6 +111,23 @@ public class JClassType extends JReferenceType implements Comparable<JClassType>
         return method;
       }
     }
+    return null;
+  }
+
+  @Override
+  public JField getField(Field field) {
+    // search in own fields
+    for (JField jField : fields()) {
+      if (jField.getField().equals(field)) {
+        return jField;
+      }
+    }
+
+    // search in super class fields
+    if (superClass != null) {
+      return superClass.getField(field);
+    }
+    
     return null;
   }
 }

@@ -1,6 +1,6 @@
 package com.hagenberg.jarvis.models.entities.wrappers;
 
-public class JVariable implements ReferenceHolder {
+public class JVariable {
   protected final String name;
   protected JValue value;
 
