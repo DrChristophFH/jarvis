@@ -15,7 +15,6 @@ public class JMethod extends JTypeComponent {
   private final Method jdiMethod;
   private final List<JLocalVariable> arguments = new ArrayList<>();
   private final JType returnType;
-  private final Pattern genericTypePattern = Pattern.compile("\\)(\\[*)T([\\w\\d]+);");
 
   public JMethod(Method method, JType returnType) {
     super(method);
@@ -54,7 +53,8 @@ public class JMethod extends JTypeComponent {
     if (genericSignature == null) { // no generic signature
       return "";
     }
-
+    
+    Pattern genericTypePattern = Pattern.compile("\\)(\\[*)T([\\w\\d]+);");
     Matcher matcher = genericTypePattern.matcher(genericSignature);
 
     int arrayDimensions = 0;

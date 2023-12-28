@@ -17,9 +17,14 @@ public class JClassType extends JReferenceType implements Comparable<JClassType>
   private final List<JInterfaceType> interfaces = new ArrayList<>();
   private JClassType superClass;
 
-  public JClassType(ClassType clazz, ClassModel model) {
-    super(clazz, model);
+  public JClassType(ClassType clazz) {
+    super(clazz);
     this.clazz = clazz;
+  }
+
+  @Override
+  public void populate(ClassModel model) {
+    super.populate(model);
     for (ClassType subClass : clazz.subclasses()) {
       subClasses.add(model.getOrCreate(subClass));
     }

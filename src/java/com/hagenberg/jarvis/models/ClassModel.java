@@ -52,8 +52,9 @@ public class ClassModel {
     try {
       JClassType clazz = classes.get(classType);
       if (clazz == null) {
-        clazz = new JClassType(classType, this);
+        clazz = new JClassType(classType);
         classes.put(classType, clazz);
+        clazz.populate(this);
       }
       return clazz;
     } finally {
@@ -66,8 +67,9 @@ public class ClassModel {
     try {
       JInterfaceType iface = interfaces.get(iFaceType);
       if (iface == null) {
-        iface = new JInterfaceType(iFaceType, this);
+        iface = new JInterfaceType(iFaceType);
         interfaces.put(iFaceType, iface);
+        iface.populate(this);
       }
       return iface;
     } finally {
@@ -80,8 +82,9 @@ public class ClassModel {
     try {
       JArrayType array = arrays.get(arrayType);
       if (array == null) {
-        array = new JArrayType(arrayType, this);
+        array = new JArrayType(arrayType);
         arrays.put(arrayType, array);
+        array.populate(this);
       }
       return array;
     } finally {

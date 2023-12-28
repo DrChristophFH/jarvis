@@ -14,7 +14,6 @@ public class JField extends JTypeComponent {
   private final Field field;
 
   private final JType type;
-  private final Pattern genericTypePattern = Pattern.compile("T([\\w\\d]+);");
 
   public JField(Field field, JType type) {
     super(field);
@@ -49,7 +48,8 @@ public class JField extends JTypeComponent {
     if (genericSignature == null) { // no generic signature
       return "";
     }
-
+    
+    Pattern genericTypePattern = Pattern.compile("T([\\w\\d]+);");
     Matcher matcher = genericTypePattern.matcher(genericSignature);
 
     if (matcher.matches()) {

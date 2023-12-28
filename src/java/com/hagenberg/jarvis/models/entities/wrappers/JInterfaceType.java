@@ -15,9 +15,14 @@ public class JInterfaceType extends JReferenceType implements Comparable<JInterf
   private final List<JInterfaceType> superInterfaces = new ArrayList<>();
   private final List<JInterfaceType> subInterfaces = new ArrayList<>();
 
-  public JInterfaceType(InterfaceType iface, ClassModel model) {
-    super(iface, model);
+  public JInterfaceType(InterfaceType iface) {
+    super(iface);
     this.iface = iface;
+  }
+
+  @Override
+  public void populate(ClassModel model) {
+    super.populate(model);
     for (InterfaceType superInterface : iface.superinterfaces()) {
       superInterfaces.add(model.getOrCreate(superInterface));
     }

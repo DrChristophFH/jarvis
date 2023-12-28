@@ -19,12 +19,15 @@ public abstract class JReferenceType extends JType {
   private final Pattern genericSignaturePattern = Pattern.compile("([\\w\\d]+):");
   private String genericTypeParameters;
 
-  public JReferenceType(ReferenceType referenceType, ClassModel model) {
+  public JReferenceType(ReferenceType referenceType) {
     super(referenceType);
     this.jdiReferenceType = referenceType;
     this.genericTypeParameters = getGenericTypeParameters(jdiReferenceType.genericSignature());
-    fields.addAll(JField.from(referenceType.fields(), model));
-    methods.addAll(JMethod.from(referenceType.methods(), model));
+  }
+
+  public void populate(ClassModel model) {
+    fields.addAll(JField.from(jdiReferenceType.allFields(), model));
+    methods.addAll(JMethod.from(jdiReferenceType.allMethods(), model));
   }
 
   public ReferenceType getJdiReferenceType() {
