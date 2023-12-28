@@ -1,8 +1,8 @@
 package com.hagenberg.jarvis.models.entities.wrappers;
 
 public class JVariable implements ReferenceHolder {
-  protected JValue value;
   protected final String name;
+  protected JValue value;
 
   public JVariable(JValue value, String name) {
     this.value = value;

@@ -6,6 +6,7 @@ import com.hagenberg.jarvis.models.entities.wrappers.JLocalVariable;
 import com.hagenberg.jarvis.models.entities.wrappers.JMember;
 import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
 import com.hagenberg.jarvis.models.entities.wrappers.JPrimitiveValue;
+import com.hagenberg.jarvis.models.entities.wrappers.JReferenceType;
 import com.hagenberg.jarvis.models.entities.wrappers.JType;
 import com.hagenberg.jarvis.models.entities.wrappers.JValue;
 import com.hagenberg.jarvis.models.entities.wrappers.JVariable;
@@ -63,6 +64,7 @@ public class ObjectGraphModel implements Observable {
       }
 
       localVarBuffer.clear();
+      objectBuffer.clear();
 
       for (StackFrame frame : frames) {
         handleFrame(frame);
@@ -71,7 +73,9 @@ public class ObjectGraphModel implements Observable {
       resolveToString();
 
       localVars.clear();
+      objectMap.clear();
       localVars.putAll(localVarBuffer);
+      objectMap.putAll(objectBuffer);
 
       notifyObservers();
     } finally {
@@ -295,19 +299,13 @@ public class ObjectGraphModel implements Observable {
   }
 
   private JObjectReference createObjectNode(ObjectReference objRef) {
-    JObjectReference newNode = new JObjectReference(objRef, classModel.getJType(objRef.referenceType()));
+    JReferenceType objType = (JReferenceType) classModel.getJType(objRef.referenceType());
+    JObjectReference newNode = new JObjectReference(objRef, objType);
     deferToString(newNode, objRef);
     for (Field field : objRef.referenceType().allFields()) {
       if (field.isStatic()) continue; // skip static fields
 
-      Type type;
-      try {
-        type = field.type();
-      } catch (ClassNotLoadedException e) {
-        type = null;
-      }
-
-      JField jField = new JField(field, classModel.getJType(type));
+      JField jField = objType.getField(field);
       JValue jValue = null;
 
       Value value = objRef.getValue(field);

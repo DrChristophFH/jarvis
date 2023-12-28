@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import com.hagenberg.jarvis.models.ClassModel;
 import com.hagenberg.jarvis.util.IndexedList;
+import com.sun.jdi.Field;
 import com.sun.jdi.Method;
 import com.sun.jdi.ReferenceType;
 
@@ -101,5 +102,14 @@ public abstract class JReferenceType extends JType {
     }
 
     return sb.toString();
+  }
+
+  public JField getField(Field field) {
+    for (JField jField : fields) {
+      if (jField.getField().equals(field)) {
+        return jField;
+      }
+    }
+    return null;
   }
 }

@@ -79,7 +79,7 @@ public class ObjectList extends View {
     }
 
     int tableFlags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable
-        | ImGuiTableFlags.ScrollX | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.ScrollY;
+        | ImGuiTableFlags.ScrollX | ImGuiTableFlags.Resizable | ImGuiTableFlags.ScrollY;
 
     if (ImGui.beginTable("table", 4, tableFlags)) {
 
@@ -119,7 +119,7 @@ public class ObjectList extends View {
       ImGui.tableSetBgColor(ImGuiTableBgTarget.RowBg1, ImGui.getColorU32(ImGuiCol.TextSelectedBg));
     }
 
-    boolean open = ImGui.treeNodeEx(object.toString(), treeFlags);
+    boolean open = ImGui.treeNodeEx(object.name(), treeFlags);
 
     if (ImGui.beginPopupContextItem()) {
       // TODO Snippets.focusOnNode(object.getLayoutNode().getNodeId());
@@ -166,10 +166,11 @@ public class ObjectList extends View {
     ImGui.tableNextColumn();
     Snippets.drawTypeWithTooltip(type, tooltip);
     ImGui.tableNextColumn();
-    Snippets.drawTypeWithTooltip(element.type(), tooltip);
+    if (element != null) Snippets.drawTypeWithTooltip(element.type(), tooltip);
     ImGui.tableNextColumn();
 
-    ImGui.text(element.toString());
+    String value = element == null ? "null" : element.getToString();
+    ImGui.text(value);
 
     if (open) {
       if (element instanceof JObjectReference object) {

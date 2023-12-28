@@ -40,7 +40,7 @@ public class LocalVarList extends View {
       return;
     }
 
-    int tableFlags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable | ImGuiTableFlags.ScrollX | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.ScrollY;
+    int tableFlags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable | ImGuiTableFlags.ScrollX | ImGuiTableFlags.Resizable | ImGuiTableFlags.ScrollY;
 
     if (ImGui.beginTable("localVarList", 4, tableFlags)) {
 
@@ -76,10 +76,11 @@ public class LocalVarList extends View {
     ImGui.tableNextColumn();
     Snippets.drawTypeWithTooltip(type, tooltip);
     ImGui.tableNextColumn();
-    Snippets.drawTypeWithTooltip(value.type(), tooltip);
+    if (value != null) Snippets.drawTypeWithTooltip(value.type(), tooltip);
     ImGui.tableNextColumn();
 
-    ImGui.text(value.toString());
+    String valueString = value == null ? "null" : value.getToString();
+    ImGui.text(valueString);
 
     if (open) {
       if (value instanceof JObjectReference object) {

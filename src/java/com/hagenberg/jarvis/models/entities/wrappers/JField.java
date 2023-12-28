@@ -36,6 +36,7 @@ public class JField extends JTypeComponent {
       try {
         type = field.type();
       } catch (ClassNotLoadedException e) {
+        System.out.println("Class not loaded: " + e.getMessage());
         type = null;
       }
       fields.add(new JField(field, model.getJType(type)));
