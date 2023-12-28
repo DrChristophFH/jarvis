@@ -38,7 +38,7 @@ public class SimpleLocalVariableTransformer extends NodeTransformer<JLocalVariab
       attId,
       node,
       localVariable.value() instanceof JPrimitiveValue,
-      localVariable.getStaticTypeName(),
+      localVariable.getType(),
       localVariable.name(),
       value
     );

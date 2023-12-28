@@ -21,7 +21,7 @@ public class StringObjectTransformer extends NodeTransformer<JObjectReference> {
   public Node transform(JObjectReference object, IdProvider idProvider, LinkRegisterCallback linkRegisterCallback) {
     return new StringNode(
       idProvider.next(), 
-      object.getTypeName(), 
+      object.type(), 
       "Object#" + object.getObjectId(), 
       object.getToString(), 
       object.getReferenceHolders(),

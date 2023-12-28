@@ -7,7 +7,8 @@ import com.hagenberg.imgui.Snippets;
 import com.hagenberg.imgui.components.Tooltip;
 import com.hagenberg.jarvis.graph.render.attributes.Attribute;
 import com.hagenberg.jarvis.graph.transform.TransformerContextMenu;
-import com.hagenberg.jarvis.models.entities.graph.GVariable;
+import com.hagenberg.jarvis.models.entities.wrappers.JType;
+import com.hagenberg.jarvis.models.entities.wrappers.ReferenceHolder;
 
 import imgui.ImGui;
 import imgui.extension.imnodes.ImNodes;
@@ -15,19 +16,19 @@ import imgui.extension.imnodes.flag.ImNodesColorStyle;
 
 public class DefaultObjectNode extends Node {
 
-  protected final String typeName;
+  protected final JType type;
   protected final String objectName;
   protected final String toString;
-  protected final List<GVariable> referenceHolders;
+  protected final List<ReferenceHolder> referenceHolders;
   protected final Tooltip tooltip = new Tooltip();
   protected final TransformerContextMenu transformerContextMenu;
 
   private boolean frozenStyle = false;
 
-  public DefaultObjectNode(int nodeId, String typeName, String objectName, String toString, List<GVariable> referenceHolders,
+  public DefaultObjectNode(int nodeId, JType type, String objectName, String toString, List<ReferenceHolder> referenceHolders,
       TransformerContextMenu transformerContextMenu) {
     super(nodeId);
-    this.typeName = typeName;
+    this.type = type;
     this.objectName = objectName;
     this.toString = toString;
     this.referenceHolders = referenceHolders;
@@ -45,7 +46,7 @@ public class DefaultObjectNode extends Node {
 
   @Override
   protected void headerContent() {
-    Snippets.drawTypeWithTooltip(typeName, tooltip);
+    Snippets.drawTypeWithTooltip(type, tooltip);
     ImGui.sameLine();
     ImGui.text(objectName);
   }

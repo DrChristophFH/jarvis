@@ -6,14 +6,15 @@ import com.hagenberg.jarvis.graph.render.nodes.Node;
 import com.hagenberg.jarvis.graph.transform.AttributeTransformer;
 import com.hagenberg.jarvis.graph.transform.IdProvider;
 import com.hagenberg.jarvis.graph.transform.LinkRegisterCallback;
+import com.hagenberg.jarvis.models.entities.wrappers.JMember;
 import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
 import com.hagenberg.jarvis.models.entities.wrappers.JPrimitiveValue;
 import com.hagenberg.jarvis.models.entities.wrappers.JValue;
 
-public class SimpleMemberTransformer extends AttributeTransformer<JValue> {
+public class SimpleMemberTransformer extends AttributeTransformer<JObjectReference, JMember> {
 
   @Override
-  public Attribute transform(MemberGVariable member, IdProvider idProvider, Node parent, LinkRegisterCallback linkRegisterCallback) {
+  public Attribute transform(JObjectReference object, JMember member, IdProvider idProvider, Node parent, LinkRegisterCallback linkRegisterCallback) {
     JValue node = member.value();
     boolean isPrimitive = node instanceof JPrimitiveValue;
     String value;
@@ -30,9 +31,9 @@ public class SimpleMemberTransformer extends AttributeTransformer<JValue> {
       idProvider.next(), 
       parent,
       isPrimitive,
-      member.getAccessModifier().toString(),
-      member.getStaticTypeName(),
-      member.name(),
+      member.field().modifiers().toString(),
+      member.field().type(),
+      member.field().name(),
       value
     );
 

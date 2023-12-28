@@ -14,7 +14,6 @@ import com.hagenberg.jarvis.util.Pair;
 import com.sun.jdi.*;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
@@ -252,7 +251,7 @@ public class ObjectGraphModel implements Observable {
       if (varValue instanceof PrimitiveValue primValue) {
         objRef.setMember(field, createJPrimitiveValue(primValue));
       } else {
-        JObjectReference oldValue = (JObjectReference) objRef.getMember(field);  // cast must be safe
+        JObjectReference oldValue = (JObjectReference) objRef.getMember(field).value(); // cast must be safe
         JObjectReference newValue = cycleObjectReference((ObjectReference) varValue);
         setReferences(objRef, oldValue, newValue);
         objRef.setMember(field, newValue);
@@ -268,7 +267,7 @@ public class ObjectGraphModel implements Observable {
       if (value instanceof PrimitiveValue primValue) {
         arrayRef.setContent(i, createJPrimitiveValue(primValue));
       } else {
-        JObjectReference oldValue = (JObjectReference) arrayRef.getContent(i);  // cast must be safe
+        JObjectReference oldValue = (JObjectReference) arrayRef.getContent(i).value(); // cast must be safe
         JObjectReference newValue = cycleObjectReference((ObjectReference) value);
         setReferences(arrayRef, oldValue, newValue);
         arrayRef.setContent(i, newValue);
@@ -300,7 +299,14 @@ public class ObjectGraphModel implements Observable {
   }
 
   private JObjectReference createArrayNode(ArrayReference arrayRef) {
-    return new JArrayReference(arrayRef, classModel.getJType(arrayRef.referenceType()));
+    ArrayType arrayType = (ArrayType) arrayRef.referenceType();
+    Type componentType;
+    try {
+      componentType = arrayType.componentType();
+    } catch (ClassNotLoadedException e) {
+      componentType = null;
+    }
+    return new JArrayReference(arrayRef, classModel.getJType(arrayType), classModel.getJType(componentType));
   }
 
   private JValue createJPrimitiveValue(PrimitiveValue primValue) {
@@ -308,18 +314,10 @@ public class ObjectGraphModel implements Observable {
   }
 
   private void removeObject(JObjectReference objectRef) {
-    removeReferenceHolder(objectRef, objectRef.getValues());
+    List<JObjectReference> removed = objectRef.removeAsReferenceHolder();
     objectMap.remove(objectRef.getJdiObjectReference());
-  }
-
-  private void removeReferenceHolder(ReferenceHolder referenceHolder, Collection<JValue> values) {
-    for (JValue value : values) {
-      if (value instanceof JObjectReference objRef) {
-        objRef.removeReferenceHolder(referenceHolder);
-        if (objRef.getReferenceHolders().isEmpty()) {
-          removeObject(objRef);
-        }
-      }
+    for (JObjectReference objRef : removed) {
+      removeObject(objRef);
     }
   }
 

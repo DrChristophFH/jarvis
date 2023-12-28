@@ -15,9 +15,11 @@ import com.hagenberg.jarvis.graph.transform.simple.SimpleContentTransformer;
 import com.hagenberg.jarvis.graph.transform.simple.SimpleObjectTransformer;
 import com.hagenberg.jarvis.graph.transform.specific.StringObjectTransformer;
 import com.hagenberg.jarvis.graph.transform.specific.TemplateObjectTransformer;
+import com.hagenberg.jarvis.models.entities.wrappers.JArrayReference;
+import com.hagenberg.jarvis.models.entities.wrappers.JContent;
 import com.hagenberg.jarvis.models.entities.wrappers.JLocalVariable;
+import com.hagenberg.jarvis.models.entities.wrappers.JMember;
 import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
-import com.hagenberg.jarvis.models.entities.wrappers.JValue;
 
 public class TransformerRegistry {
 
@@ -26,7 +28,8 @@ public class TransformerRegistry {
   // default transformers
   private NodeTransformer<JObjectReference> defaultObjectRenderer;
   private NodeTransformer<JLocalVariable> defaultLocalVarRenderer = new SimpleLocalVariableTransformer();
-  private AttributeTransformer<JValue> defaultValueRenderer = new SimpleMemberTransformer();
+  private AttributeTransformer<JObjectReference, JMember> defaultMemberRenderer = new SimpleMemberTransformer();
+  private AttributeTransformer<JArrayReference, JContent> defaultContentRenderer = new SimpleContentTransformer();
   
   // transformer lists
   private List<TemplateObjectTransformer> templateTransformers = new ArrayList<>();
@@ -115,11 +118,11 @@ public class TransformerRegistry {
 
   // ------------ Attribute transformers ------------
 
-  public AttributeTransformer<MemberGVariable> getMemberTransformer(MemberGVariable member) {
-    return defaultValueRenderer;
+  public AttributeTransformer<JObjectReference, JMember> getMemberTransformer(JMember member) {
+    return defaultMemberRenderer;
   }
 
-  public AttributeTransformer<ContentGVariable> getContentTransformer(ContentGVariable content) {
+  public AttributeTransformer<JArrayReference, JContent> getContentTransformer(JContent content) {
     return defaultContentRenderer;
   }
 

@@ -1,10 +1,7 @@
 package com.hagenberg.jarvis.models.entities.wrappers;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.sun.jdi.ObjectReference;
 
@@ -12,9 +9,10 @@ public class JObjectReference extends JValue implements ReferenceHolder {
 
   private final ObjectReference jdiObjectReference;
 
-  private final Map<JField, JValue> members = new HashMap<>();
+  private final long objectId;
+  private final List<JMember> members = new ArrayList<>();
   private final List<ReferenceHolder> referenceHolders = new ArrayList<>();
-  private long objectId;
+
   private String toStringRepresentation = "";
 
   public JObjectReference(ObjectReference jdiObjectReference, JType type) {
@@ -36,8 +34,8 @@ public class JObjectReference extends JValue implements ReferenceHolder {
     }
   }
 
-  public void addMember(JField field, JValue value) {
-    members.put(field, value);
+  public void addMember(JMember memberVariable) {
+    members.add(memberVariable);
   }
 
   public void addReferenceHolder(ReferenceHolder referenceHolder) {
@@ -52,20 +50,20 @@ public class JObjectReference extends JValue implements ReferenceHolder {
     return referenceHolders;
   }
 
-  public Map<JField, JValue> getMembers() {
+  public List<JMember> getMembers() {
     return members;
   }
 
-  public Collection<JValue> getValues() {
-    return members.values();
-  }
-
-  public JValue getMember(JField field) {
-    return members.get(field);
+  public JMember getMember(String name) {
+    return members.stream().filter(m -> m.field().name().equals(name)).findFirst().orElse(null);
   }
 
   public void setMember(JField field, JValue value) {
-    members.put(field, value);
+    members.stream().filter(m -> m.field().equals(field)).findFirst().ifPresent(m -> m.setValue(value));
+  }
+
+  public JMember getMember(JField field) {
+    return members.stream().filter(m -> m.field().equals(field)).findFirst().orElse(null);
   }
 
   public ObjectReference getJdiObjectReference() {
@@ -103,5 +101,18 @@ public class JObjectReference extends JValue implements ReferenceHolder {
   @Override
   public String name() {
     return "Object#" + objectId;
+  }
+
+  public List<JObjectReference> removeAsReferenceHolder() {
+    List<JObjectReference> removed = new ArrayList<>();
+    for (JMember member : members) {
+      if (member.value() instanceof JObjectReference objRef) {
+        objRef.removeReferenceHolder(this);
+        if (objRef.getReferenceHolders().isEmpty()) {
+          removed.add(objRef);
+        }
+      }
+    }
+    return removed;
   }
 }

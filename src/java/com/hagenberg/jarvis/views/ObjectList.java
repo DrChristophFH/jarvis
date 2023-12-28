@@ -9,7 +9,8 @@ import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.models.InteractionState;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.models.entities.wrappers.JArrayReference;
-import com.hagenberg.jarvis.models.entities.wrappers.JField;
+import com.hagenberg.jarvis.models.entities.wrappers.JContent;
+import com.hagenberg.jarvis.models.entities.wrappers.JMember;
 import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
 import com.hagenberg.jarvis.models.entities.wrappers.JType;
 import com.hagenberg.jarvis.models.entities.wrappers.JValue;
@@ -141,14 +142,14 @@ public class ObjectList extends View {
   }
 
   private void scaffoldObject(JObjectReference object) {
-    for (JField field : object.getMembers().keySet()) {
-      displayElement(object.getMember(field), field.name(), field.type());
+    for (JMember member : object.getMembers()) {
+      displayElement(member.value(), member.field().name(), member.field().type());
     }
     if (object instanceof JArrayReference array) {
       int index = 0;
-      JType elementType = array.type();
-      for (JValue element : array.getValues()) {
-        displayElement(element, "[" + index + "]", elementType);
+      JType elementType = array.getArrayContentType();
+      for (JContent content : array.getContent()) {
+        displayElement(content.value(), "[" + index + "]", elementType);
         index++;
       }
     }
@@ -181,7 +182,7 @@ public class ObjectList extends View {
   private int determineTreeFlags(JValue value) {
     int treeFlags = ImGuiTreeNodeFlags.SpanFullWidth | ImGuiTreeNodeFlags.SpanAvailWidth;
     if (value instanceof JArrayReference array) {
-      if (array.getValues().isEmpty()) {
+      if (array.getContent().isEmpty()) {
         treeFlags |= ImGuiTreeNodeFlags.Leaf;
       }
     } else if (value instanceof JObjectReference object) {

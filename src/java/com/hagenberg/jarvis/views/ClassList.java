@@ -8,7 +8,6 @@ import com.hagenberg.imgui.Snippets;
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.models.ClassModel;
 import com.hagenberg.jarvis.models.InteractionState;
-import com.hagenberg.jarvis.models.entities.AccessModifier;
 import com.hagenberg.jarvis.models.entities.wrappers.JClassType;
 import com.hagenberg.jarvis.models.entities.wrappers.JField;
 import com.hagenberg.jarvis.models.entities.wrappers.JInterfaceType;
@@ -166,7 +165,7 @@ public class ClassList extends View {
   }
 
   private void showField(JField field) {
-    ImGui.textColored(Colors.AccessModifier, AccessModifier.toString(field.modifiers()));
+    ImGui.textColored(Colors.AccessModifier, field.modifiers().toString());
     ImGui.sameLine();
     if (field.typeIsGeneric()) {
       ImGui.textColored(Colors.Type, field.genericSignature());
@@ -191,10 +190,7 @@ public class ClassList extends View {
   }
 
   private void showMethod(JMethod method) {
-    Profiler.start("cl.methods.modifiers");
-    int modifiers = method.modifiers();
-    Profiler.stop("cl.methods.modifiers");
-    ImGui.textColored(Colors.AccessModifier, AccessModifier.toString(modifiers));
+    ImGui.textColored(Colors.AccessModifier, method.modifiers().toString());
     ImGui.sameLine();
     Profiler.start("cl.methods.returnType");
     if (method.typeIsGeneric()) {

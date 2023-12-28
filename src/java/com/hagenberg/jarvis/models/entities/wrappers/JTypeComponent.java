@@ -1,11 +1,12 @@
 package com.hagenberg.jarvis.models.entities.wrappers;
 
+import com.hagenberg.jarvis.models.entities.AccessModifier;
 import com.sun.jdi.TypeComponent;
 
 public abstract class JTypeComponent implements Refreshable {
   private final TypeComponent typeComponent;
   private String name;
-  private int modifiers;
+  private AccessModifier modifier;
   private String genericType;
 
   public JTypeComponent(TypeComponent typeComponent) {
@@ -16,8 +17,8 @@ public abstract class JTypeComponent implements Refreshable {
     return name;
   }
 
-  public int modifiers() {
-    return modifiers;
+  public AccessModifier modifiers() {
+    return modifier;
   }
 
   public String genericSignature() {
@@ -31,7 +32,7 @@ public abstract class JTypeComponent implements Refreshable {
   @Override
   public void refresh() {
     name = typeComponent.name();
-    modifiers = typeComponent.modifiers();
+    modifier = new AccessModifier(typeComponent.modifiers());
     genericType = getGenericType(typeComponent.genericSignature());
   }
 

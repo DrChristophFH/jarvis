@@ -12,7 +12,7 @@ import com.hagenberg.jarvis.graph.transform.NodeTransformer;
 import com.hagenberg.jarvis.graph.transform.Path;
 import com.hagenberg.jarvis.graph.transform.TransformerContextMenu;
 import com.hagenberg.jarvis.graph.transform.TransformerRegistry;
-import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
+import com.hagenberg.jarvis.models.entities.wrappers.JMember;
 import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
 
 public class TemplateObjectTransformer extends NodeTransformer<JObjectReference> {
@@ -31,7 +31,7 @@ public class TemplateObjectTransformer extends NodeTransformer<JObjectReference>
   public TemplateObjectNode transform(JObjectReference object, IdProvider idProvider, LinkRegisterCallback linkRegisterCallback) {
     TemplateObjectNode objNode = new TemplateObjectNode(
       idProvider.next(), 
-      object.getTypeName(), 
+      object.type(), 
       "Object#" + object.getObjectId(), 
       object.getToString(), 
       object.getReferenceHolders(),
@@ -39,9 +39,9 @@ public class TemplateObjectTransformer extends NodeTransformer<JObjectReference>
     );
     
     for (Path path : paths) {
-      MemberGVariable member = path.resolve(object);
+      JMember member = path.resolve(object);
       if (member != null) {
-        Attribute att = registry.getMemberTransformer(member).transform(member, idProvider, objNode, linkRegisterCallback);
+        Attribute att = registry.getMemberTransformer(member).transform(object, member, idProvider, objNode, linkRegisterCallback);
         objNode.addAttribute(att);
       }
     }
