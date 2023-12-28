@@ -94,11 +94,9 @@ public class LocalVarList extends View {
       displayElement(member.value(), member.field().name(), member.field().type());
     }
     if (object instanceof JArrayReference array) {
-      int index = 0;
       JType elementType = array.getArrayContentType();
       for (JContent content : array.getContent()) {
-        displayElement(content.value(), "[" + index + "]", elementType);
-        index++;
+        displayElement(content.value(), content.name(), elementType);
       }
     }
   }

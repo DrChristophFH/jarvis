@@ -6,9 +6,4 @@ public class JPrimitiveType extends JType {
   public JPrimitiveType(Type type) {
     super(type);
   }
-
-  @Override
-  public void refresh() {
-    super.refresh();
-  }
 }

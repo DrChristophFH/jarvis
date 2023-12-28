@@ -5,19 +5,22 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.hagenberg.jarvis.models.ClassModel;
+import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.Method;
+import com.sun.jdi.Type;
 
 public class JMethod extends JTypeComponent {
 
   private final Method jdiMethod;
-  private List<JLocalVariable> arguments;
-  private JType returnType;
-  private Pattern genericTypePattern = Pattern.compile("\\)(\\[*)T([\\w\\d]+);");
+  private final List<JLocalVariable> arguments = new ArrayList<>();
+  private final JType returnType;
+  private final Pattern genericTypePattern = Pattern.compile("\\)(\\[*)T([\\w\\d]+);");
 
-  public JMethod(Method method) {
+  public JMethod(Method method, JType returnType) {
     super(method);
     this.jdiMethod = method;
-    refresh();
+    this.returnType = returnType;
   }
 
   public JType returnType() {
@@ -32,10 +35,16 @@ public class JMethod extends JTypeComponent {
     return jdiMethod;
   }
 
-  public static List<JMethod> from(List<Method> allMethods) {
+  public static List<JMethod> from(List<Method> allMethods, ClassModel model) {
     List<JMethod> methods = new ArrayList<>();
     for (Method method : allMethods) {
-      methods.add(new JMethod(method));
+      Type type;
+      try {
+        type = method.returnType();
+      } catch (ClassNotLoadedException e) {
+        type = null;
+      }
+      methods.add(new JMethod(method, model.getJType(type)));
     }
     return methods;
   }

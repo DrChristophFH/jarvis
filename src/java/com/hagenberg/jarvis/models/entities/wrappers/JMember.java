@@ -1,23 +1,14 @@
 package com.hagenberg.jarvis.models.entities.wrappers;
 
-public class JMember {
+public class JMember extends JVariable {
   private final JField field;
-  private JValue value;
   
   public JMember(JField field, JValue value) {
+    super(value, field.name());
     this.field = field;
-    this.value = value;
   }
 
   public JField field() {
     return field;
-  }
-
-  public JValue value() {
-    return value;
-  }
-
-  public void setValue(JValue value) {
-    this.value = value;
   }
 }

@@ -5,18 +5,21 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.hagenberg.jarvis.models.ClassModel;
+import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.Field;
+import com.sun.jdi.Type;
 
 public class JField extends JTypeComponent {
-
   private final Field field;
-  private JType type;
-  private Pattern genericTypePattern = Pattern.compile("T([\\w\\d]+);");
 
-  public JField(Field field) {
+  private final JType type;
+  private final Pattern genericTypePattern = Pattern.compile("T([\\w\\d]+);");
+
+  public JField(Field field, JType type) {
     super(field);
     this.field = field;
-    refresh();
+    this.type = type;
   }
 
   public JType type() {
@@ -27,10 +30,16 @@ public class JField extends JTypeComponent {
     return field;
   }
 
-  public static List<JField> from(List<Field> allFields) {
+  public static List<JField> from(List<Field> allFields, ClassModel model) {
     List<JField> fields = new ArrayList<>();
     for (Field field : allFields) {
-      fields.add(new JField(field));
+      Type type;
+      try {
+        type = field.type();
+      } catch (ClassNotLoadedException e) {
+        type = null;
+      }
+      fields.add(new JField(field, model.getJType(type)));
     }
     return fields;
   }

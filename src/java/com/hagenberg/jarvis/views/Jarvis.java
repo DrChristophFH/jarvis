@@ -1,8 +1,12 @@
 package com.hagenberg.jarvis.views;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.lwjgl.glfw.GLFW;
 
 import com.hagenberg.imgui.Application;
+import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.debugger.JarvisDebugger;
 import com.hagenberg.jarvis.models.InteractionState;
 import com.hagenberg.jarvis.util.Profiler;
@@ -22,6 +26,8 @@ public class Jarvis {
 
   private InteractionState interactionState = new InteractionState();
 
+  private List<View> views = new ArrayList<>();
+
   private Log eventLog = new Log("Event Log");
   private Console console = new Console();
   private ClassList classList = new ClassList(interactionState);
@@ -39,6 +45,18 @@ public class Jarvis {
 
   public Jarvis(Application application) {
     this.application = application;
+    views.add(eventLog);
+    views.add(console);
+    views.add(classList);
+    views.add(objectGraph);
+    views.add(layouterControl);
+    views.add(debugStepControl);
+    views.add(breakPointControl);
+    views.add(localVarList);
+    views.add(objectList);
+    views.add(callStack);
+    views.add(linePreview);
+    views.add(templateBuilder);
   }
 
   public void render() {
@@ -52,79 +70,20 @@ public class Jarvis {
 
     Profiler.show();
 
-    Profiler.start("objectGraph");
-    if (objectGraph.getShowWindow()) objectGraph.render();
-    Profiler.stop("objectGraph");
-    Profiler.start("layouterControl");
-    if (layouterControl.getShowWindow()) layouterControl.render();
-    Profiler.stop("layouterControl");
-    Profiler.start("templateBuilder");
-    if (templateBuilder.getShowWindow()) templateBuilder.render();
-    Profiler.stop("templateBuilder");
-    Profiler.start("debugStepControl");
-    if (debugStepControl.getShowWindow()) debugStepControl.render();
-    Profiler.stop("debugStepControl");
-    Profiler.start("breakPointControl");
-    if (breakPointControl.getShowWindow()) breakPointControl.render();
-    Profiler.stop("breakPointControl");
-    Profiler.start("objectList");
-    if (objectList.getShowWindow()) objectList.render();
-    Profiler.stop("objectList");
-    Profiler.start("localVarList");
-    if (localVarList.getShowWindow()) localVarList.render();
-    Profiler.stop("localVarList");
-    Profiler.start("classList");
-    if (classList.getShowWindow()) classList.render();
-    Profiler.stop("classList");
-    Profiler.start("callStack");
-    if (callStack.getShowWindow()) callStack.render();
-    Profiler.stop("callStack");
-    Profiler.start("linePreview");
-    if (linePreview.getShowWindow()) linePreview.render();
-    Profiler.stop("linePreview");
-    Profiler.start("eventLog");
-    if (eventLog.getShowWindow()) eventLog.render();
-    Profiler.stop("eventLog");
-    Profiler.start("console");
-    if (console.getShowWindow()) console.render();
-    Profiler.stop("console");
+    for (View view : views) {
+      if (view.getShowWindow()) {
+        view.render();
+      }
+    }
   }
 
   private void MenuBar() {
     if (ImGui.beginMenuBar()) {
       if (ImGui.beginMenu("View")) {
-        if (ImGui.menuItem("Object Graph", "", objectGraph.getShowWindow())) {
-          objectGraph.setShowWindow(!objectGraph.getShowWindow());
-        }
-        if (ImGui.menuItem("Layouter Control", "", layouterControl.getShowWindow())) {
-          layouterControl.setShowWindow(!layouterControl.getShowWindow());
-        }
-        if (ImGui.menuItem("Debug Step Control", "", debugStepControl.getShowWindow())) {
-          debugStepControl.setShowWindow(!debugStepControl.getShowWindow());
-        }
-        if (ImGui.menuItem("Break Point Control", "", breakPointControl.getShowWindow())) {
-          breakPointControl.setShowWindow(!breakPointControl.getShowWindow());
-        }
-        if (ImGui.menuItem("Object List", "", objectList.getShowWindow())) {
-          objectList.setShowWindow(!objectList.getShowWindow());
-        }
-        if (ImGui.menuItem("Local Variable List", "", localVarList.getShowWindow())) {
-          localVarList.setShowWindow(!localVarList.getShowWindow());
-        }
-        if (ImGui.menuItem("Class List", "", classList.getShowWindow())) {
-          classList.setShowWindow(!classList.getShowWindow());
-        }
-        if (ImGui.menuItem("Call Stack", "", callStack.getShowWindow())) {
-          callStack.setShowWindow(!callStack.getShowWindow());
-        }
-        if (ImGui.menuItem("Line Preview", "", linePreview.getShowWindow())) {
-          linePreview.setShowWindow(!linePreview.getShowWindow());
-        }
-        if (ImGui.menuItem("Event Log", "", eventLog.getShowWindow())) {
-          eventLog.setShowWindow(!eventLog.getShowWindow());
-        }
-        if (ImGui.menuItem("Console", "", console.getShowWindow())) {
-          console.setShowWindow(!console.getShowWindow());
+        for (View view : views) {
+          if (ImGui.menuItem(view.getName(), "", view.getShowWindow())) {
+            view.setShowWindow(!view.getShowWindow());
+          }
         }
         ImGui.endMenu();
       }

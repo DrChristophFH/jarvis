@@ -12,16 +12,23 @@ import com.sun.jdi.Method;
 public class JClassType extends JReferenceType implements Comparable<JClassType> {
   
   private final ClassType clazz; 
-  private final ClassModel model;
 
   private final List<JClassType> subClasses = new ArrayList<>();
   private final List<JInterfaceType> interfaces = new ArrayList<>();
   private JClassType superClass;
 
   public JClassType(ClassType clazz, ClassModel model) {
-    super(clazz);
-    this.model = model;
+    super(clazz, model);
     this.clazz = clazz;
+    for (ClassType subClass : clazz.subclasses()) {
+      subClasses.add(model.getOrCreate(subClass));
+    }
+    for (InterfaceType iface : clazz.allInterfaces()) {
+      interfaces.add(model.getOrCreate(iface));
+    }
+    if (clazz.superclass() != null) {
+      superClass = model.getOrCreate(clazz.superclass());
+    }
   }
 
   public List<JClassType> subclasses() {
@@ -34,22 +41,6 @@ public class JClassType extends JReferenceType implements Comparable<JClassType>
 
   public List<JInterfaceType> interfaces() {
     return interfaces;
-  }
-
-  @Override
-  public void refresh() {
-    super.refresh();
-    subClasses.clear();
-    for (ClassType subClass : clazz.subclasses()) {
-      subClasses.add(model.getOrCreate(subClass));
-    }
-    interfaces.clear();
-    for (InterfaceType iface : clazz.allInterfaces()) {
-      interfaces.add(model.getOrCreate(iface));
-    }
-    if (clazz.superclass() != null) {
-      superClass = model.getOrCreate(clazz.superclass());
-    }
   }
 
   @Override

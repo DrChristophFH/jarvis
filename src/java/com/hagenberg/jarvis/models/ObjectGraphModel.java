@@ -3,10 +3,12 @@ package com.hagenberg.jarvis.models;
 import com.hagenberg.jarvis.models.entities.wrappers.JArrayReference;
 import com.hagenberg.jarvis.models.entities.wrappers.JField;
 import com.hagenberg.jarvis.models.entities.wrappers.JLocalVariable;
+import com.hagenberg.jarvis.models.entities.wrappers.JMember;
 import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
 import com.hagenberg.jarvis.models.entities.wrappers.JPrimitiveValue;
 import com.hagenberg.jarvis.models.entities.wrappers.JType;
 import com.hagenberg.jarvis.models.entities.wrappers.JValue;
+import com.hagenberg.jarvis.models.entities.wrappers.JVariable;
 import com.hagenberg.jarvis.models.entities.wrappers.ReferenceHolder;
 import com.hagenberg.jarvis.util.Observable;
 import com.hagenberg.jarvis.util.Observer;
@@ -236,26 +238,20 @@ public class ObjectGraphModel implements Observable {
       updateMembers(existingObjRef);
       if (existingObjRef instanceof JArrayReference arrayRef) {
         updateContents(arrayRef);
+      } else {
+        // defer toString() resolution
+        // toString not defined for arrays
+        deferToString(existingObjRef, objRef);
       }
-
-      // defer toString() resolution
-      deferToString(existingObjRef, objRef);
     }
 
     return existingObjRef;
   }
 
   private void updateMembers(JObjectReference objRef) {
-    for (JField field : objRef.referenceType().fields()) {
-      Value varValue = objRef.getJdiObjectReference().getValue(field.getField());
-      if (varValue instanceof PrimitiveValue primValue) {
-        objRef.setMember(field, createJPrimitiveValue(primValue));
-      } else {
-        JObjectReference oldValue = (JObjectReference) objRef.getMember(field).value(); // cast must be safe
-        JObjectReference newValue = cycleObjectReference((ObjectReference) varValue);
-        setReferences(objRef, oldValue, newValue);
-        objRef.setMember(field, newValue);
-      }
+    for (JMember member : objRef.getMembers()) {
+      Value varValue = objRef.getJdiObjectReference().getValue(member.field().getField());
+      updateVariable(member, varValue);
     }
   }
 
@@ -264,14 +260,18 @@ public class ObjectGraphModel implements Observable {
     List<Value> values = arrayRef.getJdiArrayReference().getValues();
     for (int i = 0; i < values.size(); i++) {
       Value value = values.get(i);
-      if (value instanceof PrimitiveValue primValue) {
-        arrayRef.setContent(i, createJPrimitiveValue(primValue));
-      } else {
-        JObjectReference oldValue = (JObjectReference) arrayRef.getContent(i).value(); // cast must be safe
-        JObjectReference newValue = cycleObjectReference((ObjectReference) value);
-        setReferences(arrayRef, oldValue, newValue);
-        arrayRef.setContent(i, newValue);
-      }
+      updateVariable(arrayRef.getContent(i), value);
+    }
+  }
+
+  private void updateVariable(JVariable variable, Value varValue) {
+    if (varValue instanceof PrimitiveValue primValue) {
+      variable.setValue(createJPrimitiveValue(primValue));
+    } else {
+      JObjectReference oldValue = (JObjectReference) variable.value(); // cast must be safe
+      JObjectReference newValue = cycleObjectReference((ObjectReference) varValue);
+      setReferences(variable, oldValue, newValue);
+      variable.setValue(newValue);
     }
   }
 
@@ -295,7 +295,32 @@ public class ObjectGraphModel implements Observable {
   }
 
   private JObjectReference createObjectNode(ObjectReference objRef) {
-    return new JObjectReference(objRef, classModel.getJType(objRef.referenceType()));
+    JObjectReference newNode = new JObjectReference(objRef, classModel.getJType(objRef.referenceType()));
+    deferToString(newNode, objRef);
+    for (Field field : objRef.referenceType().allFields()) {
+      if (field.isStatic()) continue; // skip static fields
+
+      Type type;
+      try {
+        type = field.type();
+      } catch (ClassNotLoadedException e) {
+        type = null;
+      }
+
+      JField jField = new JField(field, classModel.getJType(type));
+      JValue jValue = null;
+
+      Value value = objRef.getValue(field);
+      if (value instanceof PrimitiveValue primValue) {
+        jValue = createJPrimitiveValue(primValue);
+      } else if (value instanceof ObjectReference objRefValue) {
+        jValue = cycleObjectReference(objRefValue);
+      }
+
+      JMember member = new JMember(jField, jValue);
+      newNode.addMember(member);
+    }
+    return newNode;
   }
 
   private JObjectReference createArrayNode(ArrayReference arrayRef) {
@@ -306,7 +331,22 @@ public class ObjectGraphModel implements Observable {
     } catch (ClassNotLoadedException e) {
       componentType = null;
     }
-    return new JArrayReference(arrayRef, classModel.getJType(arrayType), classModel.getJType(componentType));
+    JArrayReference newNode = new JArrayReference(arrayRef, classModel.getJType(arrayType), classModel.getJType(componentType));
+
+    for (int i = 0; i < arrayRef.length(); i++) {
+      Value value = arrayRef.getValue(i);
+      JValue jValue = null;
+
+      if (value instanceof PrimitiveValue primValue) {
+        jValue = createJPrimitiveValue(primValue);
+      } else if (value instanceof ObjectReference objRefValue) {
+        jValue = cycleObjectReference(objRefValue);
+      }
+
+      newNode.setContent(i, jValue);
+    }
+
+    return newNode;
   }
 
   private JValue createJPrimitiveValue(PrimitiveValue primValue) {

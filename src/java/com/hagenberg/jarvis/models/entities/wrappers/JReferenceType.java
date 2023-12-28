@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.hagenberg.jarvis.models.ClassModel;
 import com.hagenberg.jarvis.util.IndexedList;
 import com.sun.jdi.Method;
 import com.sun.jdi.ReferenceType;
@@ -18,9 +19,12 @@ public abstract class JReferenceType extends JType {
   private final Pattern genericSignaturePattern = Pattern.compile("([\\w\\d]+):");
   private String genericTypeParameters;
 
-  public JReferenceType(ReferenceType referenceType) {
+  public JReferenceType(ReferenceType referenceType, ClassModel model) {
     super(referenceType);
     this.jdiReferenceType = referenceType;
+    this.genericTypeParameters = getGenericTypeParameters(jdiReferenceType.genericSignature());
+    fields.addAll(JField.from(referenceType.fields(), model));
+    methods.addAll(JMethod.from(referenceType.methods(), model));
   }
 
   public ReferenceType getJdiReferenceType() {
@@ -59,19 +63,6 @@ public abstract class JReferenceType extends JType {
 
   public String genericSignature() {
     return genericTypeParameters;
-  }
-
-  /**
-   * Requeries all the information from the debuggee.
-   */
-  @Override
-  public void refresh() {
-    super.refresh();
-    fields.clear();
-    fields.addAll(JField.from(jdiReferenceType.fields()));
-    methods.clear();
-    methods.addAll(JMethod.from(jdiReferenceType.methods()));
-    genericTypeParameters = getGenericTypeParameters(jdiReferenceType.genericSignature());
   }
 
   /**

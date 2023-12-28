@@ -3,6 +3,7 @@ package com.hagenberg.jarvis.models.entities.wrappers;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.hagenberg.jarvis.models.ClassModel;
 import com.hagenberg.jarvis.util.IndexedList;
 import com.sun.jdi.ArrayType;
 import com.sun.jdi.Method;
@@ -11,8 +12,8 @@ public class JArrayType extends JReferenceType implements Comparable<JArrayType>
 
   private final ArrayType array;
 
-  public JArrayType(ArrayType array) {
-    super(array);
+  public JArrayType(ArrayType array, ClassModel model) {
+    super(array, model);
     this.array = array;
   }
 

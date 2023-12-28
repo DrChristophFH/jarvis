@@ -28,6 +28,7 @@ public class ClassModel {
   private HashMap<ClassType, JClassType> classes = new HashMap<>();
   private HashMap<InterfaceType, JInterfaceType> interfaces = new HashMap<>();
   private HashMap<ArrayType, JArrayType> arrays = new HashMap<>();
+  private HashMap<PrimitiveType, JPrimitiveType> primitives = new HashMap<>();
 
   public void lockModel() {
     lock.lock();
@@ -53,7 +54,6 @@ public class ClassModel {
       if (clazz == null) {
         clazz = new JClassType(classType, this);
         classes.put(classType, clazz);
-        clazz.refresh();
       }
       return clazz;
     } finally {
@@ -68,7 +68,6 @@ public class ClassModel {
       if (iface == null) {
         iface = new JInterfaceType(iFaceType, this);
         interfaces.put(iFaceType, iface);
-        iface.refresh();
       }
       return iface;
     } finally {
@@ -81,11 +80,24 @@ public class ClassModel {
     try {
       JArrayType array = arrays.get(arrayType);
       if (array == null) {
-        array = new JArrayType(arrayType);
+        array = new JArrayType(arrayType, this);
         arrays.put(arrayType, array);
-        array.refresh();
       }
       return array;
+    } finally {
+      unlockModel();
+    }
+  }
+
+  public JPrimitiveType getOrCreate(PrimitiveType primitiveType) {
+    lockModel();
+    try {
+      JPrimitiveType primitive = primitives.get(primitiveType);
+      if (primitive == null) {
+        primitive = new JPrimitiveType(primitiveType);
+        primitives.put(primitiveType, primitive);
+      }
+      return primitive;
     } finally {
       unlockModel();
     }
@@ -123,7 +135,7 @@ public class ClassModel {
 
   public JType getJType(Type type) {
     if (type instanceof PrimitiveType primType) {
-      return new JPrimitiveType(primType);
+      return getOrCreate(primType);
     } else if (type instanceof ClassType classType) {
       return getOrCreate(classType);
     } else if (type instanceof ArrayType arrayType) {

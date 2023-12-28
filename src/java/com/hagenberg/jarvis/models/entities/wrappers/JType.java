@@ -2,12 +2,18 @@ package com.hagenberg.jarvis.models.entities.wrappers;
 
 import com.sun.jdi.Type;
 
-public abstract class JType implements Refreshable {
+public abstract class JType {
   private final Type jdiType;
-  private String name;
+
+  private final String name;
 
   public JType(Type type) {
     this.jdiType = type;
+    this.name = type.name();
+  }
+
+  public Type getJdiType() {
+    return jdiType;
   }
 
   public String name() {
@@ -16,10 +22,5 @@ public abstract class JType implements Refreshable {
 
   public String getSimpleName() {
     return name.substring(name.lastIndexOf(".") + 1);
-  }
-
-  @Override
-  public void refresh() {
-    name = jdiType.name();
   }
 }

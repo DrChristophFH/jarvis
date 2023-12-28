@@ -11,15 +11,19 @@ import com.sun.jdi.Method;
 public class JInterfaceType extends JReferenceType implements Comparable<JInterfaceType> {
 
   private final InterfaceType iface;
-  private final ClassModel model;
 
   private final List<JInterfaceType> superInterfaces = new ArrayList<>();
   private final List<JInterfaceType> subInterfaces = new ArrayList<>();
 
   public JInterfaceType(InterfaceType iface, ClassModel model) {
-    super(iface);
+    super(iface, model);
     this.iface = iface;
-    this.model = model;
+    for (InterfaceType superInterface : iface.superinterfaces()) {
+      superInterfaces.add(model.getOrCreate(superInterface));
+    }
+    for (InterfaceType subInterface : iface.subinterfaces()) {
+      subInterfaces.add(model.getOrCreate(subInterface));
+    }
   }
 
   public List<JInterfaceType> superinterfaces() {
@@ -28,19 +32,6 @@ public class JInterfaceType extends JReferenceType implements Comparable<JInterf
 
   public List<JInterfaceType> subinterfaces() {
     return subInterfaces;
-  }
-
-  @Override
-  public void refresh() {
-    super.refresh();
-    superInterfaces.clear();
-    for (InterfaceType superInterface : iface.superinterfaces()) {
-      superInterfaces.add(model.getOrCreate(superInterface));
-    }
-    subInterfaces.clear();
-    for (InterfaceType subInterface : iface.subinterfaces()) {
-      subInterfaces.add(model.getOrCreate(subInterface));
-    }
   }
 
   @Override

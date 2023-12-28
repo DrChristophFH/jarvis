@@ -7,18 +7,19 @@ import java.util.regex.Pattern;
 import com.sun.jdi.LocalVariable;
 
 public class JLocalVariable implements ReferenceHolder {
-  private LocalVariable jdiLocalVariable; // The local variable this graph variable represents
+  private final LocalVariable jdiLocalVariable; // The local variable this graph variable represents
   
-  private String name;
-  private JType type;
+  private final String name;
+  private final JType type;
   private JValue value;
-  private String genericType;
-  private Pattern genericTypePattern = Pattern.compile("T([\\w\\d]+);");
+  private final String genericType;
+  private final Pattern genericTypePattern = Pattern.compile("T([\\w\\d]+);");
 
   public JLocalVariable(LocalVariable localVariable, JType type) {
     this.jdiLocalVariable = localVariable;
     this.type = type;
     this.genericType = getGenericType(jdiLocalVariable.genericSignature());
+    this.name = jdiLocalVariable.name();
   }
 
   public String name() {
