@@ -192,6 +192,7 @@ public class ClassList extends View {
   private void showMethod(JMethod method) {
     ImGui.textColored(Colors.AccessModifier, method.modifiers().toString());
     ImGui.sameLine();
+
     Profiler.start("cl.methods.returnType");
     if (method.typeIsGeneric()) {
       ImGui.textColored(Colors.Type, method.genericSignature());
@@ -200,6 +201,7 @@ public class ClassList extends View {
     Snippets.drawTypeWithTooltip(method.returnType(), tooltip);
     Profiler.stop("cl.methods.returnType");
     ImGui.sameLine();
+    
     ImGui.text(method.name() + "(");
     Profiler.start("cl.methods.params");
     int params = method.arguments().size();

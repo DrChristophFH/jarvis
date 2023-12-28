@@ -27,8 +27,8 @@ public abstract class JReferenceType extends JType {
   }
 
   public void populate(ClassModel model) {
-    fields.addAll(JField.from(jdiReferenceType.allFields(), model));
-    methods.addAll(JMethod.from(jdiReferenceType.allMethods(), model));
+    fields.addAll(JField.from(jdiReferenceType.fields(), model));
+    methods.addAll(JMethod.from(jdiReferenceType.methods(), model));
   }
 
   public ReferenceType getJdiReferenceType() {

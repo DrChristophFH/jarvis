@@ -33,6 +33,10 @@ public class Snippets {
   }
   
   public static void drawTypeWithTooltip(JType type, Tooltip tooltip) {
+    if (type == null) {
+      ImGui.text("[not loaded]");
+      return;
+    }
     ImGui.textColored(Colors.Type, type.getSimpleName());
     tooltip.show(() -> {
       ImGui.text(type.name());

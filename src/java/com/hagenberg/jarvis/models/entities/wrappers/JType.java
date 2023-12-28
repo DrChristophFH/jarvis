@@ -12,6 +12,11 @@ public abstract class JType {
     this.name = type.name();
   }
 
+  public JType(Type type, String name) {
+    this.jdiType = type;
+    this.name = name;
+  }
+
   public Type getJdiType() {
     return jdiType;
   }

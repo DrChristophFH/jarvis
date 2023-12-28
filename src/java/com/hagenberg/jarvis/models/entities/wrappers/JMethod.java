@@ -14,16 +14,34 @@ public class JMethod extends JTypeComponent {
 
   private final Method jdiMethod;
   private final List<JLocalVariable> arguments = new ArrayList<>();
-  private final JType returnType;
+  private final ClassModel model;
+  private JType returnType;
+  private boolean typeLoaded = false;
 
-  public JMethod(Method method, JType returnType) {
+  public JMethod(Method method, ClassModel model) {
     super(method);
     this.jdiMethod = method;
-    this.returnType = returnType;
+    this.model = model;
   }
 
+  /**
+   * @return the JType or null if the underlying type has not been loaded yet
+   */
   public JType returnType() {
+    if (!typeLoaded) {
+      tryResolveType();
+    }
     return returnType;
+  }
+
+  public void tryResolveType() {
+    try {
+      Type type = jdiMethod.returnType();
+      returnType = type == null ? new JVoidType() : model.getJType(type);
+      typeLoaded = true;
+    } catch (ClassNotLoadedException e) {
+      returnType = new JNotLoadedType(jdiMethod.returnTypeName());
+    }
   }
 
   public List<JLocalVariable> arguments() {
@@ -37,13 +55,7 @@ public class JMethod extends JTypeComponent {
   public static List<JMethod> from(List<Method> allMethods, ClassModel model) {
     List<JMethod> methods = new ArrayList<>();
     for (Method method : allMethods) {
-      Type type;
-      try {
-        type = method.returnType();
-      } catch (ClassNotLoadedException e) {
-        type = null;
-      }
-      methods.add(new JMethod(method, model.getJType(type)));
+      methods.add(new JMethod(method, model));
     }
     return methods;
   }
@@ -53,7 +65,7 @@ public class JMethod extends JTypeComponent {
     if (genericSignature == null) { // no generic signature
       return "";
     }
-    
+
     Pattern genericTypePattern = Pattern.compile("\\)(\\[*)T([\\w\\d]+);");
     Matcher matcher = genericTypePattern.matcher(genericSignature);
 

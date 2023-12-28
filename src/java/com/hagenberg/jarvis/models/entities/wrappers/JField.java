@@ -8,20 +8,30 @@ import java.util.regex.Pattern;
 import com.hagenberg.jarvis.models.ClassModel;
 import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.Field;
-import com.sun.jdi.Type;
 
 public class JField extends JTypeComponent {
   private final Field field;
 
-  private final JType type;
+  private JType type;
+  private final ClassModel model;
 
-  public JField(Field field, JType type) {
+  public JField(Field field, ClassModel model) {
     super(field);
     this.field = field;
-    this.type = type;
+    this.model = model;
   }
 
+
+  /**
+   * @return the JType or null if the underlying type has not been loaded yet
+   */
   public JType type() {
+    if (type == null) {
+      try {
+        type = model.getJType(field.type());
+      } catch (ClassNotLoadedException e) {
+      }
+    }
     return type;
   }
 
@@ -32,14 +42,7 @@ public class JField extends JTypeComponent {
   public static List<JField> from(List<Field> allFields, ClassModel model) {
     List<JField> fields = new ArrayList<>();
     for (Field field : allFields) {
-      Type type;
-      try {
-        type = field.type();
-      } catch (ClassNotLoadedException e) {
-        System.out.println("Class not loaded: " + e.getMessage());
-        type = null;
-      }
-      fields.add(new JField(field, model.getJType(type)));
+      fields.add(new JField(field, model));
     }
     return fields;
   }
