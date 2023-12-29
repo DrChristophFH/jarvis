@@ -7,11 +7,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import com.hagenberg.interaction.Command;
+import com.hagenberg.interaction.CommandRegistry;
 import com.hagenberg.jarvis.graph.render.RenderModel;
 import com.hagenberg.jarvis.graph.render.nodes.Node;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.models.entities.wrappers.JLocalVariable;
 import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
+import com.hagenberg.jarvis.models.entities.wrappers.JReferenceType;
 import com.hagenberg.jarvis.util.Observer;
 import com.hagenberg.jarvis.views.ObjectGraph;
 
@@ -201,6 +204,14 @@ public class GraphTransformer implements Observer {
         }
         ImGui.endMenu();
       }
+      ImGui.separator();
+      
+      for (Command<JReferenceType> command : CommandRegistry.getInstance().getCommandsForObject(JReferenceType.class)) {
+        if (ImGui.menuItem(command.getName(), "", false, true)) {
+          command.execute(originNode.referenceType());
+        }
+      }
+
       ImGui.endPopup();
     }
     ImGui.popStyleVar();

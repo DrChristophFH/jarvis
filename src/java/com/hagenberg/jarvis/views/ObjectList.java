@@ -6,12 +6,14 @@ import java.util.Set;
 
 import com.hagenberg.imgui.Snippets;
 import com.hagenberg.imgui.View;
+import com.hagenberg.interaction.CommandRegistry;
 import com.hagenberg.jarvis.models.InteractionState;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.models.entities.wrappers.JArrayReference;
 import com.hagenberg.jarvis.models.entities.wrappers.JContent;
 import com.hagenberg.jarvis.models.entities.wrappers.JMember;
 import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
+import com.hagenberg.jarvis.models.entities.wrappers.JReferenceType;
 import com.hagenberg.jarvis.models.entities.wrappers.JType;
 import com.hagenberg.jarvis.models.entities.wrappers.JValue;
 
@@ -54,6 +56,13 @@ public class ObjectList extends View {
   public ObjectList(InteractionState interactionState) {
     setName("Object List");
     this.iState = interactionState;
+    CommandRegistry.getInstance().registerCommand(JObjectReference.class, (JObjectReference object) -> {
+      iState.setSelectedObjectId(object.getObjectId());
+    }, "Focus in Object List");
+    CommandRegistry.getInstance().registerCommand(JReferenceType.class, (JReferenceType clazz) -> {
+      currentFilter = clazz.getSimpleName();
+      filterInput.set(currentFilter);
+    }, "Filter in Object List");
   }
 
   public void setObjectGraphModel(ObjectGraphModel model) {
@@ -76,6 +85,12 @@ public class ObjectList extends View {
       } else {
         currentFilter = filterInput.get();
       }
+    }
+
+    ImGui.sameLine();
+    if (ImGui.button("Clear")) {
+      filterInput.clear();
+      currentFilter = null;
     }
 
     int tableFlags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable

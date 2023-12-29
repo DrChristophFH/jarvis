@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import com.hagenberg.imgui.Colors;
 import com.hagenberg.imgui.Snippets;
 import com.hagenberg.imgui.View;
+import com.hagenberg.interaction.CommandRegistry;
 import com.hagenberg.jarvis.models.ClassModel;
 import com.hagenberg.jarvis.models.InteractionState;
 import com.hagenberg.jarvis.models.entities.wrappers.JClassType;
@@ -15,20 +16,27 @@ import com.hagenberg.jarvis.models.entities.wrappers.JLocalVariable;
 import com.hagenberg.jarvis.models.entities.wrappers.JMethod;
 import com.hagenberg.jarvis.models.entities.wrappers.JPackage;
 import com.hagenberg.jarvis.models.entities.wrappers.JReferenceType;
+import com.hagenberg.jarvis.util.History;
 import com.hagenberg.jarvis.util.IndexedList;
 import com.hagenberg.jarvis.util.Profiler;
 import imgui.ImGui;
+import imgui.flag.ImGuiDir;
 import imgui.flag.ImGuiMouseCursor;
 import imgui.flag.ImGuiTreeNodeFlags;
 
 public class ClassList extends View {
 
   private ClassModel model = new ClassModel();
-  private JReferenceType selectedClass;
+  private History<JReferenceType> selectedHistory = new History<>(10);
   private int[] width = { 200 };
 
   public ClassList(InteractionState interactionState) {
     setName("Class List");
+    CommandRegistry.getInstance().registerCommand(JReferenceType.class, (JReferenceType clazz) -> {
+      if (clazz instanceof JClassType || clazz instanceof JInterfaceType) {
+        selectedHistory.push(clazz);
+      }
+    }, "Focus in Class List");
   }
 
   public ClassModel getModel() {
@@ -41,12 +49,38 @@ public class ClassList extends View {
       ImGui.text("No clazz class model available");
       return;
     }
+
     float availableWidth = ImGui.getContentRegionAvailX();
     ImGui.setNextItemWidth(availableWidth);
     ImGui.sliderInt("width", width, 0, (int) availableWidth);
     if (ImGui.isItemHovered()) {
       ImGui.setMouseCursor(ImGuiMouseCursor.ResizeEW);
     }
+
+    if (ImGui.arrowButton("back", ImGuiDir.Left)) {
+      selectedHistory.back();
+    }
+    ImGui.sameLine();
+    if (ImGui.arrowButton("forward", ImGuiDir.Right)) {
+      selectedHistory.forward();
+    }
+
+    displayMasterPane();
+    
+    ImGui.sameLine();
+
+    displayDetailPane();
+  }
+
+  private void displayDetailPane() {
+    ImGui.beginChild("right pane", 0, 0, true);
+    if (selectedHistory.current() != null) {
+      displayRefType();
+    }
+    ImGui.endChild();
+  }
+
+  private void displayMasterPane() {
     ImGui.beginChild("left pane", width[0], 0, true);
     Profiler.start("cl.buildTree");
     if (model.tryLock(1, TimeUnit.MILLISECONDS)) {
@@ -58,12 +92,6 @@ public class ClassList extends View {
     }
     ImGui.endChild();
     Profiler.stop("cl.buildTree");
-    ImGui.sameLine();
-    ImGui.beginChild("right pane", 0, 0, true);
-    if (selectedClass != null) {
-      displayRefType(selectedClass);
-    }
-    ImGui.endChild();
   }
 
   private void buildPackageTree(Map<String, JPackage> packages) {
@@ -74,24 +102,24 @@ public class ClassList extends View {
         int treeNodeFlags = ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen;
 
         for (JClassType clazz : pkg.getClasses()) {
-          if (clazz == selectedClass) {
+          if (clazz == selectedHistory.current()) {
             ImGui.treeNodeEx(clazz.getSimpleName(), treeNodeFlags | ImGuiTreeNodeFlags.Selected);
           } else {
             ImGui.treeNodeEx(clazz.getSimpleName(), treeNodeFlags);
           }
           if (ImGui.isItemClicked() && !ImGui.isItemToggledOpen()) {
-            selectedClass = clazz;
+            selectedHistory.push(clazz);
           }
         }
 
         for (JInterfaceType interfaze : pkg.getInterfaces()) {
-          if (interfaze == selectedClass) {
+          if (interfaze == selectedHistory.current()) {
             ImGui.treeNodeEx("I " + interfaze.getSimpleName(), treeNodeFlags | ImGuiTreeNodeFlags.Selected);
           } else {
             ImGui.treeNodeEx("I " + interfaze.getSimpleName(), treeNodeFlags);
           }
           if (ImGui.isItemClicked() && !ImGui.isItemToggledOpen()) {
-            selectedClass = interfaze;
+            selectedHistory.push(interfaze);
           }
         }
         ImGui.treePop();
@@ -99,7 +127,8 @@ public class ClassList extends View {
     }
   }
 
-  private void displayRefType(JReferenceType referenceType) {
+  private void displayRefType() {
+    JReferenceType referenceType = selectedHistory.current();
     if (referenceType instanceof JClassType clazz) {
       displayClass(clazz);
     } else if (referenceType instanceof JInterfaceType interfaze) {
@@ -201,7 +230,7 @@ public class ClassList extends View {
     Snippets.drawTypeWithTooltip(method.returnType(), tooltip);
     Profiler.stop("cl.methods.returnType");
     ImGui.sameLine();
-    
+
     ImGui.text(method.name() + "(");
     Profiler.start("cl.methods.params");
     int params = method.arguments().size();
