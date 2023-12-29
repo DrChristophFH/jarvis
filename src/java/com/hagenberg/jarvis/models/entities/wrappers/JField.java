@@ -1,50 +1,48 @@
-package com.hagenberg.jarvis.models.entities.classList;
+package com.hagenberg.jarvis.models.entities.wrappers;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.hagenberg.jarvis.models.ClassModel;
 import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.Field;
-import com.sun.jdi.Type;
 
 public class JField extends JTypeComponent {
-
   private final Field field;
-  private Type type;
-  private String typeName;
-  private Pattern genericTypePattern = Pattern.compile("T([\\w\\d]+);");
 
-  public JField(Field field) {
+  private JType type;
+  private final ClassModel model;
+
+  public JField(Field field, ClassModel model) {
     super(field);
     this.field = field;
-    refresh();
+    this.model = model;
   }
 
-  public Type type() {
+
+  /**
+   * @return the JType or null if the underlying type has not been loaded yet
+   */
+  public JType type() {
+    if (type == null) {
+      try {
+        type = model.getJType(field.type());
+      } catch (ClassNotLoadedException e) {
+      }
+    }
     return type;
   }
 
-  public String typeName() {
-    return typeName;
+  public Field getField() {
+    return field;
   }
 
-  @Override
-  public void refresh() {
-    super.refresh();
-    try {
-      type = field.type();
-    } catch (ClassNotLoadedException e) {
-      type = null;
-    }
-    typeName = field.typeName();
-  }
-
-  public static List<JField> from(List<Field> allFields) {
+  public static List<JField> from(List<Field> allFields, ClassModel model) {
     List<JField> fields = new ArrayList<>();
     for (Field field : allFields) {
-      fields.add(new JField(field));
+      fields.add(new JField(field, model));
     }
     return fields;
   }
@@ -54,7 +52,8 @@ public class JField extends JTypeComponent {
     if (genericSignature == null) { // no generic signature
       return "";
     }
-
+    
+    Pattern genericTypePattern = Pattern.compile("T([\\w\\d]+);");
     Matcher matcher = genericTypePattern.matcher(genericSignature);
 
     if (matcher.matches()) {

@@ -7,29 +7,29 @@ import com.hagenberg.jarvis.graph.render.nodes.Node;
 import com.hagenberg.jarvis.graph.transform.IdProvider;
 import com.hagenberg.jarvis.graph.transform.LinkRegisterCallback;
 import com.hagenberg.jarvis.graph.transform.NodeTransformer;
-import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
-import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
-import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
+import com.hagenberg.jarvis.models.entities.wrappers.JLocalVariable;
+import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
+import com.hagenberg.jarvis.models.entities.wrappers.JPrimitiveValue;
 
-public class SimpleLocalVariableTransformer extends NodeTransformer<LocalGVariable> {
+public class SimpleLocalVariableTransformer extends NodeTransformer<JLocalVariable> {
 
   public SimpleLocalVariableTransformer() {
     name = "Simple Local Variable Renderer";
   }
 
   @Override
-  public Node transform(LocalGVariable localVariable, IdProvider idProvider, LinkRegisterCallback linkRegisterCallback) {
+  public Node transform(JLocalVariable localVariable, IdProvider idProvider, LinkRegisterCallback linkRegisterCallback) {
     Node node = new DefaultLocalVariableNode(
       idProvider.next(),
-      localVariable.getName()
+      localVariable.name()
     );
 
     String value = "null";
     int attId = idProvider.next();
 
-    if (localVariable.getNode() instanceof PrimitiveGNode primitve) {
+    if (localVariable.value() instanceof JPrimitiveValue primitve) {
       value = primitve.getToString();
-    } else if (localVariable.getNode() instanceof ObjectGNode object) {
+    } else if (localVariable.value() instanceof JObjectReference object) {
       value = "Object#" + object.getObjectId();
       linkRegisterCallback.registerLink(node, attId, object);
     }
@@ -37,9 +37,9 @@ public class SimpleLocalVariableTransformer extends NodeTransformer<LocalGVariab
     Attribute att = new DefaultLocalVariableAttribute(
       attId,
       node,
-      localVariable.getNode() instanceof PrimitiveGNode,
-      localVariable.getStaticTypeName(),
-      localVariable.getName(),
+      localVariable.value() instanceof JPrimitiveValue,
+      localVariable.getType(),
+      localVariable.name(),
       value
     );
     node.addAttribute(att);

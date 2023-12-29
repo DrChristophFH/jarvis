@@ -10,8 +10,8 @@ import java.util.Stack;
 import com.hagenberg.jarvis.graph.render.RenderModel;
 import com.hagenberg.jarvis.graph.render.nodes.Node;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
-import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
-import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
+import com.hagenberg.jarvis.models.entities.wrappers.JLocalVariable;
+import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
 import com.hagenberg.jarvis.util.Observer;
 import com.hagenberg.jarvis.views.ObjectGraph;
 
@@ -30,10 +30,10 @@ public class GraphTransformer implements Observer {
   private boolean transformPending = false;
 
   private final IdPool idPool = new IdPool(0);
-  private final Stack<ObjectGNode> objectsToTransform = new Stack<>();
+  private final Stack<JObjectReference> objectsToTransform = new Stack<>();
   private final Set<PendingLink> pendingLinks = new HashSet<>();
-  private Map<ObjectGNode, Node> transformationMap = new HashMap<>();
-  private Map<Integer, ObjectGNode> reverseTransformationMap = new HashMap<>();
+  private Map<JObjectReference, Node> transformationMap = new HashMap<>();
+  private Map<Integer, JObjectReference> reverseTransformationMap = new HashMap<>();
 
   public GraphTransformer(ObjectGraphModel ogm, ObjectGraph og) {
     this.ogm = ogm;
@@ -82,7 +82,7 @@ public class GraphTransformer implements Observer {
    */
   private void transformationPass() {
     // get previous transformation map for position migration
-    Map<ObjectGNode, Node> oldTransformationMap = transformationMap;
+    Map<JObjectReference, Node> oldTransformationMap = transformationMap;
 
     // clear old data
     idPool.reset();
@@ -90,7 +90,7 @@ public class GraphTransformer implements Observer {
     reverseTransformationMap.clear();
     objectsToTransform.clear();
 
-    for (LocalGVariable root : ogm.getLocalVariables()) {
+    for (JLocalVariable root : ogm.getLocalVariables()) {
       Node node = registry.getLocalVarTransformer(root).transform(root, idPool, (source, id, target) -> {
         pendingLinks.add(new PendingLink(source, id, target));
         if (!transformationMap.containsKey(target) && !objectsToTransform.contains(target)) {
@@ -103,7 +103,7 @@ public class GraphTransformer implements Observer {
     }
 
     while (!objectsToTransform.isEmpty()) {
-      ObjectGNode object = objectsToTransform.pop();
+      JObjectReference object = objectsToTransform.pop();
       Node node = registry.getObjectTransformer(object).transform(object, idPool, (source, id, target) -> {
         pendingLinks.add(new PendingLink(source, id, target));
         if (!transformationMap.containsKey(target) && !objectsToTransform.contains(target) && !target.equals(object)) {
@@ -151,7 +151,7 @@ public class GraphTransformer implements Observer {
   }
 
   public void showTransformerContextMenu(int nodeId) {
-    ObjectGNode originNode = reverseTransformationMap.get(nodeId);
+    JObjectReference originNode = reverseTransformationMap.get(nodeId);
 
     if (ImGui.isItemHovered() && ImGui.isMouseReleased(ImGuiMouseButton.Right)) {
       ImGui.openPopup("NodeCtx##" + nodeId);
@@ -162,9 +162,9 @@ public class GraphTransformer implements Observer {
     if (ImGui.beginPopup("NodeCtx##" + nodeId)) {
       ImGui.menuItem("Settings", "", false, false);
       if (ImGui.beginMenu("Renderer for this Object")) {
-        List<NodeTransformer<ObjectGNode>> transformers = registry.getObjectTransformers();
-        NodeTransformer<ObjectGNode> currentTransformer = registry.getSpecificOT(originNode);
-        for (NodeTransformer<ObjectGNode> transformer : transformers) {
+        List<NodeTransformer<JObjectReference>> transformers = registry.getObjectTransformers();
+        NodeTransformer<JObjectReference> currentTransformer = registry.getSpecificOT(originNode);
+        for (NodeTransformer<JObjectReference> transformer : transformers) {
           boolean selected = transformer == currentTransformer;
           if (ImGui.menuItem(transformer.getName(), "", selected)) {
             registry.setObjectTransformer(originNode, transformer);
@@ -182,19 +182,19 @@ public class GraphTransformer implements Observer {
         ImGui.endMenu();
       }
       if (ImGui.beginMenu("Renderer for this Type")) {
-        List<NodeTransformer<ObjectGNode>> transformers = registry.getObjectTransformers();
-        NodeTransformer<ObjectGNode> currentTransformer = registry.getSpecificOTForType(originNode);
-        for (NodeTransformer<ObjectGNode> transformer : transformers) {
+        List<NodeTransformer<JObjectReference>> transformers = registry.getObjectTransformers();
+        NodeTransformer<JObjectReference> currentTransformer = registry.getSpecificOTForType(originNode);
+        for (NodeTransformer<JObjectReference> transformer : transformers) {
           boolean selected = transformer == currentTransformer;
           if (ImGui.menuItem(transformer.getName(), "", selected)) {
-            registry.setObjectTransformer(originNode.getType(), transformer);
+            registry.setObjectTransformer(originNode.type(), transformer);
             if (!selected) {
               update();
             }
           }
         }
         if (ImGui.menuItem("[Default]", "", currentTransformer == null)) {
-          registry.setObjectTransformer(originNode.getType(), null);
+          registry.setObjectTransformer(originNode.type(), null);
           if (currentTransformer != null) {
             update();
           }

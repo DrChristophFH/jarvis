@@ -1,14 +1,14 @@
 package com.hagenberg.jarvis.graph.transform;
 
 import com.hagenberg.jarvis.graph.render.nodes.Node;
-import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
+import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
 
 public class PendingLink {
   private final int attributeId;
   private final Node source;
-  private final ObjectGNode target;
+  private final JObjectReference target;
 
-  public PendingLink(Node source, int attId, ObjectGNode target) {
+  public PendingLink(Node source, int attId, JObjectReference target) {
     this.attributeId = attId;
     this.target = target;
     this.source = source;
@@ -18,7 +18,7 @@ public class PendingLink {
     return attributeId;
   }
 
-  public ObjectGNode getTarget() {
+  public JObjectReference getTarget() {
     return target;
   }
 

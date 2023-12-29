@@ -4,17 +4,16 @@ import java.util.List;
 
 import com.hagenberg.imgui.Colors;
 import com.hagenberg.jarvis.graph.transform.TransformerContextMenu;
-import com.hagenberg.jarvis.models.entities.graph.GVariable;
+import com.hagenberg.jarvis.models.entities.wrappers.JType;
+import com.hagenberg.jarvis.models.entities.wrappers.ReferenceHolder;
 
 import imgui.ImGui;
 
 public class TemplateObjectNode extends DefaultObjectNode {
 
-  
-
-  public TemplateObjectNode(int nodeId, String typeName, String objectName, String toString, List<GVariable> referenceHolders,
+  public TemplateObjectNode(int nodeId, JType type, String objectName, String toString, List<ReferenceHolder> referenceHolders,
       TransformerContextMenu transformerContextMenu) {
-    super(nodeId, typeName, objectName, toString, referenceHolders, transformerContextMenu);
+    super(nodeId, type, objectName, toString, referenceHolders, transformerContextMenu);
   }
 
   @Override

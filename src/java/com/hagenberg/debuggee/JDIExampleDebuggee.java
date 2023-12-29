@@ -3,11 +3,9 @@ package com.hagenberg.debuggee;
 public class JDIExampleDebuggee {
   // public static void main(String[] args) {
   // String jpda = "Java Platform Debugger Architecture";
-  // System.out.println("Hi Everyone, Welcome to " + jpda); // add a break point
-  // here
+  // System.out.println("Hi Everyone, Welcome to " + jpda); // add a break point here
 
-  // String jdi = "Java Debug Interface"; // add a break point here and also
-  // stepping in here
+  // String jdi = "Java Debug Interface"; // add a break point here and also stepping in here
   // String text = "Today, we'll dive into " + jdi;
   // System.out.println(text);
 
@@ -26,14 +24,15 @@ public class JDIExampleDebuggee {
   // }
 
   public static void main(String[] args) {
-    Robot robot = new Robot(15, 100, 10);
-    System.out.println(robot);
-    Robot robot2 = new UberRobot();
-    int x = 1;
-    x = x + 1;
-    robot.whereAreYou();
-    robot.move(1, 2, 3);
-    robot.howAreYou();
-    robot2.whereAreYou();
+  Robot robot = new Robot(15, 100, 10);
+  System.out.println(robot);
+  Robot robot2 = new UberRobot();
+  robot = robot2;
+  int x = 1;
+  x = x + 1;
+  robot.whereAreYou();
+  robot.move(1, 2, 3);
+  robot.howAreYou();
+  robot2.whereAreYou();
   }
 }

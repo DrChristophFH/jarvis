@@ -5,10 +5,12 @@ import java.util.List;
 import com.hagenberg.imgui.Snippets;
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.models.CallStackModel;
+import com.hagenberg.jarvis.models.ClassModel;
+import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.models.entities.CallStackFrame;
-import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
-import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
-import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
+import com.hagenberg.jarvis.models.entities.wrappers.JLocalVariable;
+import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
+import com.hagenberg.jarvis.models.entities.wrappers.JPrimitiveValue;
 
 import imgui.ImGui;
 import imgui.flag.ImGuiTableColumnFlags;
@@ -17,12 +19,13 @@ import imgui.flag.ImGuiWindowFlags;
 
 public class CallStack extends View {
 
-  private CallStackModel model = new CallStackModel();
+  private CallStackModel model;
   private boolean fullClassName = false;
 
-  public CallStack() {
+  public CallStack(ObjectGraphModel objectGraphModel, ClassModel classModel) {
     setName("Call Stack");
     setFlags(ImGuiWindowFlags.HorizontalScrollbar | ImGuiWindowFlags.MenuBar);
+    model = new CallStackModel(objectGraphModel, classModel);
   }
 
   public CallStackModel getCallStackModel() {
@@ -74,11 +77,11 @@ public class CallStack extends View {
     }
   }
 
-  private void showParameters(List<LocalGVariable> parameters) {
-    for (LocalGVariable parameter : parameters) {
+  private void showParameters(List<JLocalVariable> parameters) {
+    for (JLocalVariable parameter : parameters) {
       ImGui.tableNextRow();
       ImGui.tableNextColumn();
-      ImGui.text(parameter.getName());
+      ImGui.text(parameter.name());
       // Context menu for each row
       int nodeId = 0; // TODO parameter.getLayoutNode().getNodeId();
       if (ImGui.beginPopupContextItem("parameterContextMenu" + nodeId)) {
@@ -86,14 +89,14 @@ public class CallStack extends View {
         ImGui.endPopup();
       }
       ImGui.tableNextColumn();
-      Snippets.drawTypeWithTooltip(parameter.getStaticTypeName(), tooltip);
+      Snippets.drawTypeWithTooltip(parameter.getType(), tooltip);
       ImGui.tableNextColumn();
-      Snippets.drawTypeWithTooltip(parameter.getNode().getTypeName(), tooltip);
+      Snippets.drawTypeWithTooltip(parameter.value().type(), tooltip);
       ImGui.tableNextColumn();
-      if (parameter.getNode() instanceof ObjectGNode object) {
+      if (parameter.value() instanceof JObjectReference object) {
         ImGui.text("Object#%s = %s".formatted(object.getObjectId(), object.getToString()));
-      } else if (parameter.getNode() instanceof PrimitiveGNode primitive) {
-        ImGui.text(primitive.getPrimitiveValue().toString());
+      } else if (parameter.value() instanceof JPrimitiveValue primitive) {
+        ImGui.text(primitive.getJdiPrimitiveValue().toString());
       }
     }
   }

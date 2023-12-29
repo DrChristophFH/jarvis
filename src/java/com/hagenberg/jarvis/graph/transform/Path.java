@@ -2,9 +2,9 @@ package com.hagenberg.jarvis.graph.transform;
 
 import java.util.List;
 
-import com.hagenberg.jarvis.models.entities.graph.GNode;
-import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
-import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
+import com.hagenberg.jarvis.models.entities.wrappers.JMember;
+import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
+import com.hagenberg.jarvis.models.entities.wrappers.JValue;
 
 public class Path {
 
@@ -31,16 +31,16 @@ public class Path {
    * @param startObj the object to start from
    * @return the node at the end of the path or null if the path could not be resolved
    */
-  public MemberGVariable resolve(ObjectGNode startObj) {
-    MemberGVariable currentMember = null;
-    GNode current = startObj;
+  public JMember resolve(JObjectReference startObj) {
+    JMember currentMember = null;
+    JValue current = startObj;
     for (String member : path) {
-      if (current instanceof ObjectGNode obj) {
+      if (current instanceof JObjectReference obj) {
         currentMember = obj.getMember(member);
         if (currentMember == null) {
           return null;
         }
-        current = currentMember.getNode();
+        current = currentMember.value();
       } else {
         return null;
       }

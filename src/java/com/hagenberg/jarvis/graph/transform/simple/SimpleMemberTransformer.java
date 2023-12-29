@@ -6,22 +6,22 @@ import com.hagenberg.jarvis.graph.render.nodes.Node;
 import com.hagenberg.jarvis.graph.transform.AttributeTransformer;
 import com.hagenberg.jarvis.graph.transform.IdProvider;
 import com.hagenberg.jarvis.graph.transform.LinkRegisterCallback;
-import com.hagenberg.jarvis.models.entities.graph.GNode;
-import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
-import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
-import com.hagenberg.jarvis.models.entities.graph.PrimitiveGNode;
+import com.hagenberg.jarvis.models.entities.wrappers.JMember;
+import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
+import com.hagenberg.jarvis.models.entities.wrappers.JPrimitiveValue;
+import com.hagenberg.jarvis.models.entities.wrappers.JValue;
 
-public class SimpleMemberTransformer extends AttributeTransformer<MemberGVariable> {
+public class SimpleMemberTransformer extends AttributeTransformer<JObjectReference, JMember> {
 
   @Override
-  public Attribute transform(MemberGVariable member, IdProvider idProvider, Node parent, LinkRegisterCallback linkRegisterCallback) {
-    GNode node = member.getNode();
-    boolean isPrimitive = node instanceof PrimitiveGNode;
+  public Attribute transform(JObjectReference object, JMember member, IdProvider idProvider, Node parent, LinkRegisterCallback linkRegisterCallback) {
+    JValue node = member.value();
+    boolean isPrimitive = node instanceof JPrimitiveValue;
     String value;
 
     if (isPrimitive) {
-      value = member.getNode().getToString();
-    } else if (member.getNode() instanceof ObjectGNode obj) {
+      value = member.value().getToString();
+    } else if (member.value() instanceof JObjectReference obj) {
       value = "Reference to Object#" + obj.getObjectId();
     } else {
       value = "null";
@@ -31,13 +31,13 @@ public class SimpleMemberTransformer extends AttributeTransformer<MemberGVariabl
       idProvider.next(), 
       parent,
       isPrimitive,
-      member.getAccessModifier().toString(),
-      member.getStaticTypeName(),
-      member.getName(),
+      member.field().modifiers().toString(),
+      member.field().type(),
+      member.field().name(),
       value
     );
 
-    if (node != null && node instanceof ObjectGNode obj) {
+    if (node != null && node instanceof JObjectReference obj) {
       linkRegisterCallback.registerLink(parent, attribute.getAttId(), obj);
     }
     

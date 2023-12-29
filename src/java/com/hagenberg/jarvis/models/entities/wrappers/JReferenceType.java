@@ -1,4 +1,4 @@
-package com.hagenberg.jarvis.models.entities.classList;
+package com.hagenberg.jarvis.models.entities.wrappers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,25 +7,32 @@ import java.util.regex.Pattern;
 
 import com.hagenberg.jarvis.models.ClassModel;
 import com.hagenberg.jarvis.util.IndexedList;
+import com.sun.jdi.Field;
+import com.sun.jdi.Method;
 import com.sun.jdi.ReferenceType;
 
-public abstract class JReferenceType implements Refreshable {
+public abstract class JReferenceType extends JType {
+  private final ReferenceType jdiReferenceType;
 
-  protected final ClassModel model;
-  private final ReferenceType referenceType;
   private final List<JField> fields = new ArrayList<>();
   private final List<JMethod> methods = new ArrayList<>();
+  
   private final Pattern genericSignaturePattern = Pattern.compile("([\\w\\d]+):");
-  private String name;
   private String genericTypeParameters;
 
-  public JReferenceType(ReferenceType referenceType, ClassModel model) {
-    this.model = model;
-    this.referenceType = referenceType;
+  public JReferenceType(ReferenceType referenceType) {
+    super(referenceType);
+    this.jdiReferenceType = referenceType;
+    this.genericTypeParameters = getGenericTypeParameters(jdiReferenceType.genericSignature());
   }
 
-  public ReferenceType getReferenceType() {
-    return referenceType;
+  public void populate(ClassModel model) {
+    fields.addAll(JField.from(jdiReferenceType.fields(), model));
+    methods.addAll(JMethod.from(jdiReferenceType.methods(), model));
+  }
+
+  public ReferenceType getJdiReferenceType() {
+    return jdiReferenceType;
   }
 
   public List<JField> fields() {
@@ -40,40 +47,26 @@ public abstract class JReferenceType implements Refreshable {
 
   public abstract List<IndexedList<JReferenceType, JMethod>> allMethods();
 
-  public String name() {
-    return name;
+  public abstract JMethod getMethod(Method jdiMethod);
+
+  public boolean isAbstract() {
+    return jdiReferenceType.isAbstract();
+  }
+
+  public boolean isFinal() {
+    return jdiReferenceType.isFinal();
+  }
+
+  public boolean isPrepared() {
+    return jdiReferenceType.isPrepared();
+  }
+
+  public boolean isStatic() {
+    return jdiReferenceType.isStatic();
   }
 
   public String genericSignature() {
     return genericTypeParameters;
-  }
-
-  public boolean isAbstract() {
-    return referenceType.isAbstract();
-  }
-
-  public boolean isFinal() {
-    return referenceType.isFinal();
-  }
-
-  public boolean isPrepared() {
-    return referenceType.isPrepared();
-  }
-
-  public boolean isStatic() {
-    return referenceType.isStatic();
-  }
-
-  /**
-   * Requeries all the information from the debuggee.
-   */
-  public void refresh() {
-    fields.clear();
-    fields.addAll(JField.from(referenceType.fields()));
-    methods.clear();
-    methods.addAll(JMethod.from(referenceType.methods()));
-    name = referenceType.name();
-    genericTypeParameters = getGenericTypeParameters(referenceType.genericSignature());
   }
 
   /**
@@ -109,5 +102,14 @@ public abstract class JReferenceType implements Refreshable {
     }
 
     return sb.toString();
+  }
+
+  public JField getField(Field field) {
+    for (JField jField : fields) {
+      if (jField.getField().equals(field)) {
+        return jField;
+      }
+    }
+    return null;
   }
 }

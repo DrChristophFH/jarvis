@@ -1,4 +1,4 @@
-package com.hagenberg.jarvis.models.entities.classList;
+package com.hagenberg.jarvis.models.entities.wrappers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,41 +6,29 @@ import java.util.List;
 import com.hagenberg.jarvis.models.ClassModel;
 import com.hagenberg.jarvis.util.IndexedList;
 import com.sun.jdi.ClassType;
+import com.sun.jdi.Field;
 import com.sun.jdi.InterfaceType;
+import com.sun.jdi.Method;
 
-public class JClass extends JReferenceType implements Comparable<JClass> {
+public class JClassType extends JReferenceType implements Comparable<JClassType> {
   
   private final ClassType clazz; 
 
-  private final List<JClass> subClasses = new ArrayList<>();
-  private final List<JInterface> interfaces = new ArrayList<>();
-  private JClass superClass;
+  private final List<JClassType> subClasses = new ArrayList<>();
+  private final List<JInterfaceType> interfaces = new ArrayList<>();
+  private JClassType superClass;
 
-  public JClass(ClassType clazz, ClassModel model) {
-    super(clazz, model);
+  public JClassType(ClassType clazz) {
+    super(clazz);
     this.clazz = clazz;
   }
 
-  public List<JClass> subclasses() {
-    return subClasses;
-  }
-
-  public JClass superclass() {
-    return superClass;
-  }
-
-  public List<JInterface> interfaces() {
-    return interfaces;
-  }
-
   @Override
-  public void refresh() {
-    super.refresh();
-    subClasses.clear();
+  public void populate(ClassModel model) {
+    super.populate(model);
     for (ClassType subClass : clazz.subclasses()) {
       subClasses.add(model.getOrCreate(subClass));
     }
-    interfaces.clear();
     for (InterfaceType iface : clazz.allInterfaces()) {
       interfaces.add(model.getOrCreate(iface));
     }
@@ -49,8 +37,20 @@ public class JClass extends JReferenceType implements Comparable<JClass> {
     }
   }
 
+  public List<JClassType> subclasses() {
+    return subClasses;
+  }
+
+  public JClassType superclass() {
+    return superClass;
+  }
+
+  public List<JInterfaceType> interfaces() {
+    return interfaces;
+  }
+
   @Override
-  public int compareTo(JClass o) {
+  public int compareTo(JClassType o) {
     return name().compareTo(o.name());
   }
 
@@ -59,7 +59,7 @@ public class JClass extends JReferenceType implements Comparable<JClass> {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    JClass other = (JClass) obj;
+    JClassType other = (JClassType) obj;
     if (clazz == null) {
       if (other.clazz != null) return false;
     } else if (!clazz.equals(other.clazz)) return false;
@@ -70,13 +70,13 @@ public class JClass extends JReferenceType implements Comparable<JClass> {
   public List<IndexedList<JReferenceType, JField>> allFields() {
     List<IndexedList<JReferenceType, JField>> allFields = new ArrayList<>();
 
-    for (JInterface iface : interfaces()) {
+    for (JInterfaceType iface : interfaces()) {
       allFields.add(new IndexedList<>(iface, iface.fields()));
     }
 
     allFields.add(new IndexedList<>(this, fields()));
 
-    JClass superClass = this.superClass;
+    JClassType superClass = this.superClass;
     while(superClass != null) {
       allFields.add(new IndexedList<>(superClass, superClass.fields()));
       superClass = superClass.superclass();
@@ -89,18 +89,45 @@ public class JClass extends JReferenceType implements Comparable<JClass> {
   public List<IndexedList<JReferenceType, JMethod>> allMethods() {
     List<IndexedList<JReferenceType, JMethod>> allMethods = new ArrayList<>();
 
-    for (JInterface iface : interfaces()) {
+    for (JInterfaceType iface : interfaces()) {
       allMethods.add(new IndexedList<>(iface, iface.methods()));
     }
 
     allMethods.add(new IndexedList<>(this, methods()));
 
-    JClass superClass = this.superClass;
+    JClassType superClass = this.superClass;
     while(superClass != null) {
       allMethods.add(new IndexedList<>(superClass, superClass.methods()));
       superClass = superClass.superclass();
     }
 
     return allMethods;
+  }
+
+  @Override
+  public JMethod getMethod(Method jdiMethod) {
+    for (JMethod method : methods()) {
+      if (method.getJdiMethod().equals(jdiMethod)) {
+        return method;
+      }
+    }
+    return null;
+  }
+
+  @Override
+  public JField getField(Field field) {
+    // search in own fields
+    for (JField jField : fields()) {
+      if (jField.getField().equals(field)) {
+        return jField;
+      }
+    }
+
+    // search in super class fields
+    if (superClass != null) {
+      return superClass.getField(field);
+    }
+    
+    return null;
   }
 }

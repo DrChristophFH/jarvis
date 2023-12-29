@@ -70,8 +70,11 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] current line preview
 - [x] loading and saving of templates
 - [x] object list doesn't display array content
-- [ ] make src path configurable as well as src.zip location
+- [x] tie class model with object model
+- [x] fix JType aquisition for non loaded classes
 - [ ] add context options (display in class list, filter in object list)
+- [ ] make src path configurable as well as src.zip location
+- [ ] show number of objects in object list (changing on filters)
 
 ### Low Prio
 
@@ -79,7 +82,6 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] seems like constantly querying into JDI is not performant at all (cache everything for classList into own data structures)
 - [ ] tab completion in template editor
 - [ ] better breakpoint selection and adding with line display
-- [ ] tie class model with object model
 - [ ] logging with coloring
 - [ ] fuzzy search known classes
 - [ ] add directory selector

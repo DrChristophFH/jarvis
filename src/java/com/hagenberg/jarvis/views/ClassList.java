@@ -8,17 +8,15 @@ import com.hagenberg.imgui.Snippets;
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.models.ClassModel;
 import com.hagenberg.jarvis.models.InteractionState;
-import com.hagenberg.jarvis.models.entities.AccessModifier;
-import com.hagenberg.jarvis.models.entities.classList.JClass;
-import com.hagenberg.jarvis.models.entities.classList.JField;
-import com.hagenberg.jarvis.models.entities.classList.JInterface;
-import com.hagenberg.jarvis.models.entities.classList.JLocalVariable;
-import com.hagenberg.jarvis.models.entities.classList.JMethod;
-import com.hagenberg.jarvis.models.entities.classList.JPackage;
-import com.hagenberg.jarvis.models.entities.classList.JReferenceType;
+import com.hagenberg.jarvis.models.entities.wrappers.JClassType;
+import com.hagenberg.jarvis.models.entities.wrappers.JField;
+import com.hagenberg.jarvis.models.entities.wrappers.JInterfaceType;
+import com.hagenberg.jarvis.models.entities.wrappers.JLocalVariable;
+import com.hagenberg.jarvis.models.entities.wrappers.JMethod;
+import com.hagenberg.jarvis.models.entities.wrappers.JPackage;
+import com.hagenberg.jarvis.models.entities.wrappers.JReferenceType;
 import com.hagenberg.jarvis.util.IndexedList;
 import com.hagenberg.jarvis.util.Profiler;
-import com.hagenberg.jarvis.util.TypeFormatter;
 import imgui.ImGui;
 import imgui.flag.ImGuiMouseCursor;
 import imgui.flag.ImGuiTreeNodeFlags;
@@ -75,22 +73,22 @@ public class ClassList extends View {
         buildPackageTree(pkg.getSubPackages());
         int treeNodeFlags = ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen;
 
-        for (JClass clazz : pkg.getClasses()) {
+        for (JClassType clazz : pkg.getClasses()) {
           if (clazz == selectedClass) {
-            ImGui.treeNodeEx(TypeFormatter.getSimpleType(clazz.name()), treeNodeFlags | ImGuiTreeNodeFlags.Selected);
+            ImGui.treeNodeEx(clazz.getSimpleName(), treeNodeFlags | ImGuiTreeNodeFlags.Selected);
           } else {
-            ImGui.treeNodeEx(TypeFormatter.getSimpleType(clazz.name()), treeNodeFlags);
+            ImGui.treeNodeEx(clazz.getSimpleName(), treeNodeFlags);
           }
           if (ImGui.isItemClicked() && !ImGui.isItemToggledOpen()) {
             selectedClass = clazz;
           }
         }
 
-        for (JInterface interfaze : pkg.getInterfaces()) {
+        for (JInterfaceType interfaze : pkg.getInterfaces()) {
           if (interfaze == selectedClass) {
-            ImGui.treeNodeEx("I " + TypeFormatter.getSimpleType(interfaze.name()), treeNodeFlags | ImGuiTreeNodeFlags.Selected);
+            ImGui.treeNodeEx("I " + interfaze.getSimpleName(), treeNodeFlags | ImGuiTreeNodeFlags.Selected);
           } else {
-            ImGui.treeNodeEx("I " + TypeFormatter.getSimpleType(interfaze.name()), treeNodeFlags);
+            ImGui.treeNodeEx("I " + interfaze.getSimpleName(), treeNodeFlags);
           }
           if (ImGui.isItemClicked() && !ImGui.isItemToggledOpen()) {
             selectedClass = interfaze;
@@ -102,18 +100,18 @@ public class ClassList extends View {
   }
 
   private void displayRefType(JReferenceType referenceType) {
-    if (referenceType instanceof JClass clazz) {
+    if (referenceType instanceof JClassType clazz) {
       displayClass(clazz);
-    } else if (referenceType instanceof JInterface interfaze) {
+    } else if (referenceType instanceof JInterfaceType interfaze) {
       displayInterface(interfaze);
     }
   }
 
-  private void displayInterface(JInterface interfaze) {
+  private void displayInterface(JInterfaceType interfaze) {
     ImGui.text("Interface: " + interfaze.name());
     ImGui.separator();
     ImGui.text("Superinterfaces: ");
-    for (JInterface superinterface : interfaze.superinterfaces()) {
+    for (JInterfaceType superinterface : interfaze.superinterfaces()) {
       ImGui.text(superinterface.name());
     }
     ImGui.separator();
@@ -123,7 +121,7 @@ public class ClassList extends View {
     }
   }
 
-  private void displayClass(JClass clazz) {
+  private void displayClass(JClassType clazz) {
     ImGui.text("Class:");
     ImGui.sameLine();
     ImGui.textColored(Colors.Type, clazz.name());
@@ -133,7 +131,7 @@ public class ClassList extends View {
     ImGui.textColored(Colors.Type, clazz.superclass().name());
     ImGui.separator();
     ImGui.text("Interfaces: ");
-    for (JInterface interfaze : clazz.interfaces()) {
+    for (JInterfaceType interfaze : clazz.interfaces()) {
       ImGui.textColored(Colors.Type, interfaze.name());
     }
     ImGui.separator();
@@ -153,7 +151,7 @@ public class ClassList extends View {
     Profiler.stop("cl.methods");
   }
 
-  private void fieldSection(JClass clazz) {
+  private void fieldSection(JClassType clazz) {
     if (ImGui.collapsingHeader("Fields")) {
       for (IndexedList<JReferenceType, JField> fieldList : clazz.allFields()) {
         if (!fieldList.isEmpty() && ImGui.treeNode("Fields of %s".formatted(fieldList.getIndex().name()))) {
@@ -167,18 +165,18 @@ public class ClassList extends View {
   }
 
   private void showField(JField field) {
-    ImGui.textColored(Colors.AccessModifier, AccessModifier.toString(field.modifiers()));
+    ImGui.textColored(Colors.AccessModifier, field.modifiers().toString());
     ImGui.sameLine();
     if (field.typeIsGeneric()) {
       ImGui.textColored(Colors.Type, field.genericSignature());
       ImGui.sameLine();
     }
-    Snippets.drawTypeWithTooltip(field.typeName(), tooltip);
+    Snippets.drawTypeWithTooltip(field.type(), tooltip);
     ImGui.sameLine();
     ImGui.text(field.name());
   }
 
-  private void methodSection(JClass clazz) {
+  private void methodSection(JClassType clazz) {
     if (ImGui.collapsingHeader("Methods")) {
       for (IndexedList<JReferenceType, JMethod> methodList : clazz.allMethods()) {
         if (!methodList.isEmpty() && ImGui.treeNode("Methods of %s".formatted(methodList.getIndex().name()))) {
@@ -192,19 +190,18 @@ public class ClassList extends View {
   }
 
   private void showMethod(JMethod method) {
-    Profiler.start("cl.methods.modifiers");
-    int modifiers = method.modifiers();
-    Profiler.stop("cl.methods.modifiers");
-    ImGui.textColored(Colors.AccessModifier, AccessModifier.toString(modifiers));
+    ImGui.textColored(Colors.AccessModifier, method.modifiers().toString());
     ImGui.sameLine();
+
     Profiler.start("cl.methods.returnType");
     if (method.typeIsGeneric()) {
       ImGui.textColored(Colors.Type, method.genericSignature());
       ImGui.sameLine();
     }
-    Snippets.drawTypeWithTooltip(method.returnTypeName(), tooltip);
+    Snippets.drawTypeWithTooltip(method.returnType(), tooltip);
     Profiler.stop("cl.methods.returnType");
     ImGui.sameLine();
+    
     ImGui.text(method.name() + "(");
     Profiler.start("cl.methods.params");
     int params = method.arguments().size();
@@ -214,7 +211,7 @@ public class ClassList extends View {
         ImGui.textColored(Colors.Type, param.genericTypeName());
         ImGui.sameLine();
       }
-      Snippets.drawTypeWithTooltip(param.typeName(), tooltip);
+      Snippets.drawTypeWithTooltip(param.getType(), tooltip);
       ImGui.sameLine();
       ImGui.text(param.name());
       if (params > 1) {

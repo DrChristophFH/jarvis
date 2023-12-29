@@ -8,13 +8,12 @@ import com.hagenberg.imgui.Snippets;
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.models.InteractionState;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
-import com.hagenberg.jarvis.models.entities.graph.ArrayGNode;
-import com.hagenberg.jarvis.models.entities.graph.ContentGVariable;
-import com.hagenberg.jarvis.models.entities.graph.GNode;
-import com.hagenberg.jarvis.models.entities.graph.GVariable;
-import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
-import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
-import com.hagenberg.jarvis.util.TypeFormatter;
+import com.hagenberg.jarvis.models.entities.wrappers.JArrayReference;
+import com.hagenberg.jarvis.models.entities.wrappers.JContent;
+import com.hagenberg.jarvis.models.entities.wrappers.JMember;
+import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
+import com.hagenberg.jarvis.models.entities.wrappers.JType;
+import com.hagenberg.jarvis.models.entities.wrappers.JValue;
 
 import imgui.ImGui;
 import imgui.ImGuiInputTextCallbackData;
@@ -80,7 +79,7 @@ public class ObjectList extends View {
     }
 
     int tableFlags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable
-        | ImGuiTableFlags.ScrollX | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.ScrollY;
+        | ImGuiTableFlags.ScrollX | ImGuiTableFlags.Resizable | ImGuiTableFlags.ScrollY;
 
     if (ImGui.beginTable("table", 4, tableFlags)) {
 
@@ -99,10 +98,10 @@ public class ObjectList extends View {
     }
   }
 
-  private void showObjectsTable(List<ObjectGNode> objects) {
+  private void showObjectsTable(List<JObjectReference> objects) {
     possibleFilters.clear();
-    for (ObjectGNode object : objects) {
-      String typeName = TypeFormatter.getSimpleType(object.getTypeName());
+    for (JObjectReference object : objects) {
+      String typeName = object.type().getSimpleName();
       possibleFilters.add(typeName);
       if (currentFilter == null || currentFilter.equals(typeName)) {
         displayObject(object);
@@ -110,25 +109,17 @@ public class ObjectList extends View {
     }
   }
 
-  private void displayObject(ObjectGNode object) {
+  private void displayObject(JObjectReference object) {
     ImGui.tableNextRow();
     ImGui.tableNextColumn();
-
-    int treeFlags = ImGuiTreeNodeFlags.SpanFullWidth | ImGuiTreeNodeFlags.SpanAvailWidth;
-
-    if (object instanceof ArrayGNode array) {
-      if (array.getContent().isEmpty()) {
-        treeFlags |= ImGuiTreeNodeFlags.Leaf;
-      }
-    } else if (object.getMembers().size() == 0) {
-      treeFlags |= ImGuiTreeNodeFlags.Leaf;
-    }
+    // first column -> tree list
+    int treeFlags = determineTreeFlags(object);
 
     if (iState.getSelectedObjectId() == object.getObjectId()) {
       ImGui.tableSetBgColor(ImGuiTableBgTarget.RowBg1, ImGui.getColorU32(ImGuiCol.TextSelectedBg));
     }
 
-    boolean open = ImGui.treeNodeEx(object.toString(), treeFlags);
+    boolean open = ImGui.treeNodeEx(object.name(), treeFlags);
 
     if (ImGui.beginPopupContextItem()) {
       // TODO Snippets.focusOnNode(object.getLayoutNode().getNodeId());
@@ -136,68 +127,72 @@ public class ObjectList extends View {
     }
 
     ImGui.tableNextColumn();
-    Snippets.drawTypeWithTooltip(object.getTypeName(), tooltip);
+    Snippets.drawTypeWithTooltip(object.type(), tooltip);
+
     ImGui.tableNextColumn();
     // skip dynamic type
+
     ImGui.tableNextColumn();
     ImGui.text(object.getToString());
+
     if (open) {
-      for (MemberGVariable member : object.getMembers()) {
-        displayVariable(member);
+      scaffoldObject(object);
+      ImGui.treePop();
+    }
+  }
+
+  private void scaffoldObject(JObjectReference object) {
+    for (JMember member : object.getMembers()) {
+      displayElement(member.value(), member.field().name(), member.field().type());
+    }
+    if (object instanceof JArrayReference array) {
+      int index = 0;
+      JType elementType = array.getArrayContentType();
+      for (JContent content : array.getContent()) {
+        displayElement(content.value(), "[" + index + "]", elementType);
+        index++;
       }
-      if (object instanceof ArrayGNode array) {
-        for (ContentGVariable element : array.getContent()) {
-          displayVariable(element);
-        }
+    }
+  }
+
+  private void displayElement(JValue element, String name, JType type) {
+    ImGui.tableNextRow();
+    ImGui.tableNextColumn();
+
+    int treeFlags = determineTreeFlags(element);
+
+    boolean open = ImGui.treeNodeEx(name, treeFlags);
+
+    ImGui.tableNextColumn();
+    Snippets.drawTypeWithTooltip(type, tooltip);
+    ImGui.tableNextColumn();
+    if (element != null) Snippets.drawTypeWithTooltip(element.type(), tooltip);
+    ImGui.tableNextColumn();
+
+    String value = element == null ? "null" : element.getToString();
+    ImGui.text(value);
+
+    if (open) {
+      if (element instanceof JObjectReference object) {
+        scaffoldObject(object);
       }
       ImGui.treePop();
     }
   }
 
-  private void displayVariable(GVariable variable) {
-    ImGui.tableNextRow();
-    ImGui.tableNextColumn();
-
+  private int determineTreeFlags(JValue value) {
     int treeFlags = ImGuiTreeNodeFlags.SpanFullWidth | ImGuiTreeNodeFlags.SpanAvailWidth;
-
-    GNode node = variable.getNode();
-    String typeName = node == null ? "null" : node.getTypeName();
-    String toString = node == null ? "null" : node.getToString();
-
-    if (node instanceof ArrayGNode array) {
+    if (value instanceof JArrayReference array) {
       if (array.getContent().isEmpty()) {
         treeFlags |= ImGuiTreeNodeFlags.Leaf;
       }
-    } else if (node instanceof ObjectGNode object) {
+    } else if (value instanceof JObjectReference object) {
       if (object.getMembers().isEmpty()) {
         treeFlags |= ImGuiTreeNodeFlags.Leaf;
       }
     } else {
       treeFlags |= ImGuiTreeNodeFlags.Leaf;
     }
-
-    boolean open = ImGui.treeNodeEx(variable.getName(), treeFlags);
-
-    ImGui.tableNextColumn();
-    Snippets.drawTypeWithTooltip(variable.getStaticTypeName(), tooltip);
-    ImGui.tableNextColumn();
-    Snippets.drawTypeWithTooltip(typeName, tooltip);
-    ImGui.tableNextColumn();
-
-    ImGui.text(toString);
-
-    if (open) {
-      if (node instanceof ObjectGNode object) {
-        for (MemberGVariable member : object.getMembers()) {
-          displayVariable(member);
-        }
-        if (object instanceof ArrayGNode array) {
-          for (ContentGVariable element : array.getContent()) {
-            displayVariable(element);
-          }
-        }
-      }
-      ImGui.treePop();
-    }
+    return treeFlags;
   }
 }

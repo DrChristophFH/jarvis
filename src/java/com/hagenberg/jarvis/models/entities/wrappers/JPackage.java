@@ -1,4 +1,4 @@
-package com.hagenberg.jarvis.models.entities.classList;
+package com.hagenberg.jarvis.models.entities.wrappers;
 
 import com.hagenberg.jarvis.models.ClassModel;
 import com.sun.jdi.ArrayType;
@@ -14,9 +14,9 @@ public class JPackage {
   private final ClassModel model;
   private final String name;
   private final SortedMap<String, JPackage> subPackages = new TreeMap<>();
-  private final SortedSet<JClass> classes = new TreeSet<>();
-  private final SortedSet<JInterface> interfaces = new TreeSet<>();
-  private final SortedSet<JArray> arrays = new TreeSet<>();
+  private final SortedSet<JClassType> classes = new TreeSet<>();
+  private final SortedSet<JInterfaceType> interfaces = new TreeSet<>();
+  private final SortedSet<JArrayType> arrays = new TreeSet<>();
 
   public JPackage(String name, ClassModel model) {
     this.model = model;
@@ -35,7 +35,7 @@ public class JPackage {
     subPackages.put(subPackage.name, subPackage);
   }
   
-  public Iterable<JClass> getClasses() {
+  public Iterable<JClassType> getClasses() {
     return classes;
   }
 
@@ -43,7 +43,7 @@ public class JPackage {
     classes.add(model.getOrCreate(clazz));
   }
 
-  public Iterable<JInterface> getInterfaces() {
+  public Iterable<JInterfaceType> getInterfaces() {
     return interfaces;
   }
 
@@ -51,7 +51,7 @@ public class JPackage {
     interfaces.add(model.getOrCreate(iface));
   }
 
-  public Iterable<JArray> getArrays() {
+  public Iterable<JArrayType> getArrays() {
     return arrays;
   }
 

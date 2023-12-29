@@ -78,7 +78,7 @@ public class LinePreview extends View {
     for (CallStackFrame frame : model.getCallStack()) {
       try {
         if (ImGui.selectable(frame.getSimpleMethodHeader(), selectedFrame == frame)) {
-          resolveSourcePath(frame.getMethod().location().sourcePath(), frame.getMethod().declaringType().module().name());
+          resolveSourcePath(frame.getMethod().getJdiMethod().location().sourcePath(), frame.getMethod().getJdiMethod().declaringType().module().name());
           selectedFrame = frame;
           moveToLine = true;
         }

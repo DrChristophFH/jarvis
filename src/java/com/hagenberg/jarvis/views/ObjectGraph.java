@@ -21,22 +21,25 @@ import com.hagenberg.jarvis.graph.render.Link;
 import com.hagenberg.jarvis.graph.render.RenderModel;
 import com.hagenberg.jarvis.graph.render.nodes.Node;
 import com.hagenberg.jarvis.graph.transform.GraphTransformer;
+import com.hagenberg.jarvis.models.ClassModel;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.util.Procedure;
 
 public class ObjectGraph extends View {
 
   private final GraphLayouter layouter = new GraphLayouter();
-  private final ObjectGraphModel objectGraph = new ObjectGraphModel();
-  private final GraphTransformer graphTransformer = new GraphTransformer(objectGraph, this);
+  private final ObjectGraphModel objectGraph;
+  private final GraphTransformer graphTransformer;
 
   private final List<Procedure> nodeActions = new ArrayList<>();
 
   private RenderModel stagedRenderGraph;
   private RenderModel renderGraph = new RenderModel();
 
-  public ObjectGraph() {
+  public ObjectGraph(ClassModel classModel) {
     setName("Object Graph");
+    objectGraph = new ObjectGraphModel(classModel);
+    graphTransformer = new GraphTransformer(objectGraph, this);
   }
 
   public ObjectGraphModel getObjectGraphModel() {

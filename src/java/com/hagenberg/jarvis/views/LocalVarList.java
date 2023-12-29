@@ -6,13 +6,13 @@ import com.hagenberg.imgui.Snippets;
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.models.InteractionState;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
-import com.hagenberg.jarvis.models.entities.graph.ArrayGNode;
-import com.hagenberg.jarvis.models.entities.graph.ContentGVariable;
-import com.hagenberg.jarvis.models.entities.graph.GNode;
-import com.hagenberg.jarvis.models.entities.graph.GVariable;
-import com.hagenberg.jarvis.models.entities.graph.LocalGVariable;
-import com.hagenberg.jarvis.models.entities.graph.MemberGVariable;
-import com.hagenberg.jarvis.models.entities.graph.ObjectGNode;
+import com.hagenberg.jarvis.models.entities.wrappers.JArrayReference;
+import com.hagenberg.jarvis.models.entities.wrappers.JContent;
+import com.hagenberg.jarvis.models.entities.wrappers.JLocalVariable;
+import com.hagenberg.jarvis.models.entities.wrappers.JMember;
+import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
+import com.hagenberg.jarvis.models.entities.wrappers.JType;
+import com.hagenberg.jarvis.models.entities.wrappers.JValue;
 
 import imgui.ImGui;
 import imgui.flag.ImGuiTableColumnFlags;
@@ -40,7 +40,7 @@ public class LocalVarList extends View {
       return;
     }
 
-    int tableFlags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable | ImGuiTableFlags.ScrollX | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.ScrollY;
+    int tableFlags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable | ImGuiTableFlags.ScrollX | ImGuiTableFlags.Resizable | ImGuiTableFlags.ScrollY;
 
     if (ImGui.beginTable("localVarList", 4, tableFlags)) {
 
@@ -59,56 +59,62 @@ public class LocalVarList extends View {
     }
   }
 
-  private void showLocalVarsTable(List<LocalGVariable> localVars) {
-    for (LocalGVariable localVar : localVars) {
-      displayVariable(localVar);
+  private void showLocalVarsTable(List<JLocalVariable> localVars) {
+    for (JLocalVariable localVar : localVars) {
+      displayElement(localVar.value(), localVar.name(), localVar.getType());
     }
   }
 
-  private void displayVariable(GVariable variable) {
+  private void displayElement(JValue value, String name, JType type) {
     ImGui.tableNextRow();
     ImGui.tableNextColumn();
 
+    int treeFlags = determineTreeFlags(value);
+
+    boolean open = ImGui.treeNodeEx(name, treeFlags);
+
+    ImGui.tableNextColumn();
+    Snippets.drawTypeWithTooltip(type, tooltip);
+    ImGui.tableNextColumn();
+    if (value != null) Snippets.drawTypeWithTooltip(value.type(), tooltip);
+    ImGui.tableNextColumn();
+
+    String valueString = value == null ? "null" : value.getToString();
+    ImGui.text(valueString);
+
+    if (open) {
+      if (value instanceof JObjectReference object) {
+        scaffoldObject(object);
+      }
+      ImGui.treePop();
+    }
+  }
+
+  private void scaffoldObject(JObjectReference object) {
+    for (JMember member : object.getMembers()) {
+      displayElement(member.value(), member.field().name(), member.field().type());
+    }
+    if (object instanceof JArrayReference array) {
+      JType elementType = array.getArrayContentType();
+      for (JContent content : array.getContent()) {
+        displayElement(content.value(), content.name(), elementType);
+      }
+    }
+  }
+
+  private int determineTreeFlags(JValue value) {
     int treeFlags = ImGuiTreeNodeFlags.SpanFullWidth | ImGuiTreeNodeFlags.SpanAvailWidth;
-
-    GNode node = variable.getNode();
-    String typeName = node == null ? "null" : node.getTypeName();
-    String toString = node == null ? "null" : node.getToString();
-
-    if (node instanceof ArrayGNode array) {
+    if (value instanceof JArrayReference array) {
       if (array.getContent().isEmpty()) {
         treeFlags |= ImGuiTreeNodeFlags.Leaf;
       }
-    } else if (node instanceof ObjectGNode object) {
+    } else if (value instanceof JObjectReference object) {
       if (object.getMembers().isEmpty()) {
         treeFlags |= ImGuiTreeNodeFlags.Leaf;
       }
     } else {
       treeFlags |= ImGuiTreeNodeFlags.Leaf;
     }
-
-    boolean open = ImGui.treeNodeEx(variable.getName(), treeFlags);
-
-    ImGui.tableNextColumn();
-    Snippets.drawTypeWithTooltip(variable.getStaticTypeName(), tooltip);
-    ImGui.tableNextColumn();
-    Snippets.drawTypeWithTooltip(typeName, tooltip);
-    ImGui.tableNextColumn();
-
-    ImGui.text(toString);
-
-    if (open) {
-      if (node instanceof ObjectGNode object) {
-        for (MemberGVariable member : object.getMembers()) {
-          displayVariable(member);
-        }
-        if (object instanceof ArrayGNode array) {
-          for (ContentGVariable element : array.getContent()) {
-            displayVariable(element);
-          }
-        }
-      }
-      ImGui.treePop();
-    }
+    return treeFlags;
   }
 }

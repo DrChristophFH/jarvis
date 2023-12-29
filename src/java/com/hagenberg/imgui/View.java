@@ -1,6 +1,7 @@
 package com.hagenberg.imgui;
 
 import com.hagenberg.imgui.components.Tooltip;
+import com.hagenberg.jarvis.util.Profiler;
 
 import imgui.ImGui;
 import imgui.type.ImBoolean;
@@ -15,12 +16,14 @@ public abstract class View {
   protected Tooltip tooltip = new Tooltip();
 
   public void render() {
+    Profiler.start(name);
     if (!ImGui.begin(name, showWindow, flags)) {
       ImGui.end();
       return;
     }
     renderWindow();
     ImGui.end();
+    Profiler.stop(name);
   }
 
   protected void setName(String name) {
@@ -29,6 +32,10 @@ public abstract class View {
 
   protected void setFlags(int flags) {
     this.flags = flags;
+  }
+
+  public String getName() {
+    return name;
   }
 
   public void setShowWindow(boolean showWindow) {
