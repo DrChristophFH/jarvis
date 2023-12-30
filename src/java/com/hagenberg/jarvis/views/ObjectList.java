@@ -135,6 +135,9 @@ public class ObjectList extends View {
     }
 
     boolean open = ImGui.treeNodeEx(object.name(), treeFlags);
+    if (!open) {
+      ImGui.pushID(object.name());
+    }
 
     if (ImGui.beginPopupContextItem()) {
       // TODO Snippets.focusOnNode(object.getLayoutNode().getNodeId());
@@ -153,6 +156,8 @@ public class ObjectList extends View {
     if (open) {
       scaffoldObject(object);
       ImGui.treePop();
+    } else {
+      ImGui.popID();
     }
   }
 
@@ -161,11 +166,9 @@ public class ObjectList extends View {
       displayElement(member.value(), member.field().name(), member.field().type());
     }
     if (object instanceof JArrayReference array) {
-      int index = 0;
       JType elementType = array.getArrayContentType();
       for (JContent content : array.getContent()) {
-        displayElement(content.value(), "[" + index + "]", elementType);
-        index++;
+        displayElement(content.value(), content.name(), elementType);
       }
     }
   }
@@ -177,6 +180,11 @@ public class ObjectList extends View {
     int treeFlags = determineTreeFlags(element);
 
     boolean open = ImGui.treeNodeEx(name, treeFlags);
+    if (!open) {
+      // treenodeex does not push id if not open
+      // to have rest of columns uniquely identified, we push id here
+      ImGui.pushID(name);
+    }
 
     ImGui.tableNextColumn();
     Snippets.drawTypeWithTooltip(type, tooltip);
@@ -192,6 +200,8 @@ public class ObjectList extends View {
         scaffoldObject(object);
       }
       ImGui.treePop();
+    } else {
+      ImGui.popID();
     }
   }
 

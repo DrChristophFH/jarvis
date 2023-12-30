@@ -72,6 +72,9 @@ public class LocalVarList extends View {
     int treeFlags = determineTreeFlags(value);
 
     boolean open = ImGui.treeNodeEx(name, treeFlags);
+    if (!open) {
+      ImGui.pushID(name);
+    }
 
     ImGui.tableNextColumn();
     Snippets.drawTypeWithTooltip(type, tooltip);
@@ -87,6 +90,8 @@ public class LocalVarList extends View {
         scaffoldObject(object);
       }
       ImGui.treePop();
+    } else {
+      ImGui.popID();
     }
   }
 
