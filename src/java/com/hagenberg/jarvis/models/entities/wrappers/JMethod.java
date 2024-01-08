@@ -9,6 +9,7 @@ import com.hagenberg.jarvis.models.ClassModel;
 import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.Method;
 import com.sun.jdi.Type;
+import com.sun.jdi.VoidType;
 
 public class JMethod extends JTypeComponent {
 
@@ -37,7 +38,7 @@ public class JMethod extends JTypeComponent {
   public void tryResolveType() {
     try {
       Type type = jdiMethod.returnType();
-      returnType = type == null ? new JVoidType() : model.getJType(type);
+      returnType = (type instanceof VoidType) ? new JVoidType() : model.getJType(type);
       typeLoaded = true;
     } catch (ClassNotLoadedException e) {
       returnType = new JNotLoadedType(jdiMethod.returnTypeName());
