@@ -1,6 +1,7 @@
 package com.hagenberg.jarvis.models;
 
 import com.hagenberg.jarvis.models.entities.wrappers.JArrayReference;
+import com.hagenberg.jarvis.models.entities.wrappers.JArrayType;
 import com.hagenberg.jarvis.models.entities.wrappers.JField;
 import com.hagenberg.jarvis.models.entities.wrappers.JLocalVariable;
 import com.hagenberg.jarvis.models.entities.wrappers.JMember;
@@ -70,17 +71,23 @@ public class ObjectGraphModel implements Observable {
         handleFrame(frame);
       }
 
+      System.out.println("Pass 1 done");
+
       resolveToString();
+
+      System.out.println("Pass 2 done");
 
       localVars.clear();
       objectMap.clear();
       localVars.putAll(localVarBuffer);
       objectMap.putAll(objectBuffer);
+      System.out.println("Pass 3 done");
 
       notifyObservers();
     } finally {
       unlockModel();
     }
+    System.out.println("Pass 4 done");
   }
 
   public List<JObjectReference> getObjects() {
@@ -144,6 +151,7 @@ public class ObjectGraphModel implements Observable {
   }
 
   private void handleFrame(StackFrame frame) {
+    System.out.println("Handling frame " + frame.location().toString());
     try {
       for (LocalVariable variable : frame.visibleVariables()) {
         handleLocalVariable(variable, frame);
@@ -243,12 +251,10 @@ public class ObjectGraphModel implements Observable {
       if (existingObjRef instanceof JArrayReference arrayRef) {
         updateContents(arrayRef);
       } else {
-        // defer toString() resolution
-        // toString not defined for arrays
+        // defer toString() resolution toString not defined for arrays
         deferToString(existingObjRef, objRef);
       }
     }
-
     return existingObjRef;
   }
 
@@ -301,50 +307,21 @@ public class ObjectGraphModel implements Observable {
   private JObjectReference createObjectNode(ObjectReference objRef) {
     JReferenceType objType = (JReferenceType) classModel.getJType(objRef.referenceType());
     JObjectReference newNode = new JObjectReference(objRef, objType);
-    deferToString(newNode, objRef);
-    for (Field field : objRef.referenceType().allFields()) {
-      if (field.isStatic()) continue; // skip static fields
-
-      JField jField = objType.getField(field);
-      JValue jValue = null;
-
-      Value value = objRef.getValue(field);
-      if (value instanceof PrimitiveValue primValue) {
-        jValue = createJPrimitiveValue(primValue);
-      } else if (value instanceof ObjectReference objRefValue) {
-        jValue = cycleObjectReference(objRefValue);
-        ((JObjectReference) jValue).addReferenceHolder(newNode);
-      }
-
-      JMember member = new JMember(jField, jValue);
-      newNode.addMember(member);
-    }
     return newNode;
   }
 
   private JObjectReference createArrayNode(ArrayReference arrayRef) {
-    ArrayType arrayType = (ArrayType) arrayRef.referenceType();
+    ArrayType jdiArrayType = (ArrayType) arrayRef.referenceType();
+    JArrayType arrayType = (JArrayType) classModel.getJType(jdiArrayType);
+
     Type componentType;
     try {
-      componentType = arrayType.componentType();
+      componentType = jdiArrayType.componentType();
     } catch (ClassNotLoadedException e) {
       componentType = null;
     }
-    JArrayReference newNode = new JArrayReference(arrayRef, classModel.getJType(arrayType), classModel.getJType(componentType));
 
-    for (int i = 0; i < arrayRef.length(); i++) {
-      Value value = arrayRef.getValue(i);
-      JValue jValue = null;
-
-      if (value instanceof PrimitiveValue primValue) {
-        jValue = createJPrimitiveValue(primValue);
-      } else if (value instanceof ObjectReference objRefValue) {
-        jValue = cycleObjectReference(objRefValue);
-        ((JObjectReference) jValue).addReferenceHolder(newNode);
-      }
-
-      newNode.setContent(i, jValue);
-    }
+    JArrayReference newNode = new JArrayReference(arrayRef, arrayType, classModel.getJType(componentType));
 
     return newNode;
   }
@@ -371,17 +348,24 @@ public class ObjectGraphModel implements Observable {
    */
   private void resolveToString() {
     String result = null;
+    System.out.println("Resolving toString() for " + deferredToString.size() + " objects");
     for (Pair<JObjectReference, ObjectReference> pair : deferredToString) {
       JObjectReference node = pair.first();
       ObjectReference objRef = pair.second();
+      System.out.println("Resolving toString() for " + node.name());
       try {
         List<Method> methods = objRef.referenceType().methodsByName("toString", "()Ljava/lang/String;");
+        System.out.println("Found " + methods.size() + " toString() methods");
         if (!methods.isEmpty()) {
           Method toStringMethod = methods.get(0);
+
           // skip base object toString() method
-          if (!toStringMethod.declaringType().name().equals("java.lang.Object")) {
-            int flags = ObjectReference.INVOKE_SINGLE_THREADED;
+          var declType = toStringMethod.declaringType().name();
+          if (!declType.equals("java.lang.Object")) {
+            int flags = 0; //ObjectReference.INVOKE_SINGLE_THREADED;
+            System.out.println("Invoking toString() method for " + declType);
             result = objRef.invokeMethod(currentThread, toStringMethod, new ArrayList<>(), flags).toString();
+            System.out.println("toString() result: " + result);
           }
         }
       } catch (IllegalArgumentException | InvalidTypeException | ClassNotLoadedException | IncompatibleThreadStateException
@@ -389,6 +373,7 @@ public class ObjectGraphModel implements Observable {
         result = "toString() not available";
       }
       node.setToString(result);
+      System.out.println("toString() resolved for " + node.name());
     }
     deferredToString.clear();
   }

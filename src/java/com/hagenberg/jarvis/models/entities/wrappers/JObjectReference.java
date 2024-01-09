@@ -3,6 +3,7 @@ package com.hagenberg.jarvis.models.entities.wrappers;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sun.jdi.Field;
 import com.sun.jdi.ObjectReference;
 
 public class JObjectReference extends JValue implements ReferenceHolder {
@@ -15,10 +16,21 @@ public class JObjectReference extends JValue implements ReferenceHolder {
 
   private String toStringRepresentation = "";
 
-  public JObjectReference(ObjectReference jdiObjectReference, JType type) {
+  public JObjectReference(ObjectReference jdiObjectReference, JReferenceType type) {
     super(type);
     this.jdiObjectReference = jdiObjectReference;
     this.objectId = jdiObjectReference.uniqueID();
+
+    // setup members
+    for (Field field : jdiObjectReference.referenceType().allFields()) {
+      if (field.isStatic()) continue; // skip static fields
+
+      JField jField = type.getField(field);
+      JValue jValue = null;
+
+      JMember member = new JMember(jField, jValue);
+      this.addMember(member);
+    }
   }
 
   public String getToString() {

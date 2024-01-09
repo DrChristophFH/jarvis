@@ -112,6 +112,25 @@ public class JarvisDebugger {
     }
   }
 
+  private boolean eventWatcherStop = false;
+
+  // TODO -> shift toString invocations out of OGM and into here.
+  // necessary to process toString() in parallel and allow the default debug() event loop to handle events like normal
+  private Thread eventWatcher = new Thread(() -> {
+    EventSet eventSet;
+    eventWatcherStop = false;
+    try {
+      while((eventSet = vm.eventQueue().remove()) != null && !eventWatcherStop) {
+        for (Event event : eventSet) {
+         System.out.println(event.toString());
+        }
+        eventSet.resume();
+      }
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+  });
+
   private void debug() throws InterruptedException, AbsentInformationException, IncompatibleThreadStateException, InvalidTypeException, ClassNotLoadedException, InvocationException {
     EventSet eventSet;
     while ((eventSet = vm.eventQueue().remove()) != null) {
@@ -123,7 +142,9 @@ public class JarvisDebugger {
           this.setBreakPoints(e);
         } else if (event instanceof BreakpointEvent || event instanceof StepEvent) {
           ThreadReference currentThread = ((LocatableEvent) event).thread();
+          eventWatcher.start();
           objectGraphModel.syncWith(currentThread);
+          eventWatcherStop = true;
           callStackModel.syncWith(new ArrayList<>(currentThread.frames()));
           processUserCommand(currentThread, this.waitForUserCommand());
         } else if (event instanceof ExceptionEvent exceptionEvent) {
@@ -141,6 +162,8 @@ public class JarvisDebugger {
       vm.resume(); // resume the thread after handling all events in the set
     }
   }
+
+
 
   private StepCommand waitForUserCommand() {
     stepCommand = new CompletableFuture<>();

@@ -8,10 +8,16 @@ public class JArrayReference extends JObjectReference {
   private final JContent[] contents;
   private final JType arrayContentType;
 
-  public JArrayReference(ArrayReference jdiArrayReference, JType type, JType arrayContentType) {
+  public JArrayReference(ArrayReference jdiArrayReference, JReferenceType type, JType arrayContentType) {
     super(jdiArrayReference, type);
     contents = new JContent[jdiArrayReference.length()];
     this.arrayContentType = arrayContentType;
+
+    // setup contents
+    for (int i = 0; i < jdiArrayReference.length(); i++) {
+      JValue jValue = null;
+      this.setContent(i, jValue);
+    }
   }
 
   public void setContent(int index, JValue arrayMember) {

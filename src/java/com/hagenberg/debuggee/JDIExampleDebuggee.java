@@ -24,15 +24,15 @@ public class JDIExampleDebuggee {
   // }
 
   public static void main(String[] args) {
-  Robot robot = new Robot(15, 100, 10);
-  System.out.println(robot);
-  Robot robot2 = new UberRobot();
-  robot = robot2;
-  int x = 1;
-  x = x + 1;
-  robot.whereAreYou();
-  robot.move(1, 2, 3);
-  robot.howAreYou();
-  robot2.whereAreYou();
+    Robot robot = new Robot(15, 100, 10);
+    System.out.println(robot);
+    Robot robot2 = new UberRobot();
+    robot.whereAreYou();
+    robot.move(1, 2, 3);
+    robot = robot2;
+    robot.howAreYou();
+    int x = 1;
+    x = x + 1;
+    robot2.whereAreYou();
   }
 }
