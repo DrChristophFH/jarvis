@@ -36,6 +36,7 @@ public class ToStringProcessor extends Thread {
 
   public void signalToStart(ThreadReference currentThread) {
     synchronized (lock) {
+      stopLatch = new CountDownLatch(1); // Reset the latch for the next cycle
       processing.set(true);
       this.currentThread = currentThread;
       lock.notify(); // Notify to start processing
@@ -72,7 +73,7 @@ public class ToStringProcessor extends Thread {
 
         System.out.println("ToStringProcessor: started");
 
-        while (processing.get() || !queue.isEmpty()) {
+        while (processing.get() && !queue.isEmpty()) {
           Pair<JObjectReference, ObjectReference> task = queue.poll();
           if (task != null) {
             System.out.println("ToStringProcessor: processing task");
@@ -84,7 +85,6 @@ public class ToStringProcessor extends Thread {
 
         // Signal that processing has stopped
         stopLatch.countDown();
-        stopLatch = new CountDownLatch(1); // Reset the latch for the next cycle
       }
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
@@ -119,6 +119,6 @@ public class ToStringProcessor extends Thread {
       result = "toString() not available";
     }
     node.setToString(result);
-    System.out.println("ToStringProcessor: toString() for " + node.name() + " resolved to " + result);
+    System.out.println("ToStringProcessor: toString() for " + node.name() + " resolved to \"" + result + "\"");
   }
 }

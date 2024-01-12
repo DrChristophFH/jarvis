@@ -24,7 +24,7 @@ public class JarvisDebugger {
   private String mainClass;
   private VirtualMachine vm;
 
-  private StepCommand stepCommand;
+  private ThreadReference currentThread;
 
   private CallStackModel callStackModel;
   private ObjectGraphModel objectGraphModel;
@@ -56,9 +56,7 @@ public class JarvisDebugger {
   }
 
   public void executeCommand(StepCommand command) {
-    if (stepCommand == null) {
-      stepCommand = command;
-    }
+    this.processUserCommand(command);
   }
 
   public String getClassPath() {
@@ -113,8 +111,8 @@ public class JarvisDebugger {
     }
   }
 
-
-  private void debug() throws InterruptedException, AbsentInformationException, IncompatibleThreadStateException, InvalidTypeException, ClassNotLoadedException, InvocationException {
+  private void debug() throws InterruptedException, AbsentInformationException, IncompatibleThreadStateException, InvalidTypeException,
+      ClassNotLoadedException, InvocationException {
     EventSet eventSet;
     while ((eventSet = vm.eventQueue().remove()) != null) {
       for (Event event : eventSet) {
@@ -135,36 +133,38 @@ public class JarvisDebugger {
           System.out.println("Breakpoint reached");
 
           ThreadReference currentThread = ((LocatableEvent) event).thread();
+          this.currentThread = currentThread;
+
           objectGraphModel.syncWith(currentThread, toStringProcessor::addTask);
-
-          // kickoff toString 
-          toStringProcessor.signalToStart(currentThread);
-
           callStackModel.syncWith(new ArrayList<>(currentThread.frames()));
+          
+          // kickoff toString
+          toStringProcessor.signalToStart(currentThread);
         } else if (event instanceof ExceptionEvent exceptionEvent) {
-          ObjectReference exceptionObj = exceptionEvent.exception();
+          // ObjectReference exceptionObj = exceptionEvent.exception();
 
           // Get the toString() method of the exception
-          Method toStringMethod = exceptionObj.referenceType().methodsByName("toString").get(0);
+          // Method toStringMethod =
+          // exceptionObj.referenceType().methodsByName("toString").get(0);
 
-          // stop toString processor temporarily to avoid JDWP 502 error (already invoking)
-          // TODO: add another invoker for outsourcing exception toString() invocation as we cannot wait for StopSignal here as the current to string 
+          // stop toString processor temporarily to avoid JDWP 502 error (already
+          // invoking)
+          // TODO: add another invoker for outsourcing exception toString() invocation as
+          // we cannot wait for StopSignal here as the current to string
           // invocation might wait for this event to finish causing a deadlock
-          if (toStringProcessor.isProcessing()) {
-            toStringProcessor.stopProcessing();
-            toStringProcessor.waitForStopSignal();
-          }
-          // Invoke the toString() method
-          String exceptionAsString = exceptionObj.invokeMethod(exceptionEvent.thread(), toStringMethod, new ArrayList<>(), 0).toString();
-          toStringProcessor.signalToStart(exceptionEvent.thread());
+          // if (toStringProcessor.isProcessing()) {
+          // toStringProcessor.stopProcessing();
+          // toStringProcessor.waitForStopSignal();
+          // }
+          // // Invoke the toString() method
+          // String exceptionAsString = exceptionObj.invokeMethod(exceptionEvent.thread(),
+          // toStringMethod, new ArrayList<>(), 0).toString();
+          // toStringProcessor.signalToStart(exceptionEvent.thread());
 
-          eventLog.log(exceptionAsString);
+          eventLog.log(exceptionEvent.toString());
           eventSet.resume();
         } else {
           eventSet.resume();
-        }
-        if (stepCommand != null) {
-          this.processUserCommand(((LocatableEvent) event).thread(), stepCommand);
         }
         System.out.println("Event Handled");
       }
@@ -200,7 +200,12 @@ public class JarvisDebugger {
     streamThread.start();
   }
 
-  private void processUserCommand(ThreadReference currentThread, StepCommand command) {
+  private void processUserCommand(StepCommand command) {
+    if (currentThread == null) {
+      return;
+    } 
+    System.out.println(command);
+
     eventLog.log("Processing user command: " + command);
 
     EventRequestManager eventRequestManager = vm.eventRequestManager();
@@ -229,14 +234,13 @@ public class JarvisDebugger {
         stepOutRequest.enable();
       }
       case RESUME -> {
-        vm.resume();
       }
       case STOP -> {
         vm.exit(0);
       }
       default -> throw new IllegalArgumentException("Unexpected value: " + command);
     }
-    stepCommand = null; // reset
+    vm.resume();
   }
 
   private void setBreakPoints(ClassPrepareEvent event) throws AbsentInformationException {
