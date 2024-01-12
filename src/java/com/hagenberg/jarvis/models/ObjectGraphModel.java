@@ -2,7 +2,6 @@ package com.hagenberg.jarvis.models;
 
 import com.hagenberg.jarvis.models.entities.wrappers.JArrayReference;
 import com.hagenberg.jarvis.models.entities.wrappers.JArrayType;
-import com.hagenberg.jarvis.models.entities.wrappers.JField;
 import com.hagenberg.jarvis.models.entities.wrappers.JLocalVariable;
 import com.hagenberg.jarvis.models.entities.wrappers.JMember;
 import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
@@ -21,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 import java.util.List;
 
 public class ObjectGraphModel implements Observable {
@@ -36,9 +36,7 @@ public class ObjectGraphModel implements Observable {
   private final Map<ObjectReference, JObjectReference> objectMap = new HashMap<>(); // maps object ids to graph objects
   private final Map<ObjectReference, JObjectReference> objectBuffer = new HashMap<>(); // buffer for objects
 
-  // deferred toString() resolution
-  private final List<Pair<JObjectReference, ObjectReference>> deferredToString = new ArrayList<>();
-  private ThreadReference currentThread; // current thread for toString() resolution
+  private Consumer<Pair<JObjectReference, ObjectReference>> toStringDefer;
 
   public ObjectGraphModel(ClassModel classModel) {
     this.classModel = classModel;
@@ -52,10 +50,10 @@ public class ObjectGraphModel implements Observable {
     lock.unlock();
   }
 
-  public void syncWith(ThreadReference currentThread) {
+  public void syncWith(ThreadReference currentThread, Consumer<Pair<JObjectReference, ObjectReference>> toStringDefer) {
+    this.toStringDefer = toStringDefer;
     lockModel();
     try {
-      this.currentThread = currentThread;
       List<StackFrame> frames = new ArrayList<>();
 
       try {
@@ -71,23 +69,15 @@ public class ObjectGraphModel implements Observable {
         handleFrame(frame);
       }
 
-      System.out.println("Pass 1 done");
-
-      resolveToString();
-
-      System.out.println("Pass 2 done");
-
       localVars.clear();
       objectMap.clear();
       localVars.putAll(localVarBuffer);
       objectMap.putAll(objectBuffer);
-      System.out.println("Pass 3 done");
 
       notifyObservers();
     } finally {
       unlockModel();
     }
-    System.out.println("Pass 4 done");
   }
 
   public List<JObjectReference> getObjects() {
@@ -339,42 +329,6 @@ public class ObjectGraphModel implements Observable {
   }
 
   private void deferToString(JObjectReference node, ObjectReference objRef) {
-    deferredToString.add(new Pair<>(node, objRef));
-  }
-
-  /**
-   * <b>NOTE:</b> This method will <b>RESUME</b> the current thread, therefore
-   * invalidating all stack frames!
-   */
-  private void resolveToString() {
-    String result = null;
-    System.out.println("Resolving toString() for " + deferredToString.size() + " objects");
-    for (Pair<JObjectReference, ObjectReference> pair : deferredToString) {
-      JObjectReference node = pair.first();
-      ObjectReference objRef = pair.second();
-      System.out.println("Resolving toString() for " + node.name());
-      try {
-        List<Method> methods = objRef.referenceType().methodsByName("toString", "()Ljava/lang/String;");
-        System.out.println("Found " + methods.size() + " toString() methods");
-        if (!methods.isEmpty()) {
-          Method toStringMethod = methods.get(0);
-
-          // skip base object toString() method
-          var declType = toStringMethod.declaringType().name();
-          if (!declType.equals("java.lang.Object")) {
-            int flags = 0; //ObjectReference.INVOKE_SINGLE_THREADED;
-            System.out.println("Invoking toString() method for " + declType);
-            result = objRef.invokeMethod(currentThread, toStringMethod, new ArrayList<>(), flags).toString();
-            System.out.println("toString() result: " + result);
-          }
-        }
-      } catch (IllegalArgumentException | InvalidTypeException | ClassNotLoadedException | IncompatibleThreadStateException
-          | InvocationException e) {
-        result = "toString() not available";
-      }
-      node.setToString(result);
-      System.out.println("toString() resolved for " + node.name());
-    }
-    deferredToString.clear();
+    this.toStringDefer.accept(new Pair<>(node, objRef));
   }
 }

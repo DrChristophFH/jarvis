@@ -18,19 +18,19 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 public class JarvisDebugger {
   private String classPath;
   private String mainClass;
   private VirtualMachine vm;
 
-  private CompletableFuture<StepCommand> stepCommand;
+  private StepCommand stepCommand;
 
   private CallStackModel callStackModel;
   private ObjectGraphModel objectGraphModel;
   private ClassModel classModel;
+
+  private ToStringProcessor toStringProcessor = new ToStringProcessor();
 
   private final Log eventLog;
   private final DebugeeConsole debuggeeConsole;
@@ -45,6 +45,7 @@ public class JarvisDebugger {
     this.breakPointProvider = breakPointProvider;
     this.debuggeeConsole = debuggeeConsole;
     debuggeeConsole.registerInputHandler(this::handleInput);
+    toStringProcessor.start();
   }
 
   public void launch() {
@@ -55,8 +56,8 @@ public class JarvisDebugger {
   }
 
   public void executeCommand(StepCommand command) {
-    if (stepCommand != null && !stepCommand.isDone()) {
-      stepCommand.complete(command);
+    if (stepCommand == null) {
+      stepCommand = command;
     }
   }
 
@@ -112,65 +113,61 @@ public class JarvisDebugger {
     }
   }
 
-  private boolean eventWatcherStop = false;
-
-  // TODO -> shift toString invocations out of OGM and into here.
-  // necessary to process toString() in parallel and allow the default debug() event loop to handle events like normal
-  private Thread eventWatcher = new Thread(() -> {
-    EventSet eventSet;
-    eventWatcherStop = false;
-    try {
-      while((eventSet = vm.eventQueue().remove()) != null && !eventWatcherStop) {
-        for (Event event : eventSet) {
-         System.out.println(event.toString());
-        }
-        eventSet.resume();
-      }
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-  });
 
   private void debug() throws InterruptedException, AbsentInformationException, IncompatibleThreadStateException, InvalidTypeException, ClassNotLoadedException, InvocationException {
     EventSet eventSet;
     while ((eventSet = vm.eventQueue().remove()) != null) {
       for (Event event : eventSet) {
+        System.out.println("Event: " + event);
         eventLog.log(event.toString());
         if (event instanceof ClassPrepareEvent e) {
           eventLog.log("Class prepared: " + e.referenceType().name());
           classModel.addFromRefType(e.referenceType());
           this.setBreakPoints(e);
+          eventSet.resume();
         } else if (event instanceof BreakpointEvent || event instanceof StepEvent) {
+          if (toStringProcessor.isProcessing()) {
+            toStringProcessor.stopProcessing();
+            toStringProcessor.waitForStopSignal();
+            toStringProcessor.clear();
+          }
+
+          System.out.println("Breakpoint reached");
+
           ThreadReference currentThread = ((LocatableEvent) event).thread();
-          eventWatcher.start();
-          objectGraphModel.syncWith(currentThread);
-          eventWatcherStop = true;
+          objectGraphModel.syncWith(currentThread, toStringProcessor::addTask);
+
+          // kickoff toString 
+          toStringProcessor.signalToStart(currentThread);
+
           callStackModel.syncWith(new ArrayList<>(currentThread.frames()));
-          processUserCommand(currentThread, this.waitForUserCommand());
         } else if (event instanceof ExceptionEvent exceptionEvent) {
           ObjectReference exceptionObj = exceptionEvent.exception();
 
           // Get the toString() method of the exception
           Method toStringMethod = exceptionObj.referenceType().methodsByName("toString").get(0);
 
+          // stop toString processor temporarily to avoid JDWP 502 error (already invoking)
+          // TODO: add another invoker for outsourcing exception toString() invocation as we cannot wait for StopSignal here as the current to string 
+          // invocation might wait for this event to finish causing a deadlock
+          if (toStringProcessor.isProcessing()) {
+            toStringProcessor.stopProcessing();
+            toStringProcessor.waitForStopSignal();
+          }
           // Invoke the toString() method
           String exceptionAsString = exceptionObj.invokeMethod(exceptionEvent.thread(), toStringMethod, new ArrayList<>(), 0).toString();
+          toStringProcessor.signalToStart(exceptionEvent.thread());
 
           eventLog.log(exceptionAsString);
+          eventSet.resume();
+        } else {
+          eventSet.resume();
         }
+        if (stepCommand != null) {
+          this.processUserCommand(((LocatableEvent) event).thread(), stepCommand);
+        }
+        System.out.println("Event Handled");
       }
-      vm.resume(); // resume the thread after handling all events in the set
-    }
-  }
-
-
-
-  private StepCommand waitForUserCommand() {
-    stepCommand = new CompletableFuture<>();
-    try {
-      return stepCommand.get();
-    } catch (InterruptedException | ExecutionException e) {
-      return null;
     }
   }
 
@@ -232,12 +229,14 @@ public class JarvisDebugger {
         stepOutRequest.enable();
       }
       case RESUME -> {
+        vm.resume();
       }
       case STOP -> {
         vm.exit(0);
       }
       default -> throw new IllegalArgumentException("Unexpected value: " + command);
     }
+    stepCommand = null; // reset
   }
 
   private void setBreakPoints(ClassPrepareEvent event) throws AbsentInformationException {
