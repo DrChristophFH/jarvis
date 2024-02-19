@@ -72,7 +72,7 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] object list doesn't display array content
 - [x] tie class model with object model
 - [x] fix JType aquisition for non loaded classes
-- [ ] add context options (display in class list, filter in object list)
+- [x] add context options (display in class list, filter in object list)
 - [ ] make src path configurable as well as src.zip location
 - [ ] show number of objects in object list (changing on filters)
 

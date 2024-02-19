@@ -78,10 +78,15 @@ public class LocalVarList extends View {
 
     ImGui.tableNextColumn();
     Snippets.drawTypeWithTooltip(type, tooltip);
-    ImGui.tableNextColumn();
-    if (value != null) Snippets.drawTypeWithTooltip(value.type(), tooltip);
-    ImGui.tableNextColumn();
 
+    ImGui.tableNextColumn();
+    if (value != null) {
+      ImGui.pushID("dynamicType"); // else same id for static and dynamic type
+      Snippets.drawTypeWithTooltip(value.type(), tooltip);
+      ImGui.popID();
+    }
+
+    ImGui.tableNextColumn();
     String valueString = value == null ? "null" : value.getToString();
     ImGui.text(valueString);
 

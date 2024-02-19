@@ -136,6 +136,7 @@ public class ObjectList extends View {
 
     boolean open = ImGui.treeNodeEx(object.name(), treeFlags);
     if (!open) {
+
       ImGui.pushID(object.name());
     }
 
@@ -188,10 +189,15 @@ public class ObjectList extends View {
 
     ImGui.tableNextColumn();
     Snippets.drawTypeWithTooltip(type, tooltip);
-    ImGui.tableNextColumn();
-    if (element != null) Snippets.drawTypeWithTooltip(element.type(), tooltip);
-    ImGui.tableNextColumn();
 
+    ImGui.tableNextColumn();
+    if (element != null) {
+      ImGui.pushID("dynamicType"); // else same id for static and dynamic type
+      Snippets.drawTypeWithTooltip(element.type(), tooltip);
+      ImGui.popID();
+    }
+
+    ImGui.tableNextColumn();
     String value = element == null ? "null" : element.getToString();
     ImGui.text(value);
 
