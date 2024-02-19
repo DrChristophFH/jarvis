@@ -62,6 +62,17 @@ public class Snippets {
     });
   }
 
+  public static void drawHelpMarker(String desc) {
+    ImGui.textDisabled("(?)");
+    if (ImGui.isItemHovered()) {
+      ImGui.beginTooltip();
+      ImGui.pushTextWrapPos(450);
+      ImGui.text(desc);
+      ImGui.popTextWrapPos();
+      ImGui.endTooltip();
+    }
+  }
+
   public static void DisplayLayoutNodeDebug(Node layoutNode) {
     ImGui.text("Id: " + layoutNode);
     ImGui.text("Position: " + layoutNode.getPosition());

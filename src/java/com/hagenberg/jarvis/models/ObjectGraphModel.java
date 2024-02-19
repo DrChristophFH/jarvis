@@ -26,6 +26,11 @@ import java.util.List;
 public class ObjectGraphModel implements Observable {
   private final ClassModel classModel;
 
+  // configuration
+  private boolean resolveSpecialClasses = false;
+  // classes that should not be resovled unless desired. This is necessary because some classes blow up the object graph (e.g. reflection classes)
+  private static final String[] specialClasses = { "java.lang.Class", "java.lang.invoke.DirectMethodHandle" };
+
   // locking
   private final ReentrantLock lock = new ReentrantLock();
   private final List<Observer> observers = new ArrayList<>();
@@ -48,6 +53,14 @@ public class ObjectGraphModel implements Observable {
 
   public void unlockModel() {
     lock.unlock();
+  }
+
+  public void setResolveSpecialClasses(boolean resolveSpecialClasses) {
+    this.resolveSpecialClasses = resolveSpecialClasses;
+  }
+
+  public boolean isResolveSpecialClasses() {
+    return resolveSpecialClasses;
   }
 
   public void syncWith(ThreadReference currentThread, Consumer<Pair<JObjectReference, ObjectReference>> toStringDefer) {
@@ -138,6 +151,15 @@ public class ObjectGraphModel implements Observable {
     for (Observer observer : observers) {
       observer.update();
     }
+  }
+
+  private boolean isSpecialClass(String className) {
+    for (String specialClass : specialClasses) {
+      if (specialClass.equals(className)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private void handleFrame(StackFrame frame) {
@@ -237,12 +259,16 @@ public class ObjectGraphModel implements Observable {
       objectBuffer.put(objRef, existingObjRef); // add to buffer
 
       // cycle object to update values
-      updateMembers(existingObjRef);
-      if (existingObjRef instanceof JArrayReference arrayRef) {
-        updateContents(arrayRef);
+      if (resolveSpecialClasses || !isSpecialClass(objRef.referenceType().name())) {
+        updateMembers(existingObjRef);
+        if (existingObjRef instanceof JArrayReference arrayRef) {
+          updateContents(arrayRef);
+        } else {
+          // defer toString() resolution toString not defined for arrays
+          deferToString(existingObjRef, objRef);
+        }
       } else {
-        // defer toString() resolution toString not defined for arrays
-        deferToString(existingObjRef, objRef);
+        existingObjRef.setToString("[not resolved]");
       }
     }
     return existingObjRef;

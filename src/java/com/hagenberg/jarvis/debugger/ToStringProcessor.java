@@ -40,7 +40,6 @@ public class ToStringProcessor extends Thread {
       processing.set(true);
       this.currentThread = currentThread;
       lock.notify(); // Notify to start processing
-      System.out.println("ToStringProcessor: notified start");
     }
   }
 
@@ -54,7 +53,6 @@ public class ToStringProcessor extends Thread {
 
   public void waitForStopSignal() throws InterruptedException {
     stopLatch.await();
-    System.out.println("ToStringProcessor: stopped");
   }
 
   public void clear() {
@@ -71,18 +69,12 @@ public class ToStringProcessor extends Thread {
           }
         }
 
-        System.out.println("ToStringProcessor: started");
-
         while (processing.get() && !queue.isEmpty()) {
           Pair<JObjectReference, ObjectReference> task = queue.poll();
           if (task != null) {
-            System.out.println("ToStringProcessor: processing task");
             resolveToString(task.first(), task.second());
           }
         }
-
-        System.out.println("ToStringProcessor: finished");
-
         // Signal that processing has stopped
         stopLatch.countDown();
       }
@@ -98,9 +90,6 @@ public class ToStringProcessor extends Thread {
   private void resolveToString(JObjectReference node, ObjectReference objRef) {
     String result = null;
     try {
-
-      System.out.println("ToStringProcessor: resolving toString() for " + node.name());
-
       List<Method> methods = objRef.referenceType().methodsByName("toString", "()Ljava/lang/String;");
       if (!methods.isEmpty()) {
         Method toStringMethod = methods.get(0);
@@ -110,7 +99,6 @@ public class ToStringProcessor extends Thread {
         // skip base object toString() method
         if (!declType.equals("java.lang.Object")) {
           int flags = 0;
-          System.out.println("ToStringProcessor: invoking toString() for " + node.name());
           result = objRef.invokeMethod(currentThread, toStringMethod, new ArrayList<>(), flags).toString();
         }
       }
@@ -119,6 +107,5 @@ public class ToStringProcessor extends Thread {
       result = "toString() not available";
     }
     node.setToString(result);
-    System.out.println("ToStringProcessor: toString() for " + node.name() + " resolved to \"" + result + "\"");
   }
 }

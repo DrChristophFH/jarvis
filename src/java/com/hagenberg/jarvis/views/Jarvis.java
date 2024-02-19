@@ -6,6 +6,7 @@ import java.util.List;
 import org.lwjgl.glfw.GLFW;
 
 import com.hagenberg.imgui.Application;
+import com.hagenberg.imgui.Snippets;
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.debugger.JarvisDebugger;
 import com.hagenberg.jarvis.models.InteractionState;
@@ -65,6 +66,7 @@ public class Jarvis {
     ImGui.text("Welcome to Jarvis!");
     JarvisConfig();
     HelpSection();
+    ConfigSection();
     MenuBar();
     ImGui.end();
 
@@ -119,10 +121,20 @@ public class Jarvis {
   private void HelpSection() {
     if (ImGui.collapsingHeader("Help")) {
       ImGui.separator();
-      ImGui.bulletText("Sections below are demonstrating many aspects of the library.");
+      ImGui.bulletText("Sections below are demonstrating many aspects of the library."); //TODO
       ImGui.bulletText("The \"Examples\" menu above leads to more demo contents.");
       ImGui.separator();
       ImGui.showUserGuide();
+    }
+  }
+
+  private void ConfigSection() {
+    if (ImGui.collapsingHeader("Configuration")) {
+      if(ImGui.checkbox("Resolve Critical Classes", objectGraph.getObjectGraphModel().isResolveSpecialClasses())) {
+        objectGraph.getObjectGraphModel().setResolveSpecialClasses(!objectGraph.getObjectGraphModel().isResolveSpecialClasses());
+      }
+      ImGui.sameLine();
+      Snippets.drawHelpMarker("Resolve critical classes that blow up the object graph, like java.lang.Class");
     }
   }
 }
