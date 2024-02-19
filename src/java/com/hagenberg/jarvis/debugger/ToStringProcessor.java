@@ -25,6 +25,8 @@ public class ToStringProcessor extends Thread {
   private ThreadReference currentThread;
 
   public ToStringProcessor() {
+    this.setName("ToStringProcessor");
+    this.setDaemon(true);
     this.queue = new ConcurrentLinkedQueue<>();
     this.processing = new AtomicBoolean(false);
     this.stopLatch = new CountDownLatch(1);

@@ -22,8 +22,8 @@ public class Jarvis {
 
   private final Application application;
 
-  private ImString classPath = new ImString();
-  private ImString mainClass = new ImString();
+  private ImString classPath = new ImString("target/classes/");
+  private ImString mainClass = new ImString("com.hagenberg.debuggee.JDIExampleDebuggee");
 
   private InteractionState interactionState = new InteractionState();
 
@@ -58,6 +58,7 @@ public class Jarvis {
     views.add(callStack);
     views.add(linePreview);
     views.add(templateBuilder);
+    breakPointControl.setClassPath(classPath.get());
   }
 
   public void render() {
@@ -99,10 +100,8 @@ public class Jarvis {
     }
     ImGui.inputText("Main Class", mainClass);
     if (ImGui.button("Launch")) {
-      // jarvisDebugger.setClassPath(classPath.get()); TODO
-      // jarvisDebugger.setMainClass(mainClass.get());
-      jarvisDebugger.setClassPath("target/classes/");
-      jarvisDebugger.setMainClass("com.hagenberg.debuggee.JDIExampleDebuggee");
+      jarvisDebugger.setClassPath(classPath.get());
+      jarvisDebugger.setMainClass(mainClass.get());
       jarvisDebugger.setObjectGraphModel(objectGraph.getObjectGraphModel());
       jarvisDebugger.setCallStackModel(callStack.getCallStackModel());
       jarvisDebugger.setClassModel(classList.getModel());

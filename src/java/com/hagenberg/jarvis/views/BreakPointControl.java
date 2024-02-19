@@ -24,6 +24,7 @@ public class BreakPointControl extends View implements BreakPointProvider {
   private ImInt line = new ImInt();
 
   public BreakPointControl() {
+    setName("Breakpoint Control");
     classNames.put("com.hagenberg.debuggee.JDIExampleDebuggee", List.of(30)); // TODO
   }
 
@@ -52,7 +53,8 @@ public class BreakPointControl extends View implements BreakPointProvider {
       return;
     }
 
-    if (ImGui.beginListBox(classPath)) {
+    ImGui.text(classPath);
+    if (ImGui.beginListBox("##Classes", 0, 0)) {
       for (String className : classNames.keySet()) {
         if(ImGui.selectable(className)) {
           selected = className;

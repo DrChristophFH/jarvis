@@ -141,28 +141,17 @@ public class JarvisDebugger {
           // kickoff toString
           toStringProcessor.signalToStart(currentThread);
         } else if (event instanceof ExceptionEvent exceptionEvent) {
-          // ObjectReference exceptionObj = exceptionEvent.exception();
-
-          // Get the toString() method of the exception
-          // Method toStringMethod =
-          // exceptionObj.referenceType().methodsByName("toString").get(0);
-
-          // stop toString processor temporarily to avoid JDWP 502 error (already
-          // invoking)
-          // TODO: add another invoker for outsourcing exception toString() invocation as
-          // we cannot wait for StopSignal here as the current to string
-          // invocation might wait for this event to finish causing a deadlock
-          // if (toStringProcessor.isProcessing()) {
-          // toStringProcessor.stopProcessing();
-          // toStringProcessor.waitForStopSignal();
-          // }
-          // // Invoke the toString() method
-          // String exceptionAsString = exceptionObj.invokeMethod(exceptionEvent.thread(),
-          // toStringMethod, new ArrayList<>(), 0).toString();
-          // toStringProcessor.signalToStart(exceptionEvent.thread());
-
+          // For more detailed exceptions, we could implement a custom JObjectReference
+          // for the toStringProcessor to pass the along with the exception object
+          // the JObjectReference would then be able to print the ToString
+          // result upon receiving it from the toStringProcessor
           eventLog.log(exceptionEvent.toString());
           eventSet.resume();
+        } else if (event instanceof VMDisconnectEvent) {
+          eventLog.log("VM disconnected");
+          eventSet.resume();
+          vm = null;
+          return;
         } else {
           eventSet.resume();
         }
