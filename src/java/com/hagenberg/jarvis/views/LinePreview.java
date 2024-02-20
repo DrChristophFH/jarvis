@@ -175,6 +175,7 @@ public class LinePreview extends View {
       if (c == '/' && i + 1 < line.length() && line.charAt(i + 1) == '*') {
         isBlockComment = true;
         ImGui.text(line.substring(drawn, i));
+        drawn = i;
         ImGui.sameLine(0, 0);
       }
 
