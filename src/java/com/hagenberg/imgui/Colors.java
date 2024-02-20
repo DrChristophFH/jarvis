@@ -9,6 +9,8 @@ public class Colors {
   public static final int AccessModifier = ImColor.rgb("#FFA500");
   public static final int Type = ImColor.rgb("#44C9B0");
   public static final int Identifier = ImColor.rgb("#4FC1FF");
+  public static final int Keyword = ImColor.rgb("#d68756");
+  public static final int Comments = ImColor.rgb("#57A64A");
 
   // imnodes colors
   public static final int LocalVariable = ImColor.rgb("#0D1117");

@@ -78,7 +78,8 @@ public class LinePreview extends View {
     for (CallStackFrame frame : model.getCallStack()) {
       try {
         if (ImGui.selectable(frame.getSimpleMethodHeader(), selectedFrame == frame)) {
-          resolveSourcePath(frame.getMethod().getJdiMethod().location().sourcePath(), frame.getMethod().getJdiMethod().declaringType().module().name());
+          resolveSourcePath(frame.getMethod().getJdiMethod().location().sourcePath(),
+              frame.getMethod().getJdiMethod().declaringType().module().name());
           selectedFrame = frame;
           moveToLine = true;
         }
@@ -133,7 +134,7 @@ public class LinePreview extends View {
       int displayableLines = (int) (ImGui.getContentRegionAvailY() / lineHeight + 0.5f);
       int scrollIndex = (int) (ImGui.getScrollY() / ImGui.getScrollMaxY() * (viewerSource.size() - displayableLines));
 
-      int buffer = 10;
+      int buffer = 40;
       ImDrawList drawList = ImGui.getWindowDrawList();
 
       for (int i = 0; i < viewerSource.size(); i++) {
@@ -149,13 +150,73 @@ public class LinePreview extends View {
           }
           ImGui.text("%4d".formatted(i + 1));
           ImGui.sameLine();
-          ImGui.text(viewerSource.get(i));
+          PrintHighlighted(viewerSource.get(i));
         }
         if (moveToLine && selectedFrame.getLineNumber() == i + 1) {
           ImGui.setScrollHereY();
           moveToLine = false;
         }
       }
+    } else {
+      ImGui.text("No source code available.");
+    }
+  }
+
+  private boolean isBlockComment = false;
+
+  private void PrintHighlighted(String line) {
+    int drawn = 0;
+    int current = 0;
+
+    for (int i = 0; i < line.length(); i++) {
+      char c = line.charAt(i);
+
+      // block comment
+      if (c == '/' && i + 1 < line.length() && line.charAt(i + 1) == '*') {
+        isBlockComment = true;
+        ImGui.text(line.substring(drawn, i));
+        ImGui.sameLine(0, 0);
+      }
+
+      if (c == '*' && i + 1 < line.length() && line.charAt(i + 1) == '/') {
+        isBlockComment = false;
+        ImGui.textColored(Colors.Comments, line.substring(drawn, i + 2));
+        ImGui.sameLine(0, 0);
+        drawn = i + 2;
+      }
+
+      if (isBlockComment) {
+        continue;
+      }
+      
+      // single line comment
+      if (c == '/' && i + 1 < line.length() && line.charAt(i + 1) == '/') {
+        ImGui.text(line.substring(drawn, i));
+        ImGui.sameLine(0, 0);
+        ImGui.textColored(Colors.Comments, line.substring(i, line.length()));
+        return;
+      }
+
+      // keywords
+      if (c == ' ' || c == '\t' || c == '(' || c == ')' || c == '{' || c == '}' || c == '[' || c == ']' || c == ';' || c == ',' 
+        || c == '.' || c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '<' || c == '>' || c == '=' || c == '!' 
+        || c == '&' || c == '|' || c == '^' || c == '~' || c == '?' || c == ':' || c == '@' || c == '#' || c == '$' || c == '_' 
+        || c == '"' || c == '\'' || c == '\\' || c == '\n' || c == '\r' || c == '\f' || c == '\b' || c == '\0' || c == '/' 
+      ) {
+        if (javaKeywords.contains(line.substring(current, i))) {
+          ImGui.text(line.substring(drawn, current));
+          ImGui.sameLine(0, 0);
+          drawn = i;
+          ImGui.textColored(Colors.Keyword, line.substring(current, i));
+          ImGui.sameLine(0, 0);
+        }
+        current = i + 1;
+      }
+    }
+    if (isBlockComment) {
+      ImGui.textColored(Colors.Comments, line.substring(drawn, line.length()));
+    } else {
+      ImGui.text(line.substring(drawn, line.length()));
     }
   }
 }
