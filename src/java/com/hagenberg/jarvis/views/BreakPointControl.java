@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.Map;
 import java.util.List;
 import java.util.jar.JarEntry;
@@ -19,13 +19,12 @@ import imgui.type.ImInt;
 public class BreakPointControl extends View implements BreakPointProvider {
 
   private String classPath;
-  private Map<String, List<Integer>> classNames = new HashMap<>();
+  private Map<String, List<Integer>> classNames = new TreeMap<>();
   private String selected;
   private ImInt line = new ImInt();
 
   public BreakPointControl() {
     setName("Breakpoint Control");
-    classNames.put("com.hagenberg.debuggee.JDIExampleDebuggee", List.of(30)); // TODO
   }
 
   public List<Integer> getBreakPoints(String className) {

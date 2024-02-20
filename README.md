@@ -40,7 +40,6 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] add template based rendering back in
 - [x] add manual node dragging back in
 - [x] add context menu for transformers back in
-- [ ] specific renderers
 
 ### Med Prio
 
@@ -73,13 +72,14 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] tie class model with object model
 - [x] fix JType aquisition for non loaded classes
 - [x] add context options (display in class list, filter in object list)
+- [ ] save breakpoints
 - [ ] make src path configurable as well as src.zip location
-- [ ] show number of objects in object list (changing on filters)
 
 ### Low Prio
 
 - [x] better event logging (class prepare event)
 - [x] seems like constantly querying into JDI is not performant at all (cache everything for classList into own data structures)
+- [ ] show number of objects in object list (changing on filters)
 - [ ] tab completion in template editor
 - [ ] better breakpoint selection and adding with line display
 - [ ] logging with coloring
