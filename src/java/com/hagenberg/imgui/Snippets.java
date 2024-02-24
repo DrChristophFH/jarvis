@@ -12,6 +12,7 @@ import com.hagenberg.jarvis.models.entities.wrappers.JType;
 import imgui.ImGui;
 import imgui.ImVec2;
 import imgui.extension.imnodes.ImNodes;
+import imgui.flag.ImGuiKey;
 import imgui.flag.ImGuiStyleVar;
 
 public class Snippets {
@@ -60,6 +61,10 @@ public class Snippets {
     tooltip.show(() -> {
       ImGui.text(type.name());
     });
+  }
+
+  public static boolean isKeyDown(int key) {
+    return ImGui.isKeyDown(ImGui.getKeyIndex(key));
   }
 
   public static void drawHelpMarker(String desc) {

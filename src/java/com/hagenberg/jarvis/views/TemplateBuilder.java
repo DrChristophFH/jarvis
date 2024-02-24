@@ -2,6 +2,7 @@ package com.hagenberg.jarvis.views;
 
 import java.util.List;
 
+import com.hagenberg.imgui.Snippets;
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.graph.transform.Path;
 import com.hagenberg.jarvis.graph.transform.TransformerRegistry;
@@ -106,6 +107,9 @@ public class TemplateBuilder extends View {
         selectedTemplate.getPaths().add(new Path(input.get()));
       }
     }
+
+    ImGui.sameLine();
+    Snippets.drawHelpMarker("Enter a path in the format: 'Member1.Member2.Member3'");
 
     if (ImGui.button("Add Path")) {
       selectedTemplate.getPaths().add(new Path(List.of()));

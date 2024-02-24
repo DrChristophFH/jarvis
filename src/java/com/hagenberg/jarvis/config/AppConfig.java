@@ -1,18 +1,30 @@
 package com.hagenberg.jarvis.config;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+
+import com.hagenberg.jarvis.models.entities.BreakPoint;
 
 public class AppConfig {
   private Map<String, TransformerConfig> transformers = new HashMap<>();
+  private Map<String, List<BreakPoint>> breakPoints = new TreeMap<>();
 
-  // Getters and setters for transformers
   public Map<String, TransformerConfig> getTransformers() {
     return transformers;
   }
 
+  public Map<String, List<BreakPoint>> getBreakPoints() {
+    return breakPoints;
+  }
+
   public void setTransformers(Map<String, TransformerConfig> transformers) {
     this.transformers = transformers;
+  }
+
+  public void setBreakPoints(Map<String, List<BreakPoint>> breakPoints) {
+    this.breakPoints = breakPoints;
   }
 
   public static class TransformerConfig {

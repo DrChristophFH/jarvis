@@ -3,6 +3,7 @@ package com.hagenberg.jarvis.debugger;
 import com.hagenberg.jarvis.models.CallStackModel;
 import com.hagenberg.jarvis.models.ClassModel;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
+import com.hagenberg.jarvis.models.entities.BreakPoint;
 import com.hagenberg.jarvis.views.Log;
 import com.sun.jdi.*;
 import com.sun.jdi.connect.Connector;
@@ -235,12 +236,12 @@ public class JarvisDebugger {
   private void setBreakPoints(ClassPrepareEvent event) throws AbsentInformationException {
     String className = event.referenceType().name();
     ReferenceType refType = event.referenceType();
-    List<Integer> lines = breakPointProvider.getBreakPoints(className);
-    if (lines == null) {
+    List<BreakPoint> breakpoints = breakPointProvider.getBreakPoints(className);
+    if (breakpoints == null) {
       return;
     }
-    for (int lineNumber : lines) {
-      Location location = refType.locationsOfLine(lineNumber).get(0); // todo check if there are locations
+    for (BreakPoint bp : breakpoints) {
+      Location location = refType.locationsOfLine(bp.getLine()).get(0); // todo check if there are locations
       BreakpointRequest bpReq = vm.eventRequestManager().createBreakpointRequest(location);
       bpReq.enable();
     }

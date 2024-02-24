@@ -21,7 +21,7 @@ public class ConfigManager {
   private AppConfig config = new AppConfig();
 
   private ConfigManager() {
-    tagInspector = tag -> tag.getClassName().startsWith("com.hagenberg.jarvis.config");
+    tagInspector = tag -> tag.getClassName().startsWith("com.hagenberg.jarvis");
     loaderOptions.setTagInspector(tagInspector);
     yaml = new Yaml(new Constructor(AppConfig.class, loaderOptions));
     loadConfig();

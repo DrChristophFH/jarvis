@@ -1,3 +1,12 @@
+breakPoints:
+  com.hagenberg.debuggee.HashMap$HashMapEntry:
+  - !!com.hagenberg.jarvis.models.entities.BreakPoint
+    enabled: true
+    line: 25
+  com.hagenberg.debuggee.JDIExampleDebuggee:
+  - !!com.hagenberg.jarvis.models.entities.BreakPoint
+    enabled: true
+    line: 32
 transformers:
   New sdas: !!com.hagenberg.jarvis.config.AppConfig$TemplateTransformerConfig
     name: New sdas
