@@ -4,6 +4,7 @@ import com.hagenberg.jarvis.models.CallStackModel;
 import com.hagenberg.jarvis.models.ClassModel;
 import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.models.entities.BreakPoint;
+import com.hagenberg.jarvis.util.Logger;
 import com.hagenberg.jarvis.views.Log;
 import com.sun.jdi.*;
 import com.sun.jdi.connect.Connector;
@@ -33,7 +34,7 @@ public class JarvisDebugger {
 
   private ToStringProcessor toStringProcessor = new ToStringProcessor();
 
-  private final Log eventLog;
+  private final Logger eventLog = Logger.getInstance();
   private final DebugeeConsole debuggeeConsole;
   private final BreakPointProvider breakPointProvider;
 
@@ -42,7 +43,6 @@ public class JarvisDebugger {
   // ------------------------------------------
 
   public JarvisDebugger(Log eventLog, BreakPointProvider breakPointProvider, DebugeeConsole debuggeeConsole) {
-    this.eventLog = eventLog;
     this.breakPointProvider = breakPointProvider;
     this.debuggeeConsole = debuggeeConsole;
     debuggeeConsole.registerInputHandler(this::handleInput);
@@ -97,7 +97,7 @@ public class JarvisDebugger {
   // -------------------------------------------
 
   private void startDebugging() {
-    eventLog.log("Starting debugger...");
+    eventLog.logInfo("Starting debugger...");
     try {
       this.connectAndLaunchVM();
       this.enableClassPrepareRequest();
@@ -106,7 +106,7 @@ public class JarvisDebugger {
       objectGraphModel.clear();
       this.debug();
     } catch (VMDisconnectedException e) {
-      eventLog.log("VM disconnected");
+      eventLog.logInfo("VM disconnected");
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -118,20 +118,19 @@ public class JarvisDebugger {
     while ((eventSet = vm.eventQueue().remove()) != null) {
       for (Event event : eventSet) {
         System.out.println("Event: " + event);
-        eventLog.log(event.toString());
         if (event instanceof ClassPrepareEvent e) {
-          eventLog.log("Class prepared: " + e.referenceType().name());
+          eventLog.logInfo(event.toString());
           classModel.addFromRefType(e.referenceType());
           this.setBreakPoints(e);
+          eventLog.logInfo("Class prepared: " + e.referenceType().name());
           eventSet.resume();
         } else if (event instanceof BreakpointEvent || event instanceof StepEvent) {
+          eventLog.logInfo(event.toString());
           if (toStringProcessor.isProcessing()) {
             toStringProcessor.stopProcessing();
             toStringProcessor.waitForStopSignal();
             toStringProcessor.clear();
           }
-
-          System.out.println("Breakpoint reached");
 
           ThreadReference currentThread = ((LocatableEvent) event).thread();
           this.currentThread = currentThread;
@@ -146,17 +145,17 @@ public class JarvisDebugger {
           // for the toStringProcessor to pass the along with the exception object
           // the JObjectReference would then be able to print the ToString
           // result upon receiving it from the toStringProcessor
-          eventLog.log(exceptionEvent.toString());
+          eventLog.logWarning(exceptionEvent.toString());
           eventSet.resume();
         } else if (event instanceof VMDisconnectEvent) {
-          eventLog.log("VM disconnected");
+          eventLog.logInfo("VM disconnected");
           eventSet.resume();
           vm = null;
           return;
         } else {
+          eventLog.logInfo(event.toString());
           eventSet.resume();
         }
-        System.out.println("Event Handled");
       }
     }
   }
@@ -196,7 +195,7 @@ public class JarvisDebugger {
     } 
     System.out.println(command);
 
-    eventLog.log("Processing user command: " + command);
+    eventLog.logInfo("Processing user command: " + command);
 
     EventRequestManager eventRequestManager = vm.eventRequestManager();
     // Cancel the last step request if it exists

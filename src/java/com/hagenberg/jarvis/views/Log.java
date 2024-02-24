@@ -1,11 +1,11 @@
 package com.hagenberg.jarvis.views;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
+import com.hagenberg.imgui.Colors;
 import com.hagenberg.imgui.View;
+import com.hagenberg.jarvis.util.Logger;
+import com.hagenberg.jarvis.util.Logger.LogEntry;
 
 import imgui.ImGui;
 import imgui.ImGuiListClipper;
@@ -17,18 +17,12 @@ import imgui.flag.ImGuiWindowFlags;
 import imgui.type.ImBoolean;
 
 public class Log extends View {
-  private List<String> buffer = new ArrayList<>();
+  private Logger instance = Logger.getInstance();
   private ImGuiTextFilter filter = new ImGuiTextFilter();
   private ImBoolean autoScroll = new ImBoolean(true);
 
   public Log(String title) {
     setName(title);
-  }
-
-  public void log(String text, Object... args) {
-    String formattedText = String.format(text, args);
-    String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
-    buffer.add("[" + time + "] " + formattedText);
   }
 
   @Override
@@ -56,16 +50,18 @@ public class Log extends View {
     if (ImGui.beginChild("scrolling", 0, 0, false, ImGuiWindowFlags.HorizontalScrollbar)) {
       ImGui.pushStyleVar(ImGuiStyleVar.ItemSpacing, 0, 0);
 
+      List<LogEntry> buffer = instance.getBuffer();
+
       if (filter.isActive()) {
-        buffer.forEach(line -> {
-          if (filter.passFilter(line)) {
-            ImGui.textUnformatted(line);
+        buffer.forEach(entry -> {
+          if (filter.passFilter(entry.fullMessage())) {
+            printLogEntry(entry);
           }
         });
       } else { // display all
         ImGuiListClipper.forEach(buffer.size(), new ImListClipperCallback() {
           public void accept(int index) {
-            ImGui.textUnformatted(buffer.get(index));
+            printLogEntry(buffer.get(index));
           }
         });
       }
@@ -77,5 +73,17 @@ public class Log extends View {
       }
     }
     ImGui.endChild();
+  }
+
+  private void printLogEntry(LogEntry entry) {
+    ImGui.text("[" + entry.time() + "] ");
+    ImGui.sameLine();
+    switch (entry.level()) {
+      case INFO -> ImGui.textColored(Colors.Info, "INFO ");
+      case WARNING -> ImGui.textColored(Colors.Warning, "WARNING ");
+      case ERROR -> ImGui.textColored(Colors.Error, "ERROR ");
+    }
+    ImGui.sameLine();
+    ImGui.textUnformatted(entry.message());
   }
 }

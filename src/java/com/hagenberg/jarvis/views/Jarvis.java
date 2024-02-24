@@ -157,7 +157,7 @@ public class Jarvis {
   private void HelpSection() {
     if (ImGui.collapsingHeader("Help")) {
       ImGui.separator();
-      ImGui.bulletText("Sections below are demonstrating many aspects of the library."); //TODO
+      ImGui.bulletText("Sections below are demonstrating many aspects of the library.");
       ImGui.bulletText("The \"Examples\" menu above leads to more demo contents.");
       ImGui.separator();
       ImGui.showUserGuide();

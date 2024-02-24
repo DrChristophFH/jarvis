@@ -16,6 +16,7 @@ import com.hagenberg.imgui.Colors;
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.models.CallStackModel;
 import com.hagenberg.jarvis.models.entities.CallStackFrame;
+import com.hagenberg.jarvis.util.Logger;
 import com.sun.jdi.AbsentInformationException;
 
 import imgui.ImDrawList;
@@ -27,6 +28,7 @@ import imgui.type.ImString;
 public class LinePreview extends View {
 
   private CallStackModel model;
+  private Logger logger = Logger.getInstance();
 
   private List<ImString> sourcePaths = new ArrayList<>();
   private String jreDirectory = System.getProperty("java.home");
@@ -97,8 +99,8 @@ public class LinePreview extends View {
           moveToLine = true;
         }
       } catch (AbsentInformationException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
+        logger.logError("Could not resolve source path for location: " + frame.getMethod().getJdiMethod().location());
       }
     }
   }
@@ -120,8 +122,8 @@ public class LinePreview extends View {
         try {
           sourceCode = Files.readAllLines(srcFile);
         } catch (IOException e) {
-          // TODO Auto-generated catch block
           e.printStackTrace();
+          logger.logError("Could not read source file: " + srcFile);
         }
       }
     }

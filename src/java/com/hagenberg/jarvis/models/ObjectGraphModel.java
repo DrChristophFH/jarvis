@@ -11,6 +11,7 @@ import com.hagenberg.jarvis.models.entities.wrappers.JType;
 import com.hagenberg.jarvis.models.entities.wrappers.JValue;
 import com.hagenberg.jarvis.models.entities.wrappers.JVariable;
 import com.hagenberg.jarvis.models.entities.wrappers.ReferenceHolder;
+import com.hagenberg.jarvis.util.Logger;
 import com.hagenberg.jarvis.util.Observable;
 import com.hagenberg.jarvis.util.Observer;
 import com.hagenberg.jarvis.util.Pair;
@@ -42,6 +43,7 @@ public class ObjectGraphModel implements Observable {
   private final Map<ObjectReference, JObjectReference> objectBuffer = new HashMap<>(); // buffer for objects
 
   private Consumer<Pair<JObjectReference, ObjectReference>> toStringDefer;
+  private Logger logger = Logger.getInstance();
 
   public ObjectGraphModel(ClassModel classModel) {
     this.classModel = classModel;
@@ -169,7 +171,8 @@ public class ObjectGraphModel implements Observable {
         handleLocalVariable(variable, frame);
       }
     } catch (AbsentInformationException e) {
-      e.printStackTrace(); // TODO Auto-generated catch block
+      e.printStackTrace(); 
+      logger.logError("AbsentInformationException while handling frame " + frame.location().toString());
     }
   }
 
@@ -192,7 +195,8 @@ public class ObjectGraphModel implements Observable {
     try {
       type = classModel.getJType(lvar.type());
     } catch (ClassNotLoadedException e) {
-      e.printStackTrace(); // TODO due to lvar.type()
+      e.printStackTrace(); 
+      logger.logError("ClassNotLoadedException while creating local variable " + lvar.name());
     }
 
     JLocalVariable newVar = new JLocalVariable(lvar, type);

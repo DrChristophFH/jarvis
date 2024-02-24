@@ -18,6 +18,7 @@ import com.hagenberg.jarvis.config.AppConfig;
 import com.hagenberg.jarvis.config.ConfigManager;
 import com.hagenberg.jarvis.debugger.BreakPointProvider;
 import com.hagenberg.jarvis.models.entities.BreakPoint;
+import com.hagenberg.jarvis.util.Logger;
 
 import imgui.ImGui;
 import imgui.flag.ImGuiInputTextFlags;
@@ -195,6 +196,7 @@ public class BreakPointControl extends View implements BreakPointProvider {
     } else if (classPath.endsWith(".jar")) {
       processJarFile(entryFile);
     }
+    Logger.getInstance().logInfo("Found " + classNames.size() + " classes in classpath: " + classPath);
   }
 
   private void processDirectory(File directory, String pkg) {

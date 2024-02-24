@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.hagenberg.jarvis.models.entities.wrappers.JObjectReference;
+import com.hagenberg.jarvis.util.Logger;
 import com.hagenberg.jarvis.util.Pair;
 import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.IncompatibleThreadStateException;
@@ -21,6 +22,7 @@ public class ToStringProcessor extends Thread {
   private final ConcurrentLinkedQueue<Pair<JObjectReference, ObjectReference>> queue;
   private final AtomicBoolean processing;
   private final Object lock = new Object();
+  private final Logger log = Logger.getInstance();
   private CountDownLatch stopLatch;
   private ThreadReference currentThread;
 
@@ -104,9 +106,9 @@ public class ToStringProcessor extends Thread {
           result = objRef.invokeMethod(currentThread, toStringMethod, new ArrayList<>(), flags).toString();
         }
       }
-    } catch (IllegalArgumentException | InvalidTypeException | ClassNotLoadedException | IncompatibleThreadStateException
-    | InvocationException e) {
+    } catch (IllegalArgumentException | InvalidTypeException | ClassNotLoadedException | IncompatibleThreadStateException | InvocationException e) {
       result = "toString() not available";
+      log.logWarning("Error invoking toString() on object: " + objRef + " - " + e.getMessage());
     }
     node.setToString(result);
   }
