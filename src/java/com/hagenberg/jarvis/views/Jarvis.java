@@ -22,8 +22,8 @@ public class Jarvis {
 
   private final Application application;
 
-  private ImString classPath = new ImString("target/classes/");
-  private ImString mainClass = new ImString("com.hagenberg.debuggee.JDIExampleDebuggee");
+  private ImString classPath = new ImString("target/classes/", 255);
+  private ImString mainClass = new ImString("com.hagenberg.debuggee.JDIExampleDebuggee", 255);
 
   private InteractionState interactionState = new InteractionState();
 
@@ -98,7 +98,35 @@ public class Jarvis {
     if(ImGui.inputText("Class Path", classPath)) {
       breakPointControl.setClassPath(classPath.get());
     }
-    ImGui.inputText("Main Class", mainClass);
+    ImGui.sameLine();
+    Snippets.drawHelpMarker("The class path to use for the debugger.");
+
+    ImGui.inputText("Main Class", mainClass); 
+    ImGui.sameLine();
+    Snippets.drawHelpMarker("The name of the main class to launch.");
+
+    ImGui.inputText("src.zip Path", linePreview.getSrcZipPath());
+    ImGui.sameLine();
+    Snippets.drawHelpMarker("The path to the src.zip file of the JDK.");
+
+    ImGui.text("Source Paths");
+    ImGui.sameLine();
+    Snippets.drawHelpMarker("The path to the source files of the project (user code).");
+    int i = 0;
+    for (ImString sourcePath : linePreview.getSourcePaths()) {
+      ImGui.inputText("##" + i, sourcePath);
+      i++;
+    }
+    if (ImGui.button("Add Source Path")) {
+      linePreview.getSourcePaths().add(new ImString());
+    }
+    ImGui.sameLine();
+    if (ImGui.button("Remove Source Path")) {
+      if (!linePreview.getSourcePaths().isEmpty()) {
+        linePreview.getSourcePaths().remove(linePreview.getSourcePaths().size() - 1);
+      }
+    }
+
     if (ImGui.button("Launch")) {
       jarvisDebugger.setClassPath(classPath.get());
       jarvisDebugger.setMainClass(mainClass.get());

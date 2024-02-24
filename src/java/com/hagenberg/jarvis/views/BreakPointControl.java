@@ -20,10 +20,8 @@ import com.hagenberg.jarvis.debugger.BreakPointProvider;
 import com.hagenberg.jarvis.models.entities.BreakPoint;
 
 import imgui.ImGui;
-import imgui.flag.ImGuiDataType;
 import imgui.flag.ImGuiInputTextFlags;
 import imgui.flag.ImGuiKey;
-import imgui.internal.flag.ImGuiAxis;
 import imgui.type.ImInt;
 
 public class BreakPointControl extends View implements BreakPointProvider {
@@ -41,7 +39,7 @@ public class BreakPointControl extends View implements BreakPointProvider {
   }
 
   public List<BreakPoint> getBreakPoints(String className) {
-    return breakPointMap.get(className).stream().filter(BreakPoint::isEnabled).toList();
+    return breakPointMap.getOrDefault(className, new ArrayList<>()).stream().filter(BreakPoint::isEnabled).toList();
   }
 
   public void setClassPath(String classPath) {

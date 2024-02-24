@@ -6,6 +6,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -21,15 +22,16 @@ import imgui.ImDrawList;
 import imgui.ImGui;
 import imgui.flag.ImGuiMouseCursor;
 import imgui.flag.ImGuiWindowFlags;
+import imgui.type.ImString;
 
 public class LinePreview extends View {
 
   private CallStackModel model;
 
-  private List<String> sourcePaths = Arrays.asList("src/java/");
+  private List<ImString> sourcePaths = new ArrayList<>();
   private String jreDirectory = System.getProperty("java.home");
-  private Path jdkDirectory = Paths.get(jreDirectory).getParent();
-  private Path srcZipPath = jdkDirectory.resolve("jdk-17.0.6.10-hotspot\\lib\\src.zip"); // TODO make this configurable
+  private Path jdkDirectory = null;
+  private ImString srcZipPath = null;
 
   private int[] width = { 200 };
 
@@ -46,6 +48,17 @@ public class LinePreview extends View {
   public LinePreview(CallStackModel model) {
     this.model = model;
     setName("Line Preview");
+    sourcePaths.add(new ImString("src/java", 255));
+    jdkDirectory = jreDirectory != null ? Paths.get(jreDirectory) : null;
+    srcZipPath = new ImString(jdkDirectory != null ? jdkDirectory.toAbsolutePath().toString() + "\\lib\\src.zip" : "", 255);
+  }
+
+  public List<ImString> getSourcePaths() {
+    return sourcePaths;
+  }
+
+  public ImString getSrcZipPath() {
+    return srcZipPath;
   }
 
   @Override
@@ -101,8 +114,8 @@ public class LinePreview extends View {
    */
   private void resolveSourcePath(String relativeSourcePath, String moduleName) {
     List<String> sourceCode = null;
-    for (String sourcePath : sourcePaths) {
-      Path srcFile = Paths.get(sourcePath, relativeSourcePath);
+    for (ImString sourcePath : sourcePaths) {
+      Path srcFile = Paths.get(sourcePath.get(), relativeSourcePath);
       if (Files.exists(srcFile)) {
         try {
           sourceCode = Files.readAllLines(srcFile);
@@ -114,7 +127,7 @@ public class LinePreview extends View {
     }
 
     if (sourceCode == null) {
-      try (FileSystem zipFs = FileSystems.newFileSystem(srcZipPath)) {
+      try (FileSystem zipFs = FileSystems.newFileSystem(Paths.get(srcZipPath.get()))) {
         Path filePathInZip = zipFs.getPath(moduleName + "/" + relativeSourcePath);
         if (Files.exists(filePathInZip)) {
           sourceCode = Files.readAllLines(filePathInZip);

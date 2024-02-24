@@ -1,8 +1,4 @@
 breakPoints:
-  com.hagenberg.debuggee.HashMap$HashMapEntry:
-  - !!com.hagenberg.jarvis.models.entities.BreakPoint
-    enabled: true
-    line: 25
   com.hagenberg.debuggee.JDIExampleDebuggee:
   - !!com.hagenberg.jarvis.models.entities.BreakPoint
     enabled: true

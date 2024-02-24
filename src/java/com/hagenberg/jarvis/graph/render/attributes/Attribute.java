@@ -36,7 +36,7 @@ public abstract class Attribute {
     ImGui.pushStyleVar(ImGuiStyleVar.WindowPadding, 5, 5); // NodeEditor somehow overrides this so we have to set it here
     if (ImGui.beginPopup("MemCtx##" + attId)) {
       ImGui.menuItem("Settings for " + member.field().name(), "", false, false);
-      if (member.value() instanceof JPrimitiveValue prim) {
+      if (member.value() instanceof JPrimitiveValue) {
         if (ImGui.beginMenu("Renderer")) {
           ImGui.endMenu();
         }

@@ -72,8 +72,8 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] tie class model with object model
 - [x] fix JType aquisition for non loaded classes
 - [x] add context options (display in class list, filter in object list)
-- [ ] save breakpoints
-- [ ] make src path configurable as well as src.zip location
+- [x] save breakpoints
+- [x] make src path configurable as well as src.zip location
 
 ### Low Prio
 
