@@ -92,6 +92,8 @@ public class ObjectList extends View {
       filterInput.clear();
       currentFilter = null;
     }
+    ImGui.sameLine();
+    ImGui.text("Objects: " + (currentFilter == null ? model.getObjects().size() : (int)(model.getObjects().stream().filter(o -> o.type().getSimpleName().equals(currentFilter)).count())));
 
     int tableFlags = ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable
         | ImGuiTableFlags.ScrollX | ImGuiTableFlags.Resizable | ImGuiTableFlags.ScrollY;
@@ -136,7 +138,6 @@ public class ObjectList extends View {
 
     boolean open = ImGui.treeNodeEx(object.name(), treeFlags);
     if (!open) {
-
       ImGui.pushID(object.name());
     }
 
