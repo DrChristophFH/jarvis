@@ -156,11 +156,105 @@ public class Jarvis {
 
   private void HelpSection() {
     if (ImGui.collapsingHeader("Help")) {
-      ImGui.separator();
-      ImGui.bulletText("Sections below are demonstrating many aspects of the library.");
-      ImGui.bulletText("The \"Examples\" menu above leads to more demo contents.");
-      ImGui.separator();
-      ImGui.showUserGuide();
+      if (ImGui.treeNode("About")) {
+        ImGui.textWrapped("Jarvis is a tool for debugging Java applications using the Java Debug Interface (JDI).");
+        ImGui.treePop();
+      }
+      if (ImGui.treeNode("First Steps")) {
+        ImGui.bullet(); 
+        ImGui.textWrapped("Set the class path to point to the compiled classes of the project.");
+        ImGui.bullet();
+        ImGui.textWrapped("Set the main class name to the main class of the project.");
+        ImGui.bullet();
+        ImGui.textWrapped("Set the src.zip path to the src.zip file of the JDK.");
+        ImGui.bullet();
+        ImGui.textWrapped("Add the source paths of the project.");
+        ImGui.bullet();
+        ImGui.textWrapped("Navigate to the 'Breakpoint Control' dock and set breakpoints at the desired locations.");
+        ImGui.bullet();
+        ImGui.textWrapped("Click the 'Launch' button to start the debugging session.");
+        ImGui.treePop();
+      }
+      if (ImGui.treeNode("General")) {
+        ImGui.bullet();
+        ImGui.textWrapped("Right-clicking a type allows to filter either in the object list or inspect the class in the class list.");
+        ImGui.bullet();
+        ImGui.textWrapped("Hovering over a highlighted type displays the fully qualified name of the type.");
+        ImGui.bullet();
+        ImGui.textWrapped("Closed docks can be opened using the 'View' menu in the 'Jarvis Control Panel' dock.");
+        ImGui.treePop();
+      }
+      if (ImGui.treeNode("Breakpoint Control")) {
+        ImGui.bullet();
+        ImGui.textWrapped("The breakpoint control allows to set breakpoints at the desired locations in the source code.");
+        ImGui.bullet();
+        ImGui.textWrapped("Select the desired class to set a breakpoint in and enter the line number in the input field.");
+        ImGui.bullet();
+        ImGui.textWrapped("Breakpoints can be enabled, disabled and removed using the buttons in the breakpoint list.");
+        ImGui.bullet();
+        ImGui.textWrapped("Breakpoints are saved to a file and are restored on the next launch of the tool.");
+        ImGui.treePop();
+      }
+      if (ImGui.treeNode("Object Graph")) {
+        ImGui.bullet();
+        ImGui.textWrapped("The object graph shows the objects in the heap and their references.");
+        ImGui.bullet();
+        ImGui.textWrapped("Right-clicking on the titlebar of an object brings up the objects context menu.");
+        ImGui.bullet();
+        ImGui.textWrapped("Selecting multiple objects by holding the left mouse button and dragging a selection rectangle around the objects and then right-clicking in an empty area, allows to freeze and unfreeze the selected objects. Frozen objects are highlighted in blue and are not layouted automatically.");
+        ImGui.bullet();
+        ImGui.textWrapped("The 'Layouter Control' dock allows to change layouting parameters of the object graph.");
+        ImGui.treePop();
+      }
+      if (ImGui.treeNode("Object List")) {
+        ImGui.bullet();
+        ImGui.textWrapped("The object list shows the objects in the heap.");
+        ImGui.bullet();
+        ImGui.textWrapped("It acts as a top level view, showing all objects no matter their depth in the object graph.");
+        ImGui.bullet();
+        ImGui.textWrapped("For a more traditional view, use the local variable list.");
+        ImGui.bullet();
+        ImGui.textWrapped("Using the input field at the top, the object list can be filtered by the class name of the objects. Tab-completion is supported. (input must match fully!)");
+        ImGui.treePop();
+      }
+      if (ImGui.treeNode("Local Variable List")) {
+        ImGui.bullet();
+        ImGui.textWrapped("The local variable list shows the local variables of the current frame in the call stack.");
+        ImGui.bullet();
+        ImGui.textWrapped("It acts as a traditional view, showing the local variables of the current frame.");
+        ImGui.treePop();
+      }
+      if (ImGui.treeNode("Class List")) {
+        ImGui.bullet();
+        ImGui.textWrapped("The class list shows the classes prepared by the application.");
+        ImGui.treePop();
+      }
+      if (ImGui.treeNode("Call Stack")) {
+        ImGui.bullet();
+        ImGui.textWrapped("The call stack shows the current call stack of the application in the current stopped thread.");
+        ImGui.treePop();
+      }
+      if (ImGui.treeNode("Line Preview")) {
+        ImGui.bullet();
+        ImGui.textWrapped("The line preview shows the source code of the current line of the current frame in the call stack. For this to work properly, the src.zip file of the JDK and the source paths of the user code must be set.");
+        ImGui.treePop();
+      }
+      if (ImGui.treeNode("Console")) {
+        ImGui.bullet();
+        ImGui.textWrapped("The console shows the output of the debuggee.");
+        ImGui.treePop();
+      }
+      if (ImGui.treeNode("Event Log")) {
+        ImGui.bullet();
+        ImGui.textWrapped("The event log shows the events and other log information that occurs during usage of the tool.");
+        ImGui.bullet();
+        ImGui.textWrapped("The event log can be filtered by typing in the input field at the top.");
+        ImGui.treePop();
+      }
+      if (ImGui.treeNode("ImGui User Guide")) {
+        ImGui.showUserGuide();
+        ImGui.treePop();
+      }
     }
   }
 

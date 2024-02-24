@@ -81,6 +81,7 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] better event logging (class prepare event)
 - [x] logging with coloring
 - [x] show number of objects in object list (changing on filters)
+- [ ] dynamic breakpoint adding/removing
 - [ ] tab completion in template editor
 - [ ] better breakpoint selection and adding with line display
 - [ ] fuzzy search known classes
