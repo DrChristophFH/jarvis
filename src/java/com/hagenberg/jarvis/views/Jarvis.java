@@ -6,6 +6,7 @@ import java.util.List;
 import org.lwjgl.glfw.GLFW;
 
 import com.hagenberg.imgui.Application;
+import com.hagenberg.imgui.Colors;
 import com.hagenberg.imgui.Snippets;
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.debugger.JarvisDebugger;
@@ -13,6 +14,7 @@ import com.hagenberg.jarvis.models.InteractionState;
 import com.hagenberg.jarvis.util.Profiler;
 
 import imgui.ImGui;
+import imgui.flag.ImGuiCol;
 import imgui.flag.ImGuiCond;
 import imgui.flag.ImGuiWindowFlags;
 import imgui.type.ImString;
@@ -99,7 +101,7 @@ public class Jarvis {
       breakPointControl.setClassPath(classPath.get());
     }
     ImGui.sameLine();
-    Snippets.drawHelpMarker("The class path to use for the debugger.");
+    Snippets.drawHelpMarker("The class path to use for the debugger. This is the path to the compiled classes of the project.");
 
     ImGui.inputText("Main Class", mainClass); 
     ImGui.sameLine();
@@ -107,7 +109,7 @@ public class Jarvis {
 
     ImGui.inputText("src.zip Path", linePreview.getSrcZipPath());
     ImGui.sameLine();
-    Snippets.drawHelpMarker("The path to the src.zip file of the JDK.");
+    Snippets.drawHelpMarker("The path to the src.zip file of the JDK. This is fetched from the JAVA_HOME environment variable by default. If your JDK does not contain a src.zip file, you can download it from the Oracle website.");
 
     ImGui.text("Source Paths");
     ImGui.sameLine();
@@ -127,6 +129,8 @@ public class Jarvis {
       }
     }
 
+    ImGui.pushStyleColor(ImGuiCol.Button, Colors.Success);
+
     if (ImGui.button("Launch")) {
       jarvisDebugger.setClassPath(classPath.get());
       jarvisDebugger.setMainClass(mainClass.get());
@@ -138,11 +142,16 @@ public class Jarvis {
       jarvisDebugger.launch();
       debugStepControl.setCommandExecutor(jarvisDebugger::executeCommand);
     }
+
     ImGui.sameLine();
+    ImGui.pushStyleColor(ImGuiCol.Button, Colors.Danger);
+
     if (ImGui.button("Shutdown")) {
       jarvisDebugger.shutdown();
       GLFW.glfwSetWindowShouldClose(application.getHandle(), true);
     }
+
+    ImGui.popStyleColor(2);
   }
 
   private void HelpSection() {
