@@ -6,6 +6,7 @@ import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.models.entities.BreakPoint;
 import com.hagenberg.jarvis.util.Logger;
 import com.hagenberg.jarvis.views.Log;
+import com.hagenberg.jarvis.views.ThreadList;
 import com.sun.jdi.*;
 import com.sun.jdi.connect.Connector;
 import com.sun.jdi.connect.LaunchingConnector;
@@ -36,17 +37,19 @@ public class JarvisDebugger {
 
   private final Logger logger = Logger.getInstance();
   private final DebugeeConsole debuggeeConsole;
+  private final ThreadList threadList;
   private final BreakPointProvider breakPointProvider;
 
   // ------------------------------------------
   // ------------- Public Methods -------------
   // ------------------------------------------
 
-  public JarvisDebugger(Log eventLog, BreakPointProvider breakPointProvider, DebugeeConsole debuggeeConsole) {
+  public JarvisDebugger(Log eventLog, BreakPointProvider breakPointProvider, DebugeeConsole debuggeeConsole, ThreadList threadList) {
     this.breakPointProvider = breakPointProvider;
     breakPointProvider.setBreakPointCreationCallback(this::connectNewBreakPoint);
     this.debuggeeConsole = debuggeeConsole;
     debuggeeConsole.registerInputHandler(this::handleInput);
+    this.threadList = threadList;
     toStringProcessor.start();
   }
 
@@ -117,6 +120,7 @@ public class JarvisDebugger {
       ClassNotLoadedException, InvocationException {
     EventSet eventSet;
     while ((eventSet = vm.eventQueue().remove()) != null) {
+      threadList.updateThreads(vm.allThreads());
       for (Event event : eventSet) {
         if (event instanceof ClassPrepareEvent e) {
           logger.logInfo(event.toString() + " for " + e.referenceType().name());
@@ -156,6 +160,7 @@ public class JarvisDebugger {
           eventSet.resume();
         }
       }
+      threadList.updateThreads(vm.allThreads());
     }
   }
 

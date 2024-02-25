@@ -131,9 +131,12 @@ public class BreakPointControl extends View implements BreakPointProvider {
           if (bp.isLive()) {
             ImGui.sameLine();
             ImGui.textColored(Colors.Attention, "live");
+            ImGui.sameLine();
+            ImGui.text(" " + bp.getRequest().suspendPolicy()); // enable changing suspend policy
           }
 
           ImGui.sameLine();
+
 
           if (ImGui.button("Delete")) {
             delete = bp;
