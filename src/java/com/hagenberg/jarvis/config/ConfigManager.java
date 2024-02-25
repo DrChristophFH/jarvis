@@ -28,6 +28,7 @@ public class ConfigManager {
     loaderOptions.setTagInspector(tagInspector);
     yaml = new Yaml(new Constructor(AppConfig.class, loaderOptions));
     loadConfig();
+    saveConfig(); // to write all default values to the file
   }
 
   public static ConfigManager getInstance() {

@@ -14,6 +14,8 @@ import java.util.Set;
 
 import com.hagenberg.imgui.Colors;
 import com.hagenberg.imgui.View;
+import com.hagenberg.jarvis.config.AppConfig;
+import com.hagenberg.jarvis.config.ConfigManager;
 import com.hagenberg.jarvis.models.CallStackModel;
 import com.hagenberg.jarvis.models.entities.CallStackFrame;
 import com.hagenberg.jarvis.util.Logger;
@@ -50,7 +52,8 @@ public class LinePreview extends View {
   public LinePreview(CallStackModel model) {
     this.model = model;
     setName("Line Preview");
-    sourcePaths.add(new ImString("src/java", 255));
+    AppConfig config = ConfigManager.getInstance().getConfig();
+    sourcePaths.addAll(config.getSourcePaths().stream().map(e -> new ImString(e, 255)).toList());
     jdkDirectory = jreDirectory != null ? Paths.get(jreDirectory) : null;
     srcZipPath = new ImString(jdkDirectory != null ? jdkDirectory.toAbsolutePath().toString() + "\\lib\\src.zip" : "", 255);
   }

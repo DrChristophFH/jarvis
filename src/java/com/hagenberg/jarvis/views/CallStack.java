@@ -83,21 +83,28 @@ public class CallStack extends View {
       ImGui.tableNextColumn();
       ImGui.text(parameter.name());
       // Context menu for each row
-      int nodeId = 0; // TODO parameter.getLayoutNode().getNodeId();
-      if (ImGui.beginPopupContextItem("parameterContextMenu" + nodeId)) {
-        Snippets.focusOnNode(nodeId);
-        ImGui.endPopup();
-      }
+      // int nodeId = 0; // TODO parameter.getLayoutNode().getNodeId();
+      // if (ImGui.beginPopupContextItem("parameterContextMenu" + nodeId)) {
+      //   Snippets.focusOnNode(nodeId);
+      //   ImGui.endPopup();
+      // }
+      ImGui.pushID(parameter.name());
+
       ImGui.tableNextColumn();
       Snippets.drawTypeWithTooltip(parameter.getType(), tooltip);
+
       ImGui.tableNextColumn();
+      ImGui.pushID("dynamicType"); 
       Snippets.drawTypeWithTooltip(parameter.value().type(), tooltip);
+      ImGui.popID();
+
       ImGui.tableNextColumn();
       if (parameter.value() instanceof JObjectReference object) {
         ImGui.text("Object#%s = %s".formatted(object.getObjectId(), object.getToString()));
       } else if (parameter.value() instanceof JPrimitiveValue primitive) {
         ImGui.text(primitive.getJdiPrimitiveValue().toString());
       }
+      ImGui.popID();
     }
   }
 }

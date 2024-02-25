@@ -9,8 +9,11 @@ import com.hagenberg.imgui.Application;
 import com.hagenberg.imgui.Colors;
 import com.hagenberg.imgui.Snippets;
 import com.hagenberg.imgui.View;
+import com.hagenberg.jarvis.config.AppConfig;
+import com.hagenberg.jarvis.config.ConfigManager;
 import com.hagenberg.jarvis.debugger.JarvisDebugger;
 import com.hagenberg.jarvis.models.InteractionState;
+import com.hagenberg.jarvis.models.ObjectGraphModel;
 import com.hagenberg.jarvis.util.Profiler;
 
 import imgui.ImGui;
@@ -24,8 +27,8 @@ public class Jarvis {
 
   private final Application application;
 
-  private ImString classPath = new ImString("target/classes/", 255);
-  private ImString mainClass = new ImString("com.hagenberg.debuggee.JDIExampleDebuggee", 255);
+  private ImString classPath;
+  private ImString mainClass;
 
   private InteractionState interactionState = new InteractionState();
 
@@ -60,6 +63,11 @@ public class Jarvis {
     views.add(callStack);
     views.add(linePreview);
     views.add(templateBuilder);
+
+    AppConfig config = ConfigManager.getInstance().getConfig();
+    classPath = new ImString(config.getClassPath(), 255);
+    mainClass = new ImString(config.getMainClass(), 255);
+
     breakPointControl.setClassPath(classPath.get());
   }
 
@@ -97,13 +105,22 @@ public class Jarvis {
   }
 
   private void JarvisConfig() {
+    ConfigManager configManager = ConfigManager.getInstance();
+    AppConfig config = configManager.getConfig();
+
     if(ImGui.inputText("Class Path", classPath)) {
       breakPointControl.setClassPath(classPath.get());
+      config.setClassPath(classPath.get());
+      configManager.saveConfig();
     }
     ImGui.sameLine();
     Snippets.drawHelpMarker("The class path to use for the debugger. This is the path to the compiled classes of the project.");
 
     ImGui.inputText("Main Class", mainClass); 
+    if (ImGui.isItemDeactivatedAfterEdit()) {
+      config.setMainClass(mainClass.get());
+      configManager.saveConfig();
+    }
     ImGui.sameLine();
     Snippets.drawHelpMarker("The name of the main class to launch.");
 
@@ -117,15 +134,22 @@ public class Jarvis {
     int i = 0;
     for (ImString sourcePath : linePreview.getSourcePaths()) {
       ImGui.inputText("##" + i, sourcePath);
+      if (ImGui.isItemDeactivatedAfterEdit()) {
+        config.getSourcePaths().set(i, sourcePath.get());
+        configManager.saveConfig();
+      }
       i++;
     }
     if (ImGui.button("Add Source Path")) {
       linePreview.getSourcePaths().add(new ImString());
+      config.getSourcePaths().add("");
     }
     ImGui.sameLine();
     if (ImGui.button("Remove Source Path")) {
       if (!linePreview.getSourcePaths().isEmpty()) {
         linePreview.getSourcePaths().remove(linePreview.getSourcePaths().size() - 1);
+        config.getSourcePaths().remove(config.getSourcePaths().size() - 1);
+        configManager.saveConfig();
       }
     }
 
@@ -264,25 +288,31 @@ public class Jarvis {
 
   private void ConfigSection() {
     if (ImGui.collapsingHeader("Configuration")) {
-      if(ImGui.checkbox("Resolve Critical Classes", objectGraph.getObjectGraphModel().isResolveSpecialClasses())) {
-        objectGraph.getObjectGraphModel().setResolveSpecialClasses(!objectGraph.getObjectGraphModel().isResolveSpecialClasses());
+      ObjectGraphModel ogm = objectGraph.getObjectGraphModel();
+      if(ImGui.checkbox("Resolve Critical Classes", ogm.isResolveSpecialClasses())) {
+        ogm.setResolveSpecialClasses(!ogm.isResolveSpecialClasses());
       }
       ImGui.sameLine();
       Snippets.drawHelpMarker("Resolve critical classes that blow up the object graph, like java.lang.Class");
 
       int i = 0;
-      for(ImString className : objectGraph.getObjectGraphModel().getSpecialClasses()) {
+      for(ImString className : ogm.getSpecialClasses()) {
         ImGui.inputText("##" + i, className);
+        if (ImGui.isItemDeactivatedAfterEdit()) {
+          ogm.saveSpecialClasses();
+        }
         i++;
       }
 
       if (ImGui.button("Add Special Class")) {
-        objectGraph.getObjectGraphModel().getSpecialClasses().add(new ImString());
+        ogm.getSpecialClasses().add(new ImString());
       }
+
       ImGui.sameLine();
       if (ImGui.button("Remove Special Class")) {
-        if (!objectGraph.getObjectGraphModel().getSpecialClasses().isEmpty()) {
-          objectGraph.getObjectGraphModel().getSpecialClasses().remove(objectGraph.getObjectGraphModel().getSpecialClasses().size() - 1);
+        if (!ogm.getSpecialClasses().isEmpty()) {
+          ogm.getSpecialClasses().remove(ogm.getSpecialClasses().size() - 1);
+          ogm.saveSpecialClasses();
         }
       }
     }

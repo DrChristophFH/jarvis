@@ -1,15 +1,14 @@
 breakPoints:
-  com.hagenberg.debuggee.JDIExampleDebuggee:
+  swe4.Main:
   - !!com.hagenberg.jarvis.models.entities.BreakPoint
-    className: com.hagenberg.debuggee.JDIExampleDebuggee
+    className: swe4.Main
     enabled: true
-    line: 30
-  - !!com.hagenberg.jarvis.models.entities.BreakPoint
-    className: com.hagenberg.debuggee.JDIExampleDebuggee
-    enabled: true
-    line: 33
-  - !!com.hagenberg.jarvis.models.entities.BreakPoint
-    className: com.hagenberg.debuggee.JDIExampleDebuggee
-    enabled: true
-    line: 35
+    line: 37
+classPath: C:\Users\chris\OneDrive\Arbeit\Studium\Semester4\SWE\Programming\HUE04\src\pathfinder\out\production\pathfinder
+mainClass: swe4.Main
+sourcePaths:
+- java.lang.Class
+specialClasses:
+- java.lang.Class
+- java.lang.invoke.DirectMethodHandle
 transformers: {}

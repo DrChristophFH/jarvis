@@ -82,11 +82,21 @@ This thesis aims to push the boundaries of current program runtime visualization
 - [x] logging with coloring
 - [x] show number of objects in object list (changing on filters)
 - [x] dynamic breakpoint adding/removing
-- [ ] save special classes, class path, src path, src.zip path etc.
-- [ ] tab completion in template editor
-- [ ] better breakpoint selection and adding with line display
-- [ ] fuzzy search known classes
-- [ ] add directory selector
+- [x] save special classes, class path, src path, src.zip path etc.
+
+### Future Work
+
+- [ ] Refactor and clean up code
+  - [ ] Dependency Injection
+- [ ] focus on object graph node
+- [ ] hide objects in graph
+- [ ] move to  imgui-node-editor for zoomable graph
+- [ ] template editor could use information from the class model for tab completion
+- [ ] Fix line display focus issue and auto select for new stack frames
+- [ ] Breakpoint display in line display
+- [ ] Breakpoint adding with line display
+- [ ] add directory selector?
+- [ ] validate paths
 
 
 ## Notes

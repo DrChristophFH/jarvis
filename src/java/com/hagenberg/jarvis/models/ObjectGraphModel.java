@@ -1,5 +1,7 @@
 package com.hagenberg.jarvis.models;
 
+import com.hagenberg.jarvis.config.AppConfig;
+import com.hagenberg.jarvis.config.ConfigManager;
 import com.hagenberg.jarvis.models.entities.wrappers.JArrayReference;
 import com.hagenberg.jarvis.models.entities.wrappers.JArrayType;
 import com.hagenberg.jarvis.models.entities.wrappers.JLocalVariable;
@@ -33,12 +35,7 @@ public class ObjectGraphModel implements Observable {
   private boolean resolveSpecialClasses = false;
   // classes that should not be resovled unless desired. This is necessary because
   // some classes blow up the object graph (e.g. reflection classes)
-  private final List<ImString> specialClasses = new ArrayList<>() {
-    {
-      add(new ImString("java.lang.Class", ImString.DEFAULT_LENGTH));
-      add(new ImString("java.lang.invoke.DirectMethodHandle", ImString.DEFAULT_LENGTH));
-    }
-  };
+  private final List<ImString> specialClasses = new ArrayList<>();
 
   // locking
   private final ReentrantLock lock = new ReentrantLock();
@@ -55,6 +52,8 @@ public class ObjectGraphModel implements Observable {
 
   public ObjectGraphModel(ClassModel classModel) {
     this.classModel = classModel;
+    AppConfig config = ConfigManager.getInstance().getConfig();
+    specialClasses.addAll(config.getSpecialClasses().stream().map(e -> new ImString(e, 255)).toList());
   }
 
   public void lockModel() {
@@ -75,6 +74,13 @@ public class ObjectGraphModel implements Observable {
 
   public List<ImString> getSpecialClasses() {
     return specialClasses;
+  }
+
+  public void saveSpecialClasses() {
+    ConfigManager configManager = ConfigManager.getInstance();
+    AppConfig config = configManager.getConfig();
+    config.setSpecialClasses(specialClasses.stream().map(ImString::get).toList());
+    configManager.saveConfig();
   }
 
   public void syncWith(ThreadReference currentThread, Consumer<Pair<JObjectReference, ObjectReference>> toStringDefer) {

@@ -9,7 +9,7 @@ import imgui.type.ImBoolean;
 
 public class Main extends Application {
 
-  ImBoolean showMetricsWindow = new ImBoolean(true);
+  ImBoolean showMetricsWindow = new ImBoolean(false);
   Jarvis jarvis = new Jarvis(this);
 
   @Override
