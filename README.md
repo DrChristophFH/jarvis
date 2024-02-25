@@ -86,18 +86,19 @@ This thesis aims to push the boundaries of current program runtime visualization
 
 ### Future Work
 
-- [ ] Refactor and clean up code
+- [ ] (xxl) Refactor and clean up code
   - [ ] Dependency Injection
-- [ ] focus on object graph node
-- [ ] hide objects in graph
-- [ ] move to  imgui-node-editor for zoomable graph
-- [ ] template editor could use information from the class model for tab completion
-- [ ] Fix line display focus issue and auto select for new stack frames
-- [ ] Breakpoint display in line display
-- [ ] Breakpoint adding with line display
-- [ ] add directory selector?
-- [ ] validate paths
-
+  - [ ] Implement generic observable for configuration parameters => central management of save/load
+  - [ ] Move to full observer pattern for breakpoint provider => makes it easier to update line display
+  - [ ] Pattern for easy access to debuggee data (class model, object model, etc.)?
+- [ ] ( m ) focus on object graph node
+- [ ] ( l ) hide objects in graph (via ctx in graph or via local var list -> hide toggle)
+- [ ] (xxl) move to imgui-node-editor for zoomable graph
+- [ ] ( l ) template editor could use information from the class model for tab completion
+- [ ] ( s ) Fix line display focus issue and auto select for new stack frames 
+- [ ] ( m ) Breakpoint display in line display
+- [ ] ( m ) Breakpoint adding with line display
+- [ ] ( ? ) add directory selector?
 
 ## Notes
 
