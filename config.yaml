@@ -1,16 +1,15 @@
 breakPoints:
   com.hagenberg.debuggee.JDIExampleDebuggee:
   - !!com.hagenberg.jarvis.models.entities.BreakPoint
+    className: com.hagenberg.debuggee.JDIExampleDebuggee
     enabled: true
-    line: 32
-transformers:
-  New sdas: !!com.hagenberg.jarvis.config.AppConfig$TemplateTransformerConfig
-    name: New sdas
-    paths:
-    - <empty path>
-    - da
-    type: template
-  New Template: !!com.hagenberg.jarvis.config.AppConfig$TemplateTransformerConfig
-    name: New Template
-    paths: []
-    type: template
+    line: 30
+  - !!com.hagenberg.jarvis.models.entities.BreakPoint
+    className: com.hagenberg.debuggee.JDIExampleDebuggee
+    enabled: true
+    line: 33
+  - !!com.hagenberg.jarvis.models.entities.BreakPoint
+    className: com.hagenberg.debuggee.JDIExampleDebuggee
+    enabled: true
+    line: 35
+transformers: {}

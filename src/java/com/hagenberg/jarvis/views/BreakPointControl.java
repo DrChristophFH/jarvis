@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import com.hagenberg.imgui.Colors;
 import com.hagenberg.imgui.Snippets;
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.config.AppConfig;
@@ -30,9 +31,11 @@ public class BreakPointControl extends View implements BreakPointProvider {
   private String classPath;
   private Set<String> classNames = new TreeSet<>();
   private Map<String, List<BreakPoint>> breakPointMap = new TreeMap<>();
-  private String selected;
+  private String selectedClassName;
   private ImInt line = new ImInt();
   private boolean abbreviate = true;
+
+  private BreakPointCreationCallback callback = null;
 
   public BreakPointControl() {
     setName("Breakpoint Control");
@@ -46,6 +49,10 @@ public class BreakPointControl extends View implements BreakPointProvider {
   public void setClassPath(String classPath) {
     this.classPath = classPath;
     refresh();
+  }
+
+  public void setBreakPointCreationCallback(BreakPointCreationCallback callback) {
+    this.callback = callback;
   }
 
   @Override
@@ -68,7 +75,7 @@ public class BreakPointControl extends View implements BreakPointProvider {
 
     displayClassList();
 
-    if (selected != null) {
+    if (selectedClassName != null) {
       displayBreakPointSet();
     }
 
@@ -121,6 +128,11 @@ public class BreakPointControl extends View implements BreakPointProvider {
             bp.setEnabled(!bp.isEnabled());
           }
 
+          if (bp.isLive()) {
+            ImGui.sameLine();
+            ImGui.textColored(Colors.Attention, "live");
+          }
+
           ImGui.sameLine();
 
           if (ImGui.button("Delete")) {
@@ -128,6 +140,7 @@ public class BreakPointControl extends View implements BreakPointProvider {
           }
         }
         if (delete != null) { // here to avoid concurrent modification exception
+          delete.setEnabled(false); // disable the breakpoint (in case it's live)
           breakPointMap.get(className).remove(delete);
         }
       }
@@ -140,9 +153,9 @@ public class BreakPointControl extends View implements BreakPointProvider {
 
   private void displayBreakPointSet() {
     ImGui.separator();
-    ImGui.text(selected);
+    ImGui.text(selectedClassName);
     StringBuffer sb = new StringBuffer();
-    for (BreakPoint bp : breakPointMap.getOrDefault(selected, new ArrayList<>())) {
+    for (BreakPoint bp : breakPointMap.getOrDefault(selectedClassName, new ArrayList<>())) {
       sb.append(bp.getLine() + ", ");
     }
     ImGui.text("Breakpoints: " + sb.toString());
@@ -151,10 +164,14 @@ public class BreakPointControl extends View implements BreakPointProvider {
     ImGui.inputInt("Line", line, 1, 10, flags);
 
     if (ImGui.isItemDeactivated() && (Snippets.isKeyDown(ImGuiKey.Enter) || Snippets.isKeyDown(ImGuiKey.KeyPadEnter)) || ImGui.button("Add")) {
-      if (!breakPointMap.containsKey(selected)) {
-        breakPointMap.put(selected, new ArrayList<>());
+      if (!breakPointMap.containsKey(selectedClassName)) {
+        breakPointMap.put(selectedClassName, new ArrayList<>());
       }
-      breakPointMap.get(selected).add(new BreakPoint(line.get()));
+      BreakPoint bp = new BreakPoint(selectedClassName, line.get());
+      breakPointMap.get(selectedClassName).add(bp);
+      if (callback != null) {
+        callback.register(bp);
+      }
       saveBreakPoints();
     }
   }
@@ -163,7 +180,7 @@ public class BreakPointControl extends View implements BreakPointProvider {
     if (ImGui.beginListBox("##Classes", -1, 0)) {
       for (String className : classNames) {
         if(ImGui.selectable(className)) {
-          selected = className;
+          selectedClassName = className;
         }
       }
       ImGui.endListBox();

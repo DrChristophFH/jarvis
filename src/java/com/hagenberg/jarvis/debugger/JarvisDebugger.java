@@ -34,7 +34,7 @@ public class JarvisDebugger {
 
   private ToStringProcessor toStringProcessor = new ToStringProcessor();
 
-  private final Logger eventLog = Logger.getInstance();
+  private final Logger logger = Logger.getInstance();
   private final DebugeeConsole debuggeeConsole;
   private final BreakPointProvider breakPointProvider;
 
@@ -44,6 +44,7 @@ public class JarvisDebugger {
 
   public JarvisDebugger(Log eventLog, BreakPointProvider breakPointProvider, DebugeeConsole debuggeeConsole) {
     this.breakPointProvider = breakPointProvider;
+    breakPointProvider.setBreakPointCreationCallback(this::connectNewBreakPoint);
     this.debuggeeConsole = debuggeeConsole;
     debuggeeConsole.registerInputHandler(this::handleInput);
     toStringProcessor.start();
@@ -97,7 +98,7 @@ public class JarvisDebugger {
   // -------------------------------------------
 
   private void startDebugging() {
-    eventLog.logInfo("Starting debugger...");
+    logger.logInfo("Starting debugger...");
     try {
       this.connectAndLaunchVM();
       this.enableClassPrepareRequest();
@@ -106,7 +107,7 @@ public class JarvisDebugger {
       objectGraphModel.clear();
       this.debug();
     } catch (VMDisconnectedException e) {
-      eventLog.logInfo("VM disconnected");
+      logger.logInfo("VM disconnected");
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -117,15 +118,13 @@ public class JarvisDebugger {
     EventSet eventSet;
     while ((eventSet = vm.eventQueue().remove()) != null) {
       for (Event event : eventSet) {
-        System.out.println("Event: " + event);
         if (event instanceof ClassPrepareEvent e) {
-          eventLog.logInfo(event.toString());
+          logger.logInfo(event.toString() + " for " + e.referenceType().name());
           classModel.addFromRefType(e.referenceType());
           this.setBreakPoints(e);
-          eventLog.logInfo("Class prepared: " + e.referenceType().name());
           eventSet.resume();
         } else if (event instanceof BreakpointEvent || event instanceof StepEvent) {
-          eventLog.logInfo(event.toString());
+          logger.logInfo(event.toString());
           if (toStringProcessor.isProcessing()) {
             toStringProcessor.stopProcessing();
             toStringProcessor.waitForStopSignal();
@@ -145,15 +144,15 @@ public class JarvisDebugger {
           // for the toStringProcessor to pass the along with the exception object
           // the JObjectReference would then be able to print the ToString
           // result upon receiving it from the toStringProcessor
-          eventLog.logWarning(exceptionEvent.toString());
+          logger.logWarning(exceptionEvent.toString());
           eventSet.resume();
         } else if (event instanceof VMDisconnectEvent) {
-          eventLog.logInfo("VM disconnected");
+          logger.logInfo("VM disconnected");
           eventSet.resume();
           vm = null;
           return;
         } else {
-          eventLog.logInfo(event.toString());
+          logger.logInfo(event.toString());
           eventSet.resume();
         }
       }
@@ -193,9 +192,8 @@ public class JarvisDebugger {
     if (currentThread == null) {
       return;
     } 
-    System.out.println(command);
 
-    eventLog.logInfo("Processing user command: " + command);
+    logger.logInfo("Processing user command: " + command);
 
     EventRequestManager eventRequestManager = vm.eventRequestManager();
     // Cancel the last step request if it exists
@@ -240,9 +238,37 @@ public class JarvisDebugger {
       return;
     }
     for (BreakPoint bp : breakpoints) {
-      Location location = refType.locationsOfLine(bp.getLine()).get(0); // todo check if there are locations
-      BreakpointRequest bpReq = vm.eventRequestManager().createBreakpointRequest(location);
+      var locations = refType.locationsOfLine(bp.getLine());
+      if (locations.isEmpty()) {
+        continue;
+      }
+      BreakpointRequest bpReq = vm.eventRequestManager().createBreakpointRequest(locations.get(0));
       bpReq.enable();
+      bp.setRequest(bpReq);
+    }
+  }
+
+  private void connectNewBreakPoint(BreakPoint bp) {
+    if (vm == null) { // VM not yet connected
+      return;
+    }
+    List<ReferenceType> refTypes = vm.classesByName(bp.getClassName());
+    if (refTypes.isEmpty()) {
+      return;
+    }
+    ReferenceType refType = refTypes.get(0);
+    List<Location> locations;
+    try {
+      locations = refType.locationsOfLine(bp.getLine());
+      if (locations.isEmpty()) {
+        return;
+      }
+      BreakpointRequest bpReq = vm.eventRequestManager().createBreakpointRequest(locations.get(0));
+      bpReq.enable();
+      bp.setRequest(bpReq);
+    } catch (AbsentInformationException e) {
+      e.printStackTrace();
+      logger.logError("AbsentInformationException while setting breakpoint for " + bp.getClassName() + " at line " + bp.getLine());
     }
   }
 

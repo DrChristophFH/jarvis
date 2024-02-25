@@ -17,6 +17,8 @@ import com.hagenberg.jarvis.util.Observer;
 import com.hagenberg.jarvis.util.Pair;
 import com.sun.jdi.*;
 
+import imgui.type.ImString;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,8 +31,14 @@ public class ObjectGraphModel implements Observable {
 
   // configuration
   private boolean resolveSpecialClasses = false;
-  // classes that should not be resovled unless desired. This is necessary because some classes blow up the object graph (e.g. reflection classes)
-  private static final String[] specialClasses = { "java.lang.Class", "java.lang.invoke.DirectMethodHandle" };
+  // classes that should not be resovled unless desired. This is necessary because
+  // some classes blow up the object graph (e.g. reflection classes)
+  private final List<ImString> specialClasses = new ArrayList<>() {
+    {
+      add(new ImString("java.lang.Class", ImString.DEFAULT_LENGTH));
+      add(new ImString("java.lang.invoke.DirectMethodHandle", ImString.DEFAULT_LENGTH));
+    }
+  };
 
   // locking
   private final ReentrantLock lock = new ReentrantLock();
@@ -65,6 +73,10 @@ public class ObjectGraphModel implements Observable {
     return resolveSpecialClasses;
   }
 
+  public List<ImString> getSpecialClasses() {
+    return specialClasses;
+  }
+
   public void syncWith(ThreadReference currentThread, Consumer<Pair<JObjectReference, ObjectReference>> toStringDefer) {
     this.toStringDefer = toStringDefer;
     lockModel();
@@ -74,7 +86,7 @@ public class ObjectGraphModel implements Observable {
       try {
         frames = currentThread.frames();
       } catch (IncompatibleThreadStateException e) {
-        System.out.println("Thread is not suspended");
+        logger.logError("IncompatibleThreadStateException while syncing with thread - Thread is not suspended");
       }
 
       localVarBuffer.clear();
@@ -156,8 +168,8 @@ public class ObjectGraphModel implements Observable {
   }
 
   private boolean isSpecialClass(String className) {
-    for (String specialClass : specialClasses) {
-      if (specialClass.equals(className)) {
+    for (ImString specialClass : specialClasses) {
+      if (specialClass.get().equals(className)) {
         return true;
       }
     }
@@ -165,13 +177,12 @@ public class ObjectGraphModel implements Observable {
   }
 
   private void handleFrame(StackFrame frame) {
-    System.out.println("Handling frame " + frame.location().toString());
     try {
       for (LocalVariable variable : frame.visibleVariables()) {
         handleLocalVariable(variable, frame);
       }
     } catch (AbsentInformationException e) {
-      e.printStackTrace(); 
+      e.printStackTrace();
       logger.logError("AbsentInformationException while handling frame " + frame.location().toString());
     }
   }
@@ -195,7 +206,7 @@ public class ObjectGraphModel implements Observable {
     try {
       type = classModel.getJType(lvar.type());
     } catch (ClassNotLoadedException e) {
-      e.printStackTrace(); 
+      e.printStackTrace();
       logger.logError("ClassNotLoadedException while creating local variable " + lvar.name());
     }
 

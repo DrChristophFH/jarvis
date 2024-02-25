@@ -193,6 +193,10 @@ public class Jarvis {
         ImGui.textWrapped("Breakpoints can be enabled, disabled and removed using the buttons in the breakpoint list.");
         ImGui.bullet();
         ImGui.textWrapped("Breakpoints are saved to a file and are restored on the next launch of the tool.");
+        ImGui.bullet();
+        ImGui.textWrapped("The class path must be set for the breakpoint control to work properly.");
+        ImGui.bullet();
+        ImGui.textWrapped("Breakpoints that have been successfully linked up with a BreakpointRequest in the debuggee are marked with the green 'live' tag.");
         ImGui.treePop();
       }
       if (ImGui.treeNode("Object Graph")) {
@@ -265,6 +269,22 @@ public class Jarvis {
       }
       ImGui.sameLine();
       Snippets.drawHelpMarker("Resolve critical classes that blow up the object graph, like java.lang.Class");
+
+      int i = 0;
+      for(ImString className : objectGraph.getObjectGraphModel().getSpecialClasses()) {
+        ImGui.inputText("##" + i, className);
+        i++;
+      }
+
+      if (ImGui.button("Add Special Class")) {
+        objectGraph.getObjectGraphModel().getSpecialClasses().add(new ImString());
+      }
+      ImGui.sameLine();
+      if (ImGui.button("Remove Special Class")) {
+        if (!objectGraph.getObjectGraphModel().getSpecialClasses().isEmpty()) {
+          objectGraph.getObjectGraphModel().getSpecialClasses().remove(objectGraph.getObjectGraphModel().getSpecialClasses().size() - 1);
+        }
+      }
     }
   }
 }

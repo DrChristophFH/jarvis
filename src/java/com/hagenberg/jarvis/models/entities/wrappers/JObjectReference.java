@@ -41,7 +41,6 @@ public class JObjectReference extends JValue implements ReferenceHolder {
     if (toString != null) {
       this.toStringRepresentation = toString;
     } else {
-      System.out.println("Warning: toString() of " + getTypeName() + " is null");
       this.toStringRepresentation = this.toString();
     }
   }

@@ -7,6 +7,8 @@ import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.inspector.TagInspector;
 import org.yaml.snakeyaml.nodes.Tag;
 
+import com.hagenberg.jarvis.util.Logger;
+
 import java.io.FileWriter;
 import java.io.FileReader;
 import java.io.IOException;
@@ -19,6 +21,7 @@ public class ConfigManager {
   private Yaml yaml;
   private String filePath = "config.yaml";
   private AppConfig config = new AppConfig();
+  private Logger logger = Logger.getInstance();
 
   private ConfigManager() {
     tagInspector = tag -> tag.getClassName().startsWith("com.hagenberg.jarvis");
@@ -46,15 +49,18 @@ public class ConfigManager {
     try (FileWriter writer = new FileWriter(filePath)) {
       writer.write(yaml.dumpAs(config, Tag.MAP, DumperOptions.FlowStyle.BLOCK));
     } catch (IOException e) {
-      System.out.println("Could not save config file.");
+      logger.logError("Could not save config file.");
     }
   }
 
   public void loadConfig() {
     try (FileReader reader = new FileReader(filePath)) {
       config = yaml.loadAs(reader, AppConfig.class);
+      if (config == null) {
+        config = new AppConfig();
+      }
     } catch (IOException e) {
-      System.out.println("No config file found. Creating default config.");
+      logger.logError("No config file found. Creating default config.");
     }
   }
 }
