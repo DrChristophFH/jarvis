@@ -25,16 +25,17 @@ import java.util.*;
 public class JarvisDebugger {
   private String classPath;
   private String mainClass;
+  
   private VirtualMachine vm;
-
   private ThreadReference currentThread;
-
+  private EventSet waitingEventSet = null;
+  
   private CallStackModel callStackModel;
   private ObjectGraphModel objectGraphModel;
   private ClassModel classModel;
-
+  
   private ToStringProcessor toStringProcessor = new ToStringProcessor();
-
+  
   private final Logger logger = Logger.getInstance();
   private final DebugeeConsole debuggeeConsole;
   private final ThreadList threadList;
@@ -50,6 +51,7 @@ public class JarvisDebugger {
     this.debuggeeConsole = debuggeeConsole;
     debuggeeConsole.registerInputHandler(this::handleInput);
     this.threadList = threadList;
+    threadList.setProvider(this::getThreads);
     toStringProcessor.start();
   }
 
@@ -60,8 +62,8 @@ public class JarvisDebugger {
     debugThread.start();
   }
 
-  public void executeCommand(StepCommand command) {
-    this.processUserCommand(command);
+  public void executeCommand(StepCommand command, int suspendPolicy) {
+    this.processUserCommand(command, suspendPolicy);
   }
 
   public String getClassPath() {
@@ -96,6 +98,13 @@ public class JarvisDebugger {
     if (vm != null) vm.exit(0);
   }
 
+  public List<ThreadReference> getThreads() {
+    if (vm == null) {
+      return null;
+    }
+    return vm.allThreads();
+  }
+
   // -------------------------------------------
   // ------------- Private Methods -------------
   // -------------------------------------------
@@ -107,6 +116,7 @@ public class JarvisDebugger {
       this.enableClassPrepareRequest();
       this.enableExceptionRequest();
       this.startStreamThread();
+      this.threadList.start();
       objectGraphModel.clear();
       this.debug();
     } catch (VMDisconnectedException e) {
@@ -116,52 +126,73 @@ public class JarvisDebugger {
     }
   }
 
-  private void debug() throws InterruptedException, AbsentInformationException, IncompatibleThreadStateException, InvalidTypeException,
-      ClassNotLoadedException, InvocationException {
+  private void debug() throws InterruptedException, AbsentInformationException, IncompatibleThreadStateException, InvalidTypeException, ClassNotLoadedException, InvocationException {
     EventSet eventSet;
+
     while ((eventSet = vm.eventQueue().remove()) != null) {
-      threadList.updateThreads(vm.allThreads());
+      boolean resume = true;
+
       for (Event event : eventSet) {
         if (event instanceof ClassPrepareEvent e) {
-          logger.logInfo(event.toString() + " for " + e.referenceType().name());
-          classModel.addFromRefType(e.referenceType());
-          this.setBreakPoints(e);
-          eventSet.resume();
+          handleClassPrepareEvent(e);
         } else if (event instanceof BreakpointEvent || event instanceof StepEvent) {
-          logger.logInfo(event.toString());
-          if (toStringProcessor.isProcessing()) {
-            toStringProcessor.stopProcessing();
-            toStringProcessor.waitForStopSignal();
-            toStringProcessor.clear();
-          }
-
-          ThreadReference currentThread = ((LocatableEvent) event).thread();
-          this.currentThread = currentThread;
-
-          objectGraphModel.syncWith(currentThread, toStringProcessor::addTask);
-          callStackModel.syncWith(new ArrayList<>(currentThread.frames()));
-          
-          // kickoff toString
-          toStringProcessor.signalToStart(currentThread);
+          resume = false;
+          handleBreakStepEvent(event);
         } else if (event instanceof ExceptionEvent exceptionEvent) {
-          // For more detailed exceptions, we could implement a custom JObjectReference
-          // for the toStringProcessor to pass the along with the exception object
-          // the JObjectReference would then be able to print the ToString
-          // result upon receiving it from the toStringProcessor
-          logger.logWarning(exceptionEvent.toString());
-          eventSet.resume();
+          handleExceptionEvent(exceptionEvent);
         } else if (event instanceof VMDisconnectEvent) {
-          logger.logInfo("VM disconnected");
-          eventSet.resume();
-          vm = null;
+          handleVMDisconnectEvent();
           return;
         } else {
           logger.logInfo(event.toString());
-          eventSet.resume();
         }
       }
-      threadList.updateThreads(vm.allThreads());
+
+      if (resume) {
+        eventSet.resume();
+      } else {
+        waitingEventSet = eventSet;
+      }
     }
+  }
+
+  private void handleVMDisconnectEvent() {
+    logger.logInfo("VM disconnected");
+    vm = null;
+  }
+
+  private void handleExceptionEvent(ExceptionEvent exceptionEvent) {
+    // For more detailed exceptions, we could implement a custom JObjectReference
+    // for the toStringProcessor to pass the along with the exception object
+    // the JObjectReference would then be able to print the ToString
+    // result upon receiving it from the toStringProcessor
+    logger.logWarning(exceptionEvent.toString());
+  }
+
+  private void handleBreakStepEvent(Event event) throws InterruptedException, IncompatibleThreadStateException {
+    logger.logInfo(event.toString());
+
+    logger.logWarning(" " + event.request().suspendPolicy());
+
+    if (toStringProcessor.isProcessing()) {
+      toStringProcessor.stopProcessing();
+      toStringProcessor.waitForStopSignal();
+      toStringProcessor.clear();
+    }
+
+    currentThread = ((LocatableEvent) event).thread();
+
+    objectGraphModel.syncWith(currentThread, toStringProcessor::addTask);
+    callStackModel.syncWith(new ArrayList<>(currentThread.frames()));
+    
+    // kickoff toString
+    toStringProcessor.signalToStart(currentThread);
+  }
+
+  private void handleClassPrepareEvent(ClassPrepareEvent e) throws AbsentInformationException {
+    logger.logInfo(e.toString() + " for " + e.referenceType().name());
+    classModel.addFromRefType(e.referenceType());
+    this.setBreakPoints(e);
   }
 
   private void handleInput(String input) {
@@ -193,14 +224,16 @@ public class JarvisDebugger {
     streamThread.start();
   }
 
-  private void processUserCommand(StepCommand command) {
+  private void processUserCommand(StepCommand command, int suspendPolicy) {
     if (currentThread == null) {
+      logger.logWarning("No current thread");
       return;
     } 
 
     logger.logInfo("Processing user command: " + command);
 
     EventRequestManager eventRequestManager = vm.eventRequestManager();
+
     // Cancel the last step request if it exists
     List<StepRequest> stepRequests = eventRequestManager.stepRequests();
     for (StepRequest stepRequest : stepRequests) {
@@ -209,30 +242,36 @@ public class JarvisDebugger {
       }
     }
 
+    StepRequest stepRequest = null;
+
     switch (command) {
       case STEP_INTO -> {
-        StepRequest stepIntoRequest = eventRequestManager.createStepRequest(currentThread, StepRequest.STEP_LINE, StepRequest.STEP_INTO);
-        stepIntoRequest.addCountFilter(1);
-        stepIntoRequest.enable();
+        stepRequest = eventRequestManager.createStepRequest(currentThread, StepRequest.STEP_LINE, StepRequest.STEP_INTO);
       }
       case STEP_OVER -> {
-        StepRequest stepOverRequest = eventRequestManager.createStepRequest(currentThread, StepRequest.STEP_LINE, StepRequest.STEP_OVER);
-        stepOverRequest.addCountFilter(1);
-        stepOverRequest.enable();
+        stepRequest = eventRequestManager.createStepRequest(currentThread, StepRequest.STEP_LINE, StepRequest.STEP_OVER);
       }
       case STEP_OUT -> {
-        StepRequest stepOutRequest = eventRequestManager.createStepRequest(currentThread, StepRequest.STEP_LINE, StepRequest.STEP_OUT);
-        stepOutRequest.addCountFilter(1);
-        stepOutRequest.enable();
+        stepRequest = eventRequestManager.createStepRequest(currentThread, StepRequest.STEP_LINE, StepRequest.STEP_OUT);
       }
       case RESUME -> {
       }
       case STOP -> {
-        vm.exit(0);
+        stepRequest = eventRequestManager.createStepRequest(currentThread, StepRequest.STEP_LINE, StepRequest.STEP_INTO);
       }
       default -> throw new IllegalArgumentException("Unexpected value: " + command);
     }
-    vm.resume();
+
+    if (stepRequest != null) {
+      stepRequest.addCountFilter(1);
+      stepRequest.setSuspendPolicy(suspendPolicy);
+      stepRequest.enable();
+    }
+
+    if (waitingEventSet != null) {
+      waitingEventSet.resume();
+      waitingEventSet = null;
+    }
   }
 
   private void setBreakPoints(ClassPrepareEvent event) throws AbsentInformationException {
@@ -248,6 +287,7 @@ public class JarvisDebugger {
         continue;
       }
       BreakpointRequest bpReq = vm.eventRequestManager().createBreakpointRequest(locations.get(0));
+      bpReq.setSuspendPolicy(bp.getSuspendPolicy());
       bpReq.enable();
       bp.setRequest(bpReq);
     }
@@ -269,6 +309,7 @@ public class JarvisDebugger {
         return;
       }
       BreakpointRequest bpReq = vm.eventRequestManager().createBreakpointRequest(locations.get(0));
+      bpReq.setSuspendPolicy(bp.getSuspendPolicy());
       bpReq.enable();
       bp.setRequest(bpReq);
     } catch (AbsentInformationException e) {
@@ -279,6 +320,7 @@ public class JarvisDebugger {
 
   private void enableClassPrepareRequest() {
     ClassPrepareRequest classPrepareRequest = vm.eventRequestManager().createClassPrepareRequest();
+    classPrepareRequest.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
     classPrepareRequest.enable();
   }
 

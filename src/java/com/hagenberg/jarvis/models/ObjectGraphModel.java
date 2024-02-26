@@ -175,7 +175,13 @@ public class ObjectGraphModel implements Observable {
 
   private boolean isSpecialClass(String className) {
     for (ImString specialClass : specialClasses) {
-      if (specialClass.get().equals(className)) {
+      String s = specialClass.get();
+      if (s.endsWith("*")) { // wildcard
+        s = s.substring(0, s.length() - 1);
+        if (className.startsWith(s)) {
+          return true;
+        }
+      } else if (s.equals(className)) {
         return true;
       }
     }

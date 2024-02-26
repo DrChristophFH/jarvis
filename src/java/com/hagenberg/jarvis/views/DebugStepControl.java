@@ -2,6 +2,7 @@ package com.hagenberg.jarvis.views;
 
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.debugger.StepCommand;
+import com.sun.jdi.request.EventRequest;
 
 import imgui.ImGui;
 import imgui.flag.ImGuiWindowFlags;
@@ -9,9 +10,10 @@ import imgui.flag.ImGuiWindowFlags;
 public class DebugStepControl extends View {
 
   private CommandExecutor executor;
+  private int suspendPolicy = EventRequest.SUSPEND_ALL;
 
   public interface CommandExecutor {
-    void executeCommand(StepCommand command);
+    void executeCommand(StepCommand command, int suspendPolicy);
   }
 
   public DebugStepControl() {
@@ -34,14 +36,18 @@ public class DebugStepControl extends View {
       ImGui.text("No executor set!");
       return;
     }
-    if (ImGui.button("Step Over")) executor.executeCommand(StepCommand.STEP_OVER);
+    if (ImGui.button("Step Over")) executor.executeCommand(StepCommand.STEP_OVER, suspendPolicy);
     ImGui.sameLine();
-    if (ImGui.button("Step Into")) executor.executeCommand(StepCommand.STEP_INTO);
+    if (ImGui.button("Step Into")) executor.executeCommand(StepCommand.STEP_INTO, suspendPolicy);
     ImGui.sameLine();
-    if (ImGui.button("Step Out")) executor.executeCommand(StepCommand.STEP_OUT);
+    if (ImGui.button("Step Out")) executor.executeCommand(StepCommand.STEP_OUT, suspendPolicy);
     ImGui.sameLine();
-    if (ImGui.button("Resume")) executor.executeCommand(StepCommand.RESUME);
+    if (ImGui.button("Resume")) executor.executeCommand(StepCommand.RESUME, suspendPolicy);
     ImGui.sameLine();
-    if (ImGui.button("Stop")) executor.executeCommand(StepCommand.STOP);
+    if (ImGui.button("Stop")) executor.executeCommand(StepCommand.STOP, suspendPolicy);
+    ImGui.sameLine();
+    if (ImGui.checkbox("Suspend All", suspendPolicy == EventRequest.SUSPEND_ALL)) {
+      suspendPolicy = suspendPolicy == EventRequest.SUSPEND_ALL ? EventRequest.SUSPEND_EVENT_THREAD : EventRequest.SUSPEND_ALL;
+    }
   }
 }

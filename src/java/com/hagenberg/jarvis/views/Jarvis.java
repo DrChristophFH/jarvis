@@ -295,7 +295,7 @@ public class Jarvis {
         ogm.setResolveSpecialClasses(!ogm.isResolveSpecialClasses());
       }
       ImGui.sameLine();
-      Snippets.drawHelpMarker("Resolve critical classes that blow up the object graph, like java.lang.Class");
+      Snippets.drawHelpMarker("Resolve critical classes that blow up the object graph, like java.lang.Class. Supports '*' as wildcard at the end. Example: java.lang.*");
 
       int i = 0;
       for(ImString className : ogm.getSpecialClasses()) {

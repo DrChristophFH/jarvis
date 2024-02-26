@@ -4,10 +4,17 @@ breakPoints:
     className: com.example.Main
     enabled: true
     line: 29
+    suspendPolicy: 2
   - !!com.hagenberg.jarvis.models.entities.BreakPoint
     className: com.example.Main
     enabled: true
     line: 19
+    suspendPolicy: 2
+  - !!com.hagenberg.jarvis.models.entities.BreakPoint
+    className: com.example.Main
+    enabled: true
+    line: 28
+    suspendPolicy: 2
 classPath: C:\Users\chris\OneDrive\Arbeit\Studium\BachelorThesis\jarvis\programming\Evaluation\demo\target\classes
 mainClass: com.example.Main
 sourcePaths:
@@ -15,4 +22,5 @@ sourcePaths:
 specialClasses:
 - java.lang.Class
 - java.lang.invoke.DirectMethodHandle
+- jdk.internal.*
 transformers: {}
