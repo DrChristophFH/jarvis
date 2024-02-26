@@ -140,8 +140,8 @@ public class JarvisDebugger {
           handleBreakStepEvent(event);
         } else if (event instanceof ExceptionEvent exceptionEvent) {
           handleExceptionEvent(exceptionEvent);
-        } else if (event instanceof VMDisconnectEvent) {
-          handleVMDisconnectEvent();
+        } else if (event instanceof VMDisconnectEvent vmDisconnectEvent) {
+          handleVMDisconnectEvent(vmDisconnectEvent);
           return;
         } else {
           logger.logInfo(event.toString());
@@ -156,9 +156,11 @@ public class JarvisDebugger {
     }
   }
 
-  private void handleVMDisconnectEvent() {
+  private void handleVMDisconnectEvent(VMDisconnectEvent vmDisconnectEvent) {
     logger.logInfo("VM disconnected");
-    vm = null;
+    if(vmDisconnectEvent.virtualMachine().equals(vm)) {
+      vm = null;
+    }
   }
 
   private void handleExceptionEvent(ExceptionEvent exceptionEvent) {

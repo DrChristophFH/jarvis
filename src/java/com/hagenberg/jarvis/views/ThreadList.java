@@ -6,27 +6,39 @@ import java.util.List;
 import com.hagenberg.imgui.Colors;
 import com.hagenberg.imgui.View;
 import com.hagenberg.jarvis.debugger.ThreadReferenceProvider;
+import com.hagenberg.jarvis.util.Logger;
 import com.sun.jdi.ThreadReference;
+import com.sun.jdi.VMDisconnectedException;
 
 import imgui.ImGui;
 import imgui.type.ImInt;
 
 public class ThreadList extends View {
 
+  private Logger logger = Logger.getInstance();
   private ThreadReferenceProvider provider;
   private ImInt pollInterval = new ImInt(1000);
 
-  Thread updateThread = new Thread(() -> {
-    List<ThreadReference> threads; 
-    while ((threads = provider.getThreads()) != null) {
+  private class UpdateThread extends Thread {
+    @Override
+    public void run() {
+      List<ThreadReference> threads;
       try {
-        Thread.sleep(pollInterval.get());
-      } catch (InterruptedException e) {
-        e.printStackTrace();
+        while ((threads = provider.getThreads()) != null) {
+          try {
+            Thread.sleep(pollInterval.get());
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+          updateThreads(threads);
+        }
+      } catch (VMDisconnectedException e) {
+        logger.logWarning("VM Disconnected, stopping thread state poller.");
       }
-      updateThreads(threads);
     }
-  });
+  }
+
+  Thread updateThread = new UpdateThread();
 
   private class JThread {
     private String name;
@@ -48,7 +60,10 @@ public class ThreadList extends View {
   }
 
   public void start() {
-    updateThread.start();
+    if (!updateThread.isAlive()) {
+      updateThread = new UpdateThread();
+      updateThread.start();
+    }
   }
 
   public void updateThreads(List<ThreadReference> threads) {
