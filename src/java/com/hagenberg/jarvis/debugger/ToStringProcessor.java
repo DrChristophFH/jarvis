@@ -68,7 +68,7 @@ public class ToStringProcessor extends Thread {
     try {
       while (true) {
         synchronized (lock) {
-          while (!processing.get() || queue.isEmpty()) {
+          while (!processing.get()) {
             lock.wait(); // Wait for signal to start processing
           }
         }
@@ -81,6 +81,7 @@ public class ToStringProcessor extends Thread {
         }
         // Signal that processing has stopped
         stopLatch.countDown();
+        processing.set(false);
       }
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
@@ -102,7 +103,7 @@ public class ToStringProcessor extends Thread {
 
         // skip base object toString() method
         if (!declType.equals("java.lang.Object")) {
-          int flags = 0;
+          int flags = ObjectReference.INVOKE_SINGLE_THREADED;
           result = objRef.invokeMethod(currentThread, toStringMethod, new ArrayList<>(), flags).toString();
         }
       }

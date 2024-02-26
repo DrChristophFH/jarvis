@@ -20,6 +20,7 @@ import com.hagenberg.jarvis.config.ConfigManager;
 import com.hagenberg.jarvis.debugger.BreakPointProvider;
 import com.hagenberg.jarvis.models.entities.BreakPoint;
 import com.hagenberg.jarvis.util.Logger;
+import com.sun.jdi.request.EventRequest;
 
 import imgui.ImGui;
 import imgui.flag.ImGuiInputTextFlags;
@@ -119,9 +120,14 @@ public class BreakPointControl extends View implements BreakPointProvider {
 
     BreakPoint delete = null;
 
+    int cId = 0;
+
     for (String className : breakPointMap.keySet()) {
+      ImGui.pushID(cId++);
       if (!breakPointMap.get(className).isEmpty()) {
+        int bId = 0;
         for (BreakPoint bp : breakPointMap.get(className)) {
+          ImGui.pushID(bId++);
           String name = abbreviate ? className.substring(className.lastIndexOf(".") + 1) : className;
 
           if (ImGui.checkbox(name + " : " + bp.getLine(), bp.isEnabled())) {
@@ -134,16 +140,25 @@ public class BreakPointControl extends View implements BreakPointProvider {
           }
 
           ImGui.sameLine();
+          int suspendPolicy = bp.getSuspendPolicy();
+          if(ImGui.checkbox("Suspend All", suspendPolicy == EventRequest.SUSPEND_ALL)) {
+            bp.setSuspendPolicy(suspendPolicy == EventRequest.SUSPEND_ALL ? EventRequest.SUSPEND_EVENT_THREAD : EventRequest.SUSPEND_ALL);
+          }
+          
+          ImGui.sameLine();
+
 
           if (ImGui.button("Delete")) {
             delete = bp;
           }
+          ImGui.popID();
         }
         if (delete != null) { // here to avoid concurrent modification exception
           delete.setEnabled(false); // disable the breakpoint (in case it's live)
           breakPointMap.get(className).remove(delete);
         }
       }
+      ImGui.popID();
     }
 
     if (delete != null) { // here to avoid concurrent modification exception

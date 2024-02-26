@@ -3,11 +3,13 @@ package com.hagenberg.jarvis.models.entities;
 import java.beans.Transient;
 
 import com.sun.jdi.request.BreakpointRequest;
+import com.sun.jdi.request.EventRequest;
 
 public class BreakPoint {
   private String className = null;
   private int line = -1;
   private boolean enabled = true;
+  private int suspendPolicy = EventRequest.SUSPEND_ALL;
   private BreakpointRequest request = null;
 
   public BreakPoint() {
@@ -36,6 +38,19 @@ public class BreakPoint {
 
   public void setLine(int line) {
     this.line = line;
+  }
+
+  public int getSuspendPolicy() {
+    return suspendPolicy;
+  }
+
+  public void setSuspendPolicy(int suspendPolicy) {
+    this.suspendPolicy = suspendPolicy;
+    if (isLive()) {
+      setEnabled(false); // disable request to change suspend policy
+      request.setSuspendPolicy(suspendPolicy);
+      setEnabled(true);
+    }
   }
 
   @Transient // ignore this property when serializing

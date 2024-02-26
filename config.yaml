@@ -1,14 +1,26 @@
 breakPoints:
-  swe4.Main:
+  com.example.Main:
   - !!com.hagenberg.jarvis.models.entities.BreakPoint
-    className: swe4.Main
+    className: com.example.Main
     enabled: true
-    line: 37
-classPath: C:\Users\chris\OneDrive\Arbeit\Studium\Semester4\SWE\Programming\HUE04\src\pathfinder\out\production\pathfinder
-mainClass: swe4.Main
+    line: 29
+    suspendPolicy: 2
+  - !!com.hagenberg.jarvis.models.entities.BreakPoint
+    className: com.example.Main
+    enabled: true
+    line: 19
+    suspendPolicy: 2
+  - !!com.hagenberg.jarvis.models.entities.BreakPoint
+    className: com.example.Main
+    enabled: true
+    line: 28
+    suspendPolicy: 2
+classPath: C:\Users\chris\OneDrive\Arbeit\Studium\BachelorThesis\jarvis\programming\Evaluation\demo\target\classes
+mainClass: com.example.Main
 sourcePaths:
-- java.lang.Class
+- C:\Users\chris\OneDrive\Arbeit\Studium\BachelorThesis\jarvis\programming\Evaluation\demo\src\main\java
 specialClasses:
 - java.lang.Class
 - java.lang.invoke.DirectMethodHandle
+- jdk.internal.*
 transformers: {}

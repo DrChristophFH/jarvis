@@ -46,8 +46,9 @@ public class Jarvis {
   private CallStack callStack = new CallStack(objectGraph.getObjectGraphModel(), classList.getModel());
   private LinePreview linePreview = new LinePreview(callStack.getCallStackModel());
   private TemplateBuilder templateBuilder = new TemplateBuilder(objectGraph.getGraphTransformer().getRegistry());
+  private ThreadList threadList = new ThreadList();
 
-  private JarvisDebugger jarvisDebugger = new JarvisDebugger(eventLog, breakPointControl, console);
+  private JarvisDebugger jarvisDebugger = new JarvisDebugger(eventLog, breakPointControl, console, threadList);
 
   public Jarvis(Application application) {
     this.application = application;
@@ -63,6 +64,7 @@ public class Jarvis {
     views.add(callStack);
     views.add(linePreview);
     views.add(templateBuilder);
+    views.add(threadList);
 
     AppConfig config = ConfigManager.getInstance().getConfig();
     classPath = new ImString(config.getClassPath(), 255);
@@ -293,7 +295,7 @@ public class Jarvis {
         ogm.setResolveSpecialClasses(!ogm.isResolveSpecialClasses());
       }
       ImGui.sameLine();
-      Snippets.drawHelpMarker("Resolve critical classes that blow up the object graph, like java.lang.Class");
+      Snippets.drawHelpMarker("Resolve critical classes that blow up the object graph, like java.lang.Class. Supports '*' as wildcard at the end. Example: java.lang.*");
 
       int i = 0;
       for(ImString className : ogm.getSpecialClasses()) {
