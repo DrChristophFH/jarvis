@@ -68,7 +68,7 @@ public class ToStringProcessor extends Thread {
     try {
       while (true) {
         synchronized (lock) {
-          while (!processing.get() || queue.isEmpty()) {
+          while (!processing.get()) {
             lock.wait(); // Wait for signal to start processing
           }
         }
@@ -81,6 +81,7 @@ public class ToStringProcessor extends Thread {
         }
         // Signal that processing has stopped
         stopLatch.countDown();
+        processing.set(false);
       }
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
