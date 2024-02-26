@@ -103,7 +103,7 @@ public class ToStringProcessor extends Thread {
 
         // skip base object toString() method
         if (!declType.equals("java.lang.Object")) {
-          int flags = 0;
+          int flags = ObjectReference.INVOKE_SINGLE_THREADED;
           result = objRef.invokeMethod(currentThread, toStringMethod, new ArrayList<>(), flags).toString();
         }
       }

@@ -172,8 +172,6 @@ public class JarvisDebugger {
   private void handleBreakStepEvent(Event event) throws InterruptedException, IncompatibleThreadStateException {
     logger.logInfo(event.toString());
 
-    logger.logWarning(" " + event.request().suspendPolicy());
-
     if (toStringProcessor.isProcessing()) {
       toStringProcessor.stopProcessing();
       toStringProcessor.waitForStopSignal();
