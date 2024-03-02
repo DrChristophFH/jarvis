@@ -153,11 +153,11 @@ public class ClassList extends View {
   private void displayClass(JClassType clazz) {
     ImGui.text("Class:");
     ImGui.sameLine();
-    ImGui.textColored(Colors.Type, clazz.name());
+    Snippets.drawTypeWithTooltip(clazz, tooltip, "thisClass");
     ImGui.separator();
     ImGui.text("Superclass:");
     ImGui.sameLine();
-    ImGui.textColored(Colors.Type, clazz.superclass().name());
+    Snippets.drawTypeWithTooltip(clazz.superclass(), tooltip, "superClass");
     ImGui.separator();
     ImGui.text("Interfaces: ");
     for (JInterfaceType interfaze : clazz.interfaces()) {

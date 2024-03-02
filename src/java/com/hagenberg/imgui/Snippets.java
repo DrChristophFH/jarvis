@@ -36,6 +36,12 @@ public class Snippets {
     }
   }
 
+  public static void drawTypeWithTooltip(JType type, Tooltip tooltip, String id) {
+    ImGui.pushID(id);
+    drawTypeWithTooltip(type, tooltip);
+    ImGui.popID();
+  }
+
   public static void drawTypeWithTooltip(JType type, Tooltip tooltip) {
     if (type == null) {
       ImGui.text("[not loaded]");

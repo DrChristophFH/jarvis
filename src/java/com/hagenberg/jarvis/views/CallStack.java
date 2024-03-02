@@ -94,9 +94,7 @@ public class CallStack extends View {
       Snippets.drawTypeWithTooltip(parameter.getType(), tooltip);
 
       ImGui.tableNextColumn();
-      ImGui.pushID("dynamicType"); 
-      Snippets.drawTypeWithTooltip(parameter.value().type(), tooltip);
-      ImGui.popID();
+      Snippets.drawTypeWithTooltip(parameter.value().type(), tooltip, "dynamicType");
 
       ImGui.tableNextColumn();
       if (parameter.value() instanceof JObjectReference object) {

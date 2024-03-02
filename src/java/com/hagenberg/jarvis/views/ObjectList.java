@@ -193,9 +193,7 @@ public class ObjectList extends View {
 
     ImGui.tableNextColumn();
     if (element != null) {
-      ImGui.pushID("dynamicType"); // else same id for static and dynamic type
-      Snippets.drawTypeWithTooltip(element.type(), tooltip);
-      ImGui.popID();
+      Snippets.drawTypeWithTooltip(element.type(), tooltip, "dynamicType");
     }
 
     ImGui.tableNextColumn();
