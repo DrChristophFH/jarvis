@@ -76,3 +76,8 @@
 - [ ] ( m ) Breakpoint display in line display
 - [ ] ( m ) Breakpoint adding with line display
 - [ ] ( ? ) add directory selector?
+- [ ] ( m ) Better Generic Type Information
+  - [ ] Display actual type for generic typed fields and methods on typed classes  
+  - [ ]  (fully resolve generic types on specified classes)
+  - [ ]  `<T:Lcom/example/OOPSimple$HelloWorld;:Ljava/lang/Comparable<Ljava/lang/String;>;>Ljava/lang/Object;Lcom/example/OOPSimple$TestInterface;` -> `class Person<T extends HelloWorld & Comparable<String>> implements TestInterface`
+         `<TypeIdentifier:ClassRestriction:InterfaceRestriction>BaseClass<Type1;Type2>;Interface1;Interface2;`
