@@ -88,6 +88,8 @@ public class AccessModifier {
 
     if (sb.length() > 0) {
       sb.deleteCharAt(sb.length() - 1);
+    } else {
+      sb.append("package-private");
     }
 
     return sb.toString();

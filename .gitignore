@@ -39,3 +39,6 @@ build/
 
 ### ImGui ###
 imgui.ini
+
+### JARVIS ###
+config.yaml
