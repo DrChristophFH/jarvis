@@ -137,17 +137,16 @@ public class ClassList extends View {
   }
 
   private void displayInterface(JInterfaceType interfaze) {
-    ImGui.text("Interface: " + interfaze.name());
+    ImGui.text("Interface:");
+    ImGui.sameLine();
+    Snippets.drawTypeWithTooltip(interfaze, tooltip, "thisInterface");
     ImGui.separator();
     ImGui.text("Superinterfaces: ");
     for (JInterfaceType superinterface : interfaze.superinterfaces()) {
-      ImGui.text(superinterface.name());
+      Snippets.drawTypeWithTooltip(superinterface, tooltip, superinterface.name());
     }
     ImGui.separator();
-    ImGui.text("Methods: ");
-    for (IndexedList<JReferenceType, JMethod> methodList : interfaze.allMethods()) {
-      ImGui.text(methodList.getIndex().name());
-    }
+    methodSection(interfaze);
   }
 
   private void displayClass(JClassType clazz) {
@@ -161,7 +160,7 @@ public class ClassList extends View {
     ImGui.separator();
     ImGui.text("Interfaces: ");
     for (JInterfaceType interfaze : clazz.interfaces()) {
-      ImGui.textColored(Colors.Type, interfaze.name());
+      Snippets.drawTypeWithTooltip(interfaze, tooltip, interfaze.name());
     }
     ImGui.separator();
     ImGui.checkbox("Is abstract", clazz.isAbstract());
@@ -205,7 +204,7 @@ public class ClassList extends View {
     ImGui.text(field.name());
   }
 
-  private void methodSection(JClassType clazz) {
+  private void methodSection(JReferenceType clazz) {
     if (ImGui.collapsingHeader("Methods")) {
       for (IndexedList<JReferenceType, JMethod> methodList : clazz.allMethods()) {
         if (!methodList.isEmpty() && ImGui.treeNode("Methods of %s".formatted(methodList.getIndex().name()))) {
