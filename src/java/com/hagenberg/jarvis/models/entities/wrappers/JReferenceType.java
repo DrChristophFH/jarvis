@@ -81,8 +81,6 @@ public abstract class JReferenceType extends JType {
       return "";
     }
 
-    System.out.println("Generic signature: " + genericSignature);
-
     StringBuilder sb = new StringBuilder();
     sb.append("<");
 
