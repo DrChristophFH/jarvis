@@ -113,6 +113,7 @@ public class JarvisDebugger {
     logger.logInfo("Starting debugger...");
     try {
       this.connectAndLaunchVM();
+      this.enableMethodEventRequests();
       this.enableClassPrepareRequest();
       this.enableExceptionRequest();
       this.startStreamThread();
@@ -135,6 +136,20 @@ public class JarvisDebugger {
       for (Event event : eventSet) {
         if (event instanceof ClassPrepareEvent e) {
           handleClassPrepareEvent(e);
+        } else if (event instanceof MethodEntryEvent mEvent) {
+          String methodName = mEvent.method().name();
+          String className = mEvent.method().declaringType().name();
+          String threadName = mEvent.thread().name();
+          int depth = mEvent.thread().frameCount();
+          String indent = " ".repeat(depth);
+          logger.logInfo("[%s] %s->%s.%s".formatted(threadName, indent, className.substring(className.lastIndexOf('.') + 1), methodName));
+        } else if (event instanceof MethodExitEvent mEvent) {
+          String methodName = mEvent.method().name();
+          String className = mEvent.method().declaringType().name();
+          String threadName = mEvent.thread().name();
+          int depth = mEvent.thread().frameCount();
+          String indent = " ".repeat(depth);
+          logger.logInfo("[%s] %s<-%s.%s".formatted(threadName, indent, className.substring(className.lastIndexOf('.') + 1), methodName));
         } else if (event instanceof BreakpointEvent || event instanceof StepEvent) {
           resume = false;
           handleBreakStepEvent(event);
@@ -327,6 +342,13 @@ public class JarvisDebugger {
   private void enableExceptionRequest() {
     ExceptionRequest exceptionRequest = vm.eventRequestManager().createExceptionRequest(null, true, true);
     exceptionRequest.enable();
+  }
+
+  private void enableMethodEventRequests() {
+    MethodEntryRequest methodEntryRequest = vm.eventRequestManager().createMethodEntryRequest();
+    methodEntryRequest.enable();
+    MethodExitRequest methodExitRequest = vm.eventRequestManager().createMethodExitRequest();
+    methodExitRequest.enable();
   }
 
   private void connectAndLaunchVM() throws Exception {
