@@ -15,12 +15,13 @@ public class Main extends Application {
   @Override
   protected void preRun() {
     super.preRun();
-    
   }
 
   @Override
   public void process() {
-    if (showMetricsWindow.get()) ImGui.showDemoWindow(showMetricsWindow);
+    if (showMetricsWindow.get()) {
+      ImGui.showDemoWindow(showMetricsWindow);
+    }
     jarvis.render();
   }
 

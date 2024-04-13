@@ -1,5 +1,8 @@
 package com.hagenberg.debuggee;
 
+import com.hagenberg.debuggee.robotExample.Robot;
+import com.hagenberg.debuggee.robotExample.UberRobot;
+
 public class JDIExampleDebuggee {
   // public static void main(String[] args) {
   // String jpda = "Java Platform Debugger Architecture";

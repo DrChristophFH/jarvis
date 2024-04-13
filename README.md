@@ -18,3 +18,5 @@ JARVIS is a tool to visualize the runtime of Java programs. Similar to what a de
 ## Origin
 
 JARVIS was developed by [DrChristophFH](https://github.com/DrChristophFH) as part of his Bachelor Thesis at the University of Applied Sciences Upper Austria, Hagenberg Campus.
+
+![alt text](image.png)
