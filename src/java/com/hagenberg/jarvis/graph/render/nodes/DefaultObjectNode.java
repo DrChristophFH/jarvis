@@ -66,7 +66,7 @@ public class DefaultObjectNode extends Node {
 
     ImGui.textColored(Colors.Type, "toString():");
     ImGui.sameLine();
-    ImGui.pushTextWrapPos(ImGui.getCursorPosX() + ImNodes.getNodeDimensionsX(nodeId)); // TODO: make word wrap configurable
+    ImGui.pushTextWrapPos(ImGui.getCursorPosX() + Math.min(ImNodes.getNodeDimensionsX(nodeId), 500)); // TODO: make word wrap configurable
     ImGui.text(toString);
     ImGui.popTextWrapPos();
 

@@ -16,13 +16,13 @@ public class LayouterControl extends View {
 
   @Override
   protected void renderWindow() {
-    if (this.sliderFloat("Spring Force", layouter.getSpringForce(), 0.001f, 5.0f, "%.3f")) {
+    if (this.sliderFloat("Spring Force", layouter.getSpringForce(), 0.001f, 10.0f, "%.3f")) {
       layouter.setSpringForce(flContainer[0]);
     }
     if (this.sliderFloat("Spring Force Roots", layouter.getSpringForceRoot(), 0.001f, 5.0f, "%.3f")) {
       layouter.setSpringForceRoot(flContainer[0]);
     }
-    if (this.sliderInt("Repulsion Force", layouter.getRepulsionForce(), 1, 100000)) {
+    if (this.sliderInt("Repulsion Force", layouter.getRepulsionForce(), 1, 10000)) {
       layouter.setRepulsionForce(iContainer[0]);
     }
     if (this.sliderInt("Ideal Spring Length", layouter.getIdealSpringLength(), 1, 5000)) {

@@ -130,10 +130,11 @@ public class GraphLayouter {
     // Repulsion force (subtracted as springs already model repulsion for neighbours)
     double rf = repulsionForce / (distance * distance);
     // Spring force
-    double sf = springForce * Math.log(distance / idealSpringLength);
+    // double sf = springForce * Math.log(distance / idealSpringLength); logarthmic spring force
+    double sf = springForce * Math.pow(distance / idealSpringLength, 3); // cubic spring force
 
-    result.x += sf * dx / distance - rf * dx / distance;
-    result.y += sf * dy / distance - rf * dy / distance;
+    result.x += sf * dx / distance; //- rf * dx / distance;
+    result.y += sf * dy / distance; // - rf * dy / distance;
 
     return result;
   }
