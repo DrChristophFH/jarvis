@@ -1,0 +1,16 @@
+breakPoints:
+  com.hagenberg.debuggee.simpleRobot.Main:
+  - !!com.hagenberg.jarvis.models.entities.BreakPoint
+    className: com.hagenberg.debuggee.simpleRobot.Main
+    enabled: true
+    line: 7
+    suspendPolicy: 2
+classPath: C:\Users\chris\OneDrive\Arbeit\Studium\BachelorThesis\jarvis\programming\jarvis\target\classes
+mainClass: com.hagenberg.debuggee.simpleRobot.Main
+sourcePaths:
+- C:\Users\chris\OneDrive\Arbeit\Studium\BachelorThesis\jarvis\programming\jarvis\src\java
+specialClasses:
+- java.lang.Class
+- java.lang.invoke.DirectMethodHandle
+- jdk.internal.*
+transformers: {}
