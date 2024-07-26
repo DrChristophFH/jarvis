@@ -15,6 +15,18 @@ JARVIS is a tool to visualize the runtime of Java programs. Similar to what a de
 - **Call Stack** to see the current call stack
 - **Line Preview** shows the source code and the current line of execution
 
+## Requirements
+
+- Java 17 or higher
+- Libraries:
+  - Imgui-Java library from [here](https://github.com/SpaiR/imgui-java) 1.86.11 or higher
+  - LWJGL 3.3.3 or higher
+  - SnakeYAML 2.2 or higher
+
+All libraries are included in the `lib` folder.
+
+Imgui-Java has been modified to allow for setting an Icon for the window.
+
 ## Origin
 
 JARVIS was developed by [DrChristophFH](https://github.com/DrChristophFH) as part of his Bachelor Thesis at the University of Applied Sciences Upper Austria, Hagenberg Campus.
